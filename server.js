@@ -1,5 +1,6 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const authRoute = require('./routes/auth')
 require('dotenv').config()
 
 const port = process.env.PORT || 3000
@@ -16,10 +17,11 @@ mongoose.connect(url, { useNewUrlParser: true,useUnifiedTopology: true})
     app.listen(port, () => console.log(`Server listening at port http://localhost:${port}`))
   })
   .catch((error) => {
-    console.log(`Couldn't connect to the database: ${error}`)
+    console.log(error)
     process.exit()
 })
 
 app.get('/', (req, res) => res.render('home'))
 app.get('/blablabla', (req, res) => res.render('blablabla'))
+app.get(authRoute)
 
