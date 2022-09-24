@@ -1,6 +1,8 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const cookieParser = require('cookie-parser')
 const authRoute = require('./routes/auth')
+const { requireAuth, checkUser } = require('./middleware/auth')
 require('dotenv').config()
 
 const port = process.env.PORT || 3000
@@ -10,6 +12,7 @@ const app = express()
 app.use(express.static('public'))
 app.set('view engine', 'ejs')
 app.use(express.json())
+app.use(cookieParser())
 
 mongoose.connect(url, { useNewUrlParser: true,useUnifiedTopology: true})
   .then(() => {
@@ -21,7 +24,7 @@ mongoose.connect(url, { useNewUrlParser: true,useUnifiedTopology: true})
     process.exit()
 })
 
+app.get('*', checkUser);
 app.get('/', (req, res) => res.render('home'))
-app.get('/blablabla', (req, res) => res.render('blablabla'))
-app.get(authRoute)
-
+app.get('/blablabla', requireAuth, (req, res) => res.render('blablabla'))
+app.use(authRoute)
