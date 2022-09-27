@@ -1,1 +1,1 @@
-### Authentication with JWT
+### MERN Authentication & Authorization with JWT
