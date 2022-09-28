@@ -1,11 +1,14 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const authRoute = require('./routes/auth')
+const connectDB = require('./config/dbConn')
+const corsOptions = require('./config/corsOptions')
 require('dotenv').config()
 
-const port = process.env.PORT || 3000
-const url = process.env.DATABASE_URL
+const port = process.env.PORT || 4000
 const app = express()
+
+connectDB()
 
 app.use(express.json())
 app.use((req, res, next) => {
@@ -14,12 +17,7 @@ app.use((req, res, next) => {
 })
 app.use('/api/user', authRoute)
 
-mongoose.connect(url)
-  .then(() => {
-    console.log("Databse Connected Successfully!")
-    app.listen(port, () => console.log(`Server listening at port: ${port}`))
-  })
-  .catch((error) => {
-    console.log(error)
-    process.exit()
-})
+mongoose.connection.once('open', () => {
+  console.log('Databse Connected Successfully!')
+  app.listen(port, () => console.log(`Server running on port ${port}`))
+}).catch((error) => {console.log(error)})
