@@ -1,23 +1,39 @@
-import { useEffect }from 'react'
+import { useEffect } from 'react'
 import { useAuthContext } from "../hooks/useAuthContext"
+import { useSleepsContext } from '../hooks/useSleepsContext'
+import SleepDetails from "../components/SleepDetails"
+import SleepForm from "../components/SleepForm"
 
 const Home = () => {
   const {user} = useAuthContext()
+  const {sleeps, dispatch} = useSleepsContext()
 
   useEffect(() => {
-    const fetchWorkouts = async () => {
-      const response = await fetch('', {
+    const fetchSleeps = async () => {
+      const response = await fetch('/api/sleeps', {
         headers: {'Authorization': `Bearer ${user.token}`},
       })
       const json = await response.json()
 
-      if (response.ok){}
+      if (response.ok){
+        dispatch({type: 'SET_SLEEPS', payload: json})
+      }
     }
-    if (user) {}
-  }, [user])
+
+    if (user) {
+      fetchSleeps()
+    }
+  }, [dispatch, user])
 
   return (
-    <div className="home"></div>
+    <div className="home">
+      <div className="sleeps">
+        {sleeps && sleeps.map(sleep => (
+          <SleepDetails sleep={sleep} key={sleep._id} />
+        ))}
+      </div>
+      <SleepForm />
+    </div>
   )
 }
 
