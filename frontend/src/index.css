@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;800&family=VT323&display=swap');
 
 :root {
-  --primary: #1aac83;
+  --primary: #379af0;
   --error: #e7195a;
 }
 
@@ -139,4 +139,9 @@ form.login {
   padding: 20px;
   background: #fff;
   border-radius: 4px;
+}
+
+.signup-prompt {
+  font-size: 14px;
+  margin-bottom: 10px;
 }
