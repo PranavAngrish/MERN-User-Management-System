@@ -47,7 +47,7 @@ exports.createSleep = async (req, res) => {
   try {
     const user_id = req.user._id
     const sleep = await Sleep.create({ title, load, reps, user_id })
-    res.status(200).json(sleep)
+    res.status(201).json(sleep)
   } catch (error) {
     res.status(400).json({ error: error.message })
   }
@@ -86,5 +86,4 @@ exports.updateSleep = async (req, res) => {
   }
 
   res.status(200).json(sleep)
-
 }
