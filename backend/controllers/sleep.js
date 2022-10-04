@@ -74,7 +74,7 @@ exports.updateSleep = async (req, res) => {
   const { id } = req.params
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({error: 'No such sleep'})
+    return res.status(400).json({error: 'No such sleep record found'})
   }
 
   const sleep = await Sleep.findOneAndUpdate({_id: id}, {
@@ -82,8 +82,12 @@ exports.updateSleep = async (req, res) => {
   })
 
   if (!sleep) {
-    return res.status(400).json({error: 'No such sleep'})
+    return res.status(400).json({error: 'No such sleep record found'})
   }
 
-  res.status(200).json(sleep)
+  // res.status(200).json(sleep)
+  //after update return new record
+  const user_id = req.user._id
+  const updatedRecord = await Sleep.find({user_id}).sort({createdAt: -1})
+  res.status(200).json(updatedRecord)
 }

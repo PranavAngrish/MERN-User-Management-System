@@ -5,13 +5,15 @@ export const SleepsContext = createContext()
 export const sleepsReducer = (state, action) => {
     switch (action.type) {
       case 'SET_SLEEPS':
-          return { sleeps: action.payload }
+        return { sleeps: action.payload }
       case 'CREATE_SLEEP':
-          return { sleeps: [action.payload, ...state.sleeps] }
+        return { sleeps: [action.payload, ...state.sleeps] }
+      case 'UPDATE_SLEEP':
+        return { sleeps: action.payload }
       case 'DELETE_SLEEP':
         return { sleeps: state.sleeps.filter(w => w._id !== action.payload._id) }
       default:
-          return state
+        return state
     }
 }
 
