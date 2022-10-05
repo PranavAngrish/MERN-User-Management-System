@@ -1,7 +1,9 @@
 const router = require('express').Router()
 const authController = require('../controllers/auth')
+const loginLimiter = require('../middleware/loginLimiter')
 
-router.post('/login', authController.loginUser)
-router.post('/signup', authController.signupUser)
+router.route('/login').post(loginLimiter, authController.login)
+router.route('/signup').post(loginLimiter, authController.login)
+router.post('/logout', authController.logout)
 
 module.exports = router
