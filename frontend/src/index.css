@@ -94,7 +94,7 @@ form button {
   color: #fff;
   padding: 10px;
   font-family: "Poppins";
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
 }
 
@@ -138,7 +138,7 @@ form.login {
   margin: 40px auto;
   padding: 20px;
   background: #fff;
-  border-radius: 4px;
+  border-radius: 12px;
 }
 
 .signup-prompt {

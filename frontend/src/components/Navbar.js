@@ -9,7 +9,7 @@ const Navbars = () => {
   return (
     <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
       <Container>
-        <Navbar.Brand href="#home"><h3>Go Sleep Buddy!!!</h3></Navbar.Brand>
+        <Navbar.Brand href="/"><h3>Go Sleep Buddy!!!</h3></Navbar.Brand>
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
         <Navbar.Collapse id="responsive-navbar-nav">
           <Navbar.Collapse className="justify-content-end">

@@ -14,14 +14,14 @@ const Signup = () => {
 
   return (
     <form className="signup" onSubmit={handleSubmit}>
-      <h3>Sign Up</h3>
+      <h3 className="text-center mb-4">Sign Up</h3>
       <label>Username:</label>
       <input type="text" onChange={(e) => setName(e.target.value)} value={name} />
       <label>Email Address:</label>
       <input type="email" onChange={(e) => setEmail(e.target.value)} value={email} />
       <label>Password:</label>
       <input type="password" onChange={(e) => setPassword(e.target.value)} value={password} />
-      <button disabled={isLoading}>Sign Up</button>
+      <button className="w-100 mt-2" disabled={isLoading}>Sign Up</button>
       {error && <div className="error">{error}{error==="Password not strong enough" && (
           <ul>
             <li>At least 8 character</li>
