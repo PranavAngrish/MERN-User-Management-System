@@ -24,7 +24,7 @@ const SleepDetails = ({ sleep }) => {
     const response = await fetch('/api/sleeps/' + sleep._id, {
       method: 'DELETE',
       headers: {
-        'Authorization': `Bearer ${user.token}`
+        'Authorization': `Bearer ${user.accessToken}`
       }
     })
 
@@ -42,9 +42,10 @@ const SleepDetails = ({ sleep }) => {
 
   const handleUpdate = async () => {
     const updatesleep = { title: titleRef.current.value, load: loadRef.current.value, reps: repsRef.current.value }
+    const prevSleep  = [titleRef.current.placeholder, loadRef.current.placeholder,  repsRef.current.placeholder]
   
     Object.keys(updatesleep).forEach(key => {
-      if (validator.isEmpty(updatesleep[key], { ignore_whitespace:true })) {
+      if (validator.isEmpty(updatesleep[key], { ignore_whitespace:true }) || prevSleep.includes(updatesleep[key])) {
         delete updatesleep[key]
       }
     })
@@ -54,25 +55,32 @@ const SleepDetails = ({ sleep }) => {
       return
     }
 
-    const response = await fetch('/api/sleeps/' + sleep._id, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${user.token}`
-      },
-      body: JSON.stringify(updatesleep)
-    })
+    const checkChange = Object.keys(updatesleep).length === 0
 
-    const json = await response.json()
+    if(!checkChange){
+      const response = await fetch('/api/sleeps/' + sleep._id, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.accessToken}`
+        },
+        body: JSON.stringify(updatesleep)
+      })
+  
+      const json = await response.json()
+  
+      if (!response.ok) {
+        setError(json.error)
+      }
+  
+      if (response.ok) {
+        setError(null)
+        setShow(false)
+        dispatch({type: 'UPDATE_SLEEP', payload: json})
+      }
 
-    if (!response.ok) {
-      setError(json.error)
-    }
-
-    if (response.ok) {
-      setError(null)
-      setShow(false)
-      dispatch({type: 'UPDATE_SLEEP', payload: json})
+    }else{
+      setError("Nothing Changed")
     }
   }
 
@@ -98,7 +106,7 @@ const SleepDetails = ({ sleep }) => {
           </div>
         </div>
 
-        <Modal show={show} onHide={() => setShow(!show)} centered>
+        <Modal show={show} onHide={() => {setShow(!show);setError(null)}} centered>
           <Modal.Header closeButton>
             <Modal.Title>Edit Sleep Record</Modal.Title>
           </Modal.Header> 
