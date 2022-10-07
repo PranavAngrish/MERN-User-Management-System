@@ -12,7 +12,7 @@ export const useLogout = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token}`
+          'Authorization': `Bearer ${user.accessToken}`
         }
     })
 
