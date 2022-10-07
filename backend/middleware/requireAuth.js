@@ -4,18 +4,22 @@ const User = require('../models/User')
 const requireAuth = async (req, res, next) => {
   const { authorization } = req.headers
 
-  if (!authorization) return res.status(401).json({error: 'Authorization token required'})
+  if (!authorization.startsWith('Bearer ')) return res.status(401).json({error: 'Request is not authorized'})
 
   const token = authorization.split(' ')[1]
 
-  try {
-    const { _id } = jwt.verify(token, process.env.SECRET)
-    req.user = await User.findOne({ _id }).select('_id')
-    next()
-  } catch (error) {
-    console.log(error)
-    res.status(401).json({error: 'Request is not authorized'})
-  }
+  jwt.verify(
+    token, 
+    process.env.ACCESS_TOKEN_SECRET, 
+    async (err, decoded) => {
+      if (err) return res.status(403).json({ error: 'Forbidden' })
+
+      req.user = await User.findOne({ _id: decoded._id }).select('_id')
+
+      if (!req.user._id) return res.status(401).json({ error: 'Unauthorized' })
+
+      next()
+  })
 }
 
 module.exports = requireAuth
