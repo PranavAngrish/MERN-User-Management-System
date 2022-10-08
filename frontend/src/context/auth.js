@@ -16,9 +16,9 @@ export const authReducer = (state, action) => {
 export const AuthContextProvider = ({children}) => {
     const [state, dispatch] = useReducer(authReducer, { user: null })
 
-    useEffect(() => {
-        // if (user) dispatch({ type: 'LOGIN', payload: user })
-    }, [])
+    // useEffect(() => {
+    //     if (user) dispatch({ type: 'LOGIN', payload: user })
+    // }, [])
 
     return (<AuthContext.Provider value={{ ...state, dispatch }}>{ children } </AuthContext.Provider>)
 }

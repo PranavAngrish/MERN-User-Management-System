@@ -8,7 +8,7 @@ exports.login = async (req, res) => {
 
   try {
     const user = await User.login(email, password)
-    const accessToken = jwt.sign({_id: user._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1m' })
+    const accessToken = jwt.sign({_id: user._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
     const refreshToken = createRefreshToken(user._id)
     res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
     res.status(200).json({name: user.name, email, accessToken})

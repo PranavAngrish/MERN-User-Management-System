@@ -23,7 +23,7 @@ app.use((req, res, next) => {
   next()
 })
 
-app.use('/api/user', require('./routes/auth'))
+app.use('/api/auth', require('./routes/auth'))
 app.use('/api/sleeps', require('./routes/sleep'))
 // app.use(errorHandler)
 
