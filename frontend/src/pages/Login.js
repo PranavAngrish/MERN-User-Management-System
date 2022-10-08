@@ -13,7 +13,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    await login(email, password)
+    await login(email.trim(), password.trim())
   }
 
   const handleShowPassword =  (e) => {
@@ -35,7 +35,7 @@ const Login = () => {
         <input type="email" onChange={(e) => setEmail(e.target.value)} value={email} />
         <label>Password:</label>
         <div className="d-flex">
-          <input type="password" onChange={(e) => setPassword(e.target.value)} value={password} ref={showPassRef}/>
+          <input type="password" onChange={(e) => setPassword(e.target.value)} value={password} ref={showPassRef} autoComplete="on"/>
           <button className="btn mb-2" onClick={handleShowPassword}>{isShow ? <FaEyeSlash/> : <FaEye/>}</button>
         </div>
         <div className="signup-prompt">Create an account ? <Link to="/signup">Signup</Link></div>

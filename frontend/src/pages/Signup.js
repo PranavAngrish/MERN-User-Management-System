@@ -1,15 +1,30 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { useSignup } from "../hooks/useSignup"
+import { FaEye, FaEyeSlash } from "react-icons/fa"
+import { BsInfoCircleFill } from "react-icons/bs"
 
 const Signup = () => {
+  const {signup, error, isLoading} = useSignup()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const {signup, error, isLoading} = useSignup()
+  const [isShow, setShow] = useState(false)
+  const showPassRef = useRef()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    await signup(name, email, password)
+    await signup(name, email.trim(), password.trim())
+  }
+
+  const handleShowPassword =  (e) => {
+    e.preventDefault()
+    if(showPassRef.current.type === "password") {
+      showPassRef.current.type = "text"
+      setShow(true)
+    }else{
+      showPassRef.current.type = "password"
+      setShow(false)
+    }
   }
 
   return (
@@ -20,7 +35,10 @@ const Signup = () => {
       <label>Email Address:</label>
       <input type="email" onChange={(e) => setEmail(e.target.value)} value={email} />
       <label>Password:</label>
-      <input type="password" onChange={(e) => setPassword(e.target.value)} value={password} />
+      <div className="d-flex">
+          <input type="password" onChange={(e) => setPassword(e.target.value)} value={password} ref={showPassRef} autoComplete="off"/>
+          <button className="btn mb-2" onClick={handleShowPassword}>{isShow ? <FaEyeSlash/> : <FaEye/>}</button>
+        </div>
       <button className="w-100 mt-2" disabled={isLoading}>Sign Up</button>
       {error && <div className="error">{error}{error==="Password not strong enough" && (
           <ul>
