@@ -17,8 +17,8 @@ export const useLogout = () => {
     })
 
     if (response.ok) {
-        dispatch({ type: 'LOGOUT' })
-        dispatchSleeps({ type: 'SET_SLEEPS', payload: null })
+      dispatch({ type: 'LOGOUT' })
+      dispatchSleeps({ type: 'SET_SLEEPS', payload: null })
     }
   }
 

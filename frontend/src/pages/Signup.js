@@ -1,7 +1,7 @@
 import { useRef, useState } from "react"
 import { useSignup } from "../hooks/useSignup"
 import { FaEye, FaEyeSlash } from "react-icons/fa"
-import { BsInfoCircleFill } from "react-icons/bs"
+import { Link } from 'react-router-dom'
 
 const Signup = () => {
   const {signup, error, isLoading} = useSignup()
@@ -39,6 +39,7 @@ const Signup = () => {
           <input type="password" onChange={(e) => setPassword(e.target.value)} value={password} ref={showPassRef} autoComplete="off"/>
           <button className="btn mb-2" onClick={handleShowPassword}>{isShow ? <FaEyeSlash/> : <FaEye/>}</button>
         </div>
+      <div className="signup-prompt">Already have an account ? <Link to="/login">Login</Link></div>
       <button className="w-100 mt-2" disabled={isLoading}>Sign Up</button>
       {error && <div className="error">{error}{error==="Password not strong enough" && (
           <ul>
