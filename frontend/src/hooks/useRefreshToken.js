@@ -1,17 +1,28 @@
 import axios from '../api/axios' 
 import { useAuthContext } from "../hooks/useAuthContext" 
+import { useLogout } from '../hooks/useLogout'
 
 const useRefreshToken = () => {
     const {user, dispatch} = useAuthContext()
+    const { logout } = useLogout()
 
     const refresh = async () => {
-        const response = await axios.post('/api/auth/refresh', {
-            withCredentials: true
-        }) 
+        try {
+            const response = await axios.post('/api/auth/refresh', {
+                withCredentials: true
+            }) 
 
-        dispatch({type: 'LOGIN', payload: {...user, accessToken: response.data.accessToken}})
+            dispatch({type: 'LOGIN', payload: {...user, accessToken: response.data.accessToken}})
+            console.log(response.data.accessToken)
+            return response.data.accessToken
+        } catch (error) {
+            console.log(error)
+            if((error.response.status === 403 && error.response.data.error === "Forbidden") || error.response.status === 401){
+                logout()
+                return
+            }
+        }
 
-        return {accessToken: response.data.accessToken, response} 
     }
     return refresh 
 } 

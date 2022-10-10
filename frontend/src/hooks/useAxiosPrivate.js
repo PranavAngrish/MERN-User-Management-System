@@ -23,14 +23,12 @@ const useAxiosPrivate = () => {
             response => response,
             async (error) => {
                 const prevRequest = error?.config
-                if (error?.response?.status === 403 && !prevRequest?.sent) {
+                if (error?.response?.status === 403 && error?.response?.data.error === "Forbidden token expired" && !prevRequest?.sent) {
                     prevRequest.sent = true 
-
                     const newAccessToken = await refresh() 
-                    prevRequest.headers['Authorization'] = `Bearer ${newAccessToken.accessToken}` 
-                    return axiosPrivate(prevRequest, newAccessToken) 
+                    prevRequest.headers['Authorization'] = `Bearer ${newAccessToken}` 
+                    return axiosPrivate(prevRequest) 
                 }
-                
                 return Promise.reject(error) 
             }
         ) 

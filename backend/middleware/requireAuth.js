@@ -12,7 +12,9 @@ const requireAuth = async (req, res, next) => {
     token, 
     process.env.ACCESS_TOKEN_SECRET, 
     async (err, decoded) => {
-      if (err) return res.status(403).json({ error: 'Forbidden' })
+      if (err?.name == "TokenExpiredError") return res.status(403).json({ error: 'Forbidden token expired'})
+
+      if (err) return res.status(403).json({ error: 'Forbidden'})
 
       req.user = await User.findOne({ _id: decoded._id }).select('_id')
 

@@ -34,7 +34,7 @@ exports.signup = async (req, res) => {
 exports.refresh = (req, res) => {
   const cookies = req.cookies
 
-  if (!cookies?.jwt) return res.status(401).json({ message: 'Unauthorized' })
+  if (!cookies?.jwt) return res.status(401).json({ error: 'Unauthorized Refresh token not found' })
 
   const refreshToken = cookies.jwt
 
@@ -42,13 +42,15 @@ exports.refresh = (req, res) => {
     refreshToken, 
     process.env.REFRESH_TOKEN_SECRET,
     async (err, decoded) => {
-      if (err) return res.status(403).json({ error: 'Forbidden' })
+      if (err?.name == "TokenExpiredError") return res.status(403).json({ error: 'Forbidden token expired' })
+
+      if (err) return res.status(403).json({ error: 'Forbidden'})
 
       const foundUser = await User.findOne({ _id: decoded._id }).exec()
       
-      if (!foundUser) return res.status(401).json({ error: 'Unauthorized' })
+      if (!foundUser) return res.status(401).json({ error: 'Unauthorized user not found' })
 
-      const accessToken = jwt.sign({_id: foundUser._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1m' })
+      const accessToken = jwt.sign({_id: foundUser._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
 
       res.json({ name: foundUser.name, email: foundUser.email, accessToken })
     }
