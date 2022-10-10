@@ -4,9 +4,11 @@ import { useAuthContext } from '../hooks/useAuthContext'
 import { Alert, Button, Form, Modal } from 'react-bootstrap'
 import { BsFillTrashFill, BsPencilSquare } from "react-icons/bs"
 import formatDistanceToNow from 'date-fns/formatDistanceToNow'
+import useAxiosPrivate from "../hooks/useAxiosPrivate"
 const validator = require('validator')
 
 const SleepDetails = ({ sleep }) => {
+  const axiosPrivate = useAxiosPrivate()
   const { dispatch } =  useSleepsContext()
   const { user } = useAuthContext()
   const titleRef = useRef('')
@@ -21,6 +23,14 @@ const SleepDetails = ({ sleep }) => {
       return
     }
 
+    try {
+      const response = await axiosPrivate.delete('/api/sleeps/' + sleep._id)
+      setError(null)
+      dispatch({type: 'DELETE_SLEEP', payload: response.data})
+    } catch (error) {
+      setError(error.response?.data.error)
+    }
+
     const response = await fetch('/api/sleeps/' + sleep._id, {
       method: 'DELETE',
       headers: {
@@ -29,6 +39,7 @@ const SleepDetails = ({ sleep }) => {
     })
 
     const json = await response.json()
+    console.log(json)
 
     if (!response.ok) {
       setError(json.error)
@@ -58,27 +69,14 @@ const SleepDetails = ({ sleep }) => {
     const checkChange = Object.keys(updatesleep).length === 0
 
     if(!checkChange){
-      const response = await fetch('/api/sleeps/' + sleep._id, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.accessToken}`
-        },
-        body: JSON.stringify(updatesleep)
-      })
-  
-      const json = await response.json()
-  
-      if (!response.ok) {
-        setError(json.error)
-      }
-  
-      if (response.ok) {
+      try {
+        const response = await axiosPrivate.patch('/api/sleeps/' + sleep._id, updatesleep)
         setError(null)
         setShow(false)
-        dispatch({type: 'UPDATE_SLEEP', payload: json})
+        dispatch({type: 'UPDATE_SLEEP', payload: response.data})
+      } catch (error) {
+        setError(error.response?.data.error)
       }
-
     }else{
       setError("Nothing Changed")
     }
