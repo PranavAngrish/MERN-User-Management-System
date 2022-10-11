@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { useSleepsContext } from '../hooks/useSleepsContext'
-import { useAuthContext } from '../hooks/useAuthContext'
-import useAxiosPrivate from "../hooks/useAxiosPrivate"
+import { useSleepsContext } from '../../hooks/useSleepsContext'
+import { useAuthContext } from '../../hooks/useAuthContext'
+import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 
-const SleepForm = () => {
+const Add = () => {
   const axiosPrivate = useAxiosPrivate()
   const { dispatch } = useSleepsContext()
   const { user } = useAuthContext()
@@ -53,4 +53,4 @@ const SleepForm = () => {
   )
 }
 
-export default SleepForm
+export default Add

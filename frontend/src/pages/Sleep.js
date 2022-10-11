@@ -1,11 +1,10 @@
 import { useEffect } from 'react'
-import { useAuthContext } from "../hooks/useAuthContext"
+import { useAuthContext } from '../hooks/useAuthContext'
 import { useSleepsContext } from '../hooks/useSleepsContext'
-import { Link, useNavigate } from "react-router-dom"
-import { useLogout } from '../hooks/useLogout'
+import { Link } from 'react-router-dom'
 import useAxiosPrivate from "../hooks/useAxiosPrivate"
-import SleepDetails from "../components/SleepDetails"
-import SleepForm from "../components/SleepForm"
+import Details from '../components/sleeps/details/Index'
+import SleepForm from '../components/sleeps/Add'
 
 const Sleep = () => {
   const {user} = useAuthContext()
@@ -42,7 +41,7 @@ const Sleep = () => {
       
       <div className="sleeps">
         {sleeps && sleeps.map(sleep => (
-          <SleepDetails sleep={sleep} key={sleep._id} />
+          <Details sleep={sleep} key={sleep._id} />
         ))}
       </div>
       <SleepForm />
