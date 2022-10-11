@@ -4,7 +4,7 @@ import { useAuthContext } from '../hooks/useAuthContext'
 import { Alert, Button, Form, Modal } from 'react-bootstrap'
 import { BsFillTrashFill, BsPencilSquare } from "react-icons/bs"
 import formatDistanceToNow from 'date-fns/formatDistanceToNow'
-import useAxiosPrivate from "../hooks/useAxiosPrivate"
+import useAxiosPrivate from '../hooks/useAxiosPrivate'
 const validator = require('validator')
 
 const SleepDetails = ({ sleep }) => {
@@ -18,7 +18,7 @@ const SleepDetails = ({ sleep }) => {
   const [show, setShow] = useState(false)
 
   const handleDelete = async () => {
-    if (!user) {
+    if(!user) {
       setError('You must be logged in')
       return
     }
@@ -28,6 +28,7 @@ const SleepDetails = ({ sleep }) => {
       setError(null)
       dispatch({type: 'DELETE_SLEEP', payload: response.data})
     } catch (error) {
+      // console.log(error)
       setError(error.response?.data.error)
     }
   }
@@ -67,18 +68,18 @@ const SleepDetails = ({ sleep }) => {
     <>
       <div className="card my-3">
         <div className="card-body d-flex justify-content-between align-items-start">
-          <div>
-            <div className="fs-4 mb-1 text-primary">{sleep.title}</div>
-            <p>
-              <strong className="fs-6 text-muted">Load (kg): </strong>{sleep.load}<br/>
-              <strong className="fs-6 text-muted">Number of reps: </strong>{sleep.reps}<br/>
-              {formatDistanceToNow(new Date(sleep.createdAt), { addSuffix: true })}
-            </p>
-          </div>
-          <div>
-            <button className="btn btn-sm btn-outline-primary rounded-circle mx-2 p-2" onClick={() => setShow(!show)}><BsPencilSquare className="fs-5"/></button>
-            <button className="btn btn-outline-danger rounded-circle p-2" onClick={handleDelete}><BsFillTrashFill className="fs-5"/></button>
-          </div>
+        <div>
+          <div className="fs-4 mb-1 text-primary">{sleep.title}</div>
+          <p>
+            <strong className="fs-6 text-muted">Load (kg): </strong>{sleep.load}<br/>
+            <strong className="fs-6 text-muted">Number of reps: </strong>{sleep.reps}<br/>
+            {formatDistanceToNow(new Date(sleep.createdAt), { addSuffix: true })}
+          </p>
+        </div>
+        <div>
+          <button className="btn btn-sm btn-outline-primary rounded-circle mx-2 p-2" onClick={() => setShow(!show)}><BsPencilSquare className="fs-5"/></button>
+          <button className="btn btn-outline-danger rounded-circle p-2" onClick={handleDelete}><BsFillTrashFill className="fs-5"/></button>
+        </div>
         </div>
         <div className="mx-3">
           {error && (<div className="alert alert-danger" role="alert">{error}</div>)}
@@ -105,9 +106,7 @@ const SleepDetails = ({ sleep }) => {
           {error && (<Alert variant={'danger'}>{error}</Alert>)}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={handleUpdate}> 
-            Save Changes
-          </Button>
+          <Button variant="primary" onClick={handleUpdate}>Save Changes </Button>
         </Modal.Footer>
       </Modal>
     </>
@@ -115,3 +114,4 @@ const SleepDetails = ({ sleep }) => {
 }
   
 export default SleepDetails
+

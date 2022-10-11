@@ -9,10 +9,8 @@ import SleepForm from "../components/SleepForm"
 
 const Sleep = () => {
   const {user} = useAuthContext()
-  const { logout } = useLogout()
   const {sleeps, dispatch} = useSleepsContext()
   const axiosPrivate = useAxiosPrivate()
-  const navigate = useNavigate()
 
   useEffect(() => {
     let isMounted = true
@@ -21,12 +19,11 @@ const Sleep = () => {
     const getSleeps = async () => {
       try {
         const response = await axiosPrivate.get('/api/sleeps', {
-            signal: abortController.signal
+          signal: abortController.signal
         })
         isMounted && dispatch({type: 'SET_SLEEPS', payload: response.data})
       } catch (err) {
-        // console.error(err)
-        // navigate('/login', { state: { from: location }, replace: true })
+        console.log(err)
       }
     }
 
@@ -38,7 +35,7 @@ const Sleep = () => {
       isMounted = false
       abortController.abort()
     }
-  }, [])
+  }, [axiosPrivate, dispatch, user])
 
   return (
     <div className="home">

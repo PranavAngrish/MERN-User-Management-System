@@ -1,8 +1,8 @@
 import { useEffect } from "react" 
 import { axiosPrivate } from "../api/axios" 
-import { useAuthContext } from "../hooks/useAuthContext"
-import { useLogout } from '../hooks/useLogout'
-import useRefreshToken from "./useRefreshToken" 
+import { useAuthContext } from "./useAuthContext"
+import { useLogout } from './useLogout'
+import useRefreshToken from './useRefreshToken' 
 
 const useAxiosPrivate = () => {
     const { logout } = useLogout()
@@ -13,7 +13,7 @@ const useAxiosPrivate = () => {
         const requestIntercept = axiosPrivate.interceptors.request.use(
             config => {
                 if (!config.headers['Authorization']) {
-                    config.headers['Authorization'] = `Bearer ${user.accessToken}` 
+                    config.headers['Authorization'] = `Bearer ${user.accessToken}`
                 }
                 return config 
             }, (error) => Promise.reject(error)
@@ -23,12 +23,20 @@ const useAxiosPrivate = () => {
             response => response,
             async (error) => {
                 const prevRequest = error?.config
-                if (error?.response?.status === 403 && error?.response?.data.error === "Forbidden token expired" && !prevRequest?.sent) {
-                    prevRequest.sent = true 
+                if (error.response?.status === 403 && error.response?.data.error === "Forbidden token expired" && !prevRequest?._retry) {
+                    prevRequest._retry = true 
                     const newAccessToken = await refresh() 
-                    prevRequest.headers['Authorization'] = `Bearer ${newAccessToken}` 
+                    prevRequest['headers'] = {Authorization:`Bearer ${newAccessToken}`}
                     return axiosPrivate(prevRequest) 
                 }
+
+                const forbidden = error.response?.status === 403 && error.response?.data.error === "Forbidden"
+
+                if( forbidden || error.response?.status === 401){
+                    logout()
+                    return
+                }
+
                 return Promise.reject(error) 
             }
         ) 
@@ -37,7 +45,7 @@ const useAxiosPrivate = () => {
             axiosPrivate.interceptors.request.eject(requestIntercept) 
             axiosPrivate.interceptors.response.eject(responseIntercept) 
         }
-    }, [user, refresh])
+    }, [user, refresh, logout])
 
     return axiosPrivate 
 }

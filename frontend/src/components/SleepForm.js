@@ -32,9 +32,9 @@ const SleepForm = () => {
       setReps('')
       dispatch({type: 'CREATE_SLEEP', payload: response.data})
     } catch (error) {
-      console.log(error)
-      setError(error.response.data.error)
-      setEmptyFields(error.response.data.emptyFields)
+      // console.log(error)
+      setError(error.response?.data.error)
+      setEmptyFields(error.response?.data.emptyFields)
     }
   }
 
