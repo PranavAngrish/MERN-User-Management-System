@@ -10,11 +10,11 @@ const Edit = ({sleep}) => {
     const axiosPrivate = useAxiosPrivate()
     const { dispatch } =  useSleepsContext()
     const { user } = useAuthContext()
+    const [error, setError] = useState(null)
+    const [show, setShow] = useState(false)
     const titleRef = useRef('')
     const loadRef = useRef('')
     const repsRef = useRef('')
-    const [error, setError] = useState(null)
-    const [show, setShow] = useState(false)
 
     const handleUpdate = async () => {
         const updatesleep = { title: titleRef.current.value, load: loadRef.current.value, reps: repsRef.current.value }
@@ -58,15 +58,15 @@ const Edit = ({sleep}) => {
             <Modal.Body>
                 <Form.Group className="mb-3">
                     <Form.Label>Excersize Title:</Form.Label>
-                    <Form.Control type="text" placeholder={sleep.title} autoFocus ref={titleRef}/>
+                    <Form.Control type="text" defaultValue={sleep.title} ref={titleRef} autoFocus/>
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>Load (in kg):</Form.Label>
-                    <Form.Control type="number" placeholder={sleep.load} autoFocus ref={loadRef}/>
+                    <Form.Control type="number" defaultValue={sleep.load} ref={loadRef} autoFocus/>
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>Number of Reps:</Form.Label>
-                    <Form.Control type="number" placeholder={sleep.reps} autoFocus ref={repsRef}/>
+                    <Form.Control type="number" defaultValue={sleep.reps} ref={repsRef} autoFocus/>
                 </Form.Group>
                 {error && (<Alert variant={'danger'}>{error}</Alert>)}
             </Modal.Body>

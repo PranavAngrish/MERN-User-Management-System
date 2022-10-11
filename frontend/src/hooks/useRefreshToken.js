@@ -13,7 +13,7 @@ const useRefreshToken = () => {
             }) 
 
             dispatch({type: 'LOGIN', payload: {...user, accessToken: response.data.accessToken}})
-            console.log(response.data.accessToken)
+
             return response.data.accessToken
         } catch (error) {
             console.log(error)

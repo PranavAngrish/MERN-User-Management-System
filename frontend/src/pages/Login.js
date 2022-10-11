@@ -6,23 +6,22 @@ import { BsInfoCircleFill } from "react-icons/bs"
 
 const Login = () => {
   const {login, error, isLoading} = useLogin()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const emailRef = useRef('')
+  const passwordRef = useRef('')
   const [isShow, setShow] = useState(false)
-  const showPassRef = useRef()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    await login(email.trim(), password.trim())
+    await login(emailRef.current.value.trim(), passwordRef.current.value.trim())
   }
 
   const handleShowPassword =  (e) => {
     e.preventDefault()
-    if(showPassRef.current.type === "password") {
-      showPassRef.current.type = "text"
+    if(passwordRef.current.type === "password") {
+      passwordRef.current.type = "text"
       setShow(true)
     }else{
-      showPassRef.current.type = "password"
+      passwordRef.current.type = "password"
       setShow(false)
     }
   }
@@ -32,10 +31,10 @@ const Login = () => {
       <form className="login" onSubmit={handleSubmit}>
         <h3 className="text-center mb-4">Log In</h3>
         <label>Email address:</label>
-        <input type="email" onChange={(e) => setEmail(e.target.value)} value={email} />
+        <input type="email"  ref={emailRef}/>
         <label>Password:</label>
         <div className="d-flex">
-          <input type="password" onChange={(e) => setPassword(e.target.value)} value={password} ref={showPassRef} autoComplete="on"/>
+          <input type="password" ref={passwordRef} autoComplete="on"/>
           <button className="btn mb-2" onClick={handleShowPassword}>{isShow ? <FaEyeSlash/> : <FaEye/>}</button>
         </div>
         <div className="signup-prompt">Create an account ? <Link to="/signup">Signup</Link></div>

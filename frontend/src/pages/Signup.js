@@ -5,24 +5,23 @@ import { Link } from 'react-router-dom'
 
 const Signup = () => {
   const {signup, error, isLoading} = useSignup()
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const nameRef = useRef('')
+  const emailRef = useRef('')
+  const passwordRef = useRef('')
   const [isShow, setShow] = useState(false)
-  const showPassRef = useRef()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    await signup(name, email.trim(), password.trim())
+    await signup(nameRef.current.value, emailRef.current.value.trim(), passwordRef.current.value.trim())
   }
 
   const handleShowPassword =  (e) => {
     e.preventDefault()
-    if(showPassRef.current.type === "password") {
-      showPassRef.current.type = "text"
+    if(passwordRef.current.type === "password") {
+      passwordRef.current.type = "text"
       setShow(true)
     }else{
-      showPassRef.current.type = "password"
+      passwordRef.current.type = "password"
       setShow(false)
     }
   }
@@ -31,12 +30,12 @@ const Signup = () => {
     <form className="signup" onSubmit={handleSubmit}>
       <h3 className="text-center mb-4">Sign Up</h3>
       <label>Username:</label>
-      <input type="text" onChange={(e) => setName(e.target.value)} value={name} />
+      <input type="text" ref={nameRef} />
       <label>Email Address:</label>
-      <input type="email" onChange={(e) => setEmail(e.target.value)} value={email} />
+      <input type="email" ref={emailRef}/>
       <label>Password:</label>
       <div className="d-flex">
-          <input type="password" onChange={(e) => setPassword(e.target.value)} value={password} ref={showPassRef} autoComplete="off"/>
+          <input type="password" ref={passwordRef} autoComplete="off"/>
           <button className="btn mb-2" onClick={handleShowPassword}>{isShow ? <FaEyeSlash/> : <FaEye/>}</button>
         </div>
       <div className="signup-prompt">Already have an account ? <Link to="/login">Login</Link></div>
