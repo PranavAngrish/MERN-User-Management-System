@@ -15,6 +15,14 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true
+  },
+  roles: {
+    type: [String],
+    default: ["User"]
+  },
+  active: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -26,19 +34,23 @@ userSchema.statics.signup = async function(name, email, password) {
   if (!validator.isEmail(email)) throw Error('Email not valid')
   if (!validator.isStrongPassword(password)) throw Error('Password not strong enough')
 
-  const exists = await this.findOne({ email })
+  const exists = await this.findOne({ email }).lean().exec()
   if (exists) throw Error('Email already in use')
 
   const salt = await bcrypt.genSalt(10)
   const hash = await bcrypt.hash(password, salt)
+  // const userObject = (!Array.isArray(roles) || !roles.length) ? { name: name.trim(), email: email.trim(), password: hash } : { name: name.trim(), email: email.trim(), password: hash, roles }
   const user = await this.create({ name: name.trim(), email: email.trim(), password: hash })
 
-  return user
+  if(!user) throw Error('Invalid user data received')
+
+  return user.select('-password').lean()
 }
 
 userSchema.statics.login = async function(email, password) {
   const isEmailEmpty = validator.isEmpty(email, { ignore_whitespace:true })
   const isPasswordEmpty = validator.isEmpty(password, { ignore_whitespace:true })
+
   if (isEmailEmpty || isPasswordEmpty) throw Error('All fields must be filled')
 
   const user = await this.findOne({ email: email.trim() })
@@ -47,7 +59,7 @@ userSchema.statics.login = async function(email, password) {
   const match = await bcrypt.compare(password, user.password)
   if (!match) throw Error('Incorrect password')
 
-  return user
+  return user.select('-password').lean()
 }
 
 module.exports = mongoose.model('User', userSchema)
