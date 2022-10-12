@@ -6,14 +6,12 @@ export const useLogout = () => {
   const { dispatch: dispatchSleeps } = useSleepsContext()
 
   const logout = async () => {
-    // localStorage.removeItem('user')
-
     const response = await fetch('/api/auth/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.accessToken}`
-        }
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${user.accessToken}`
+      }
     })
 
     if (response.ok) {
