@@ -1,29 +1,28 @@
 const mongoose = require('mongoose')
 const Sleep = require('../models/sleep')
+const validator = require('validator')
 
-exports.getSleeps = async (req, res) => {
+exports.getAll = async (req, res) => {
   const user_id = req.user._id
-  const sleeps = await Sleep.find({user_id}).sort({createdAt: -1})
+
+  const sleeps = await Sleep.find({user_id}).sort({createdAt: -1}).lean()
+  if (!sleeps?.length) return res.status(400).json({ error: 'No sleeps record found' })
+
   res.status(200).json(sleeps)
 }
 
-exports.getSleep = async (req, res) => {
+exports.getById = async (req, res) => {
   const { id } = req.params
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(404).json({error: 'No such sleep'})
-  }
+  if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).json({error: 'No such sleep id found'})
 
-  const sleep = await Sleep.findById(id)
-
-  if (!sleep) {
-    return res.status(404).json({error: 'No such sleep'})
-  }
+  const sleep = await Sleep.findById(id).lean().exec()
+  if (!sleep) return res.status(404).json({error: 'No such sleep record found'})
 
   res.status(200).json(sleep)
 }
 
-exports.createSleep = async (req, res) => {
+exports.create = async (req, res) => {
   const {title, load, reps} = req.body
 
   let emptyFields = []
@@ -53,41 +52,34 @@ exports.createSleep = async (req, res) => {
   }
 }
 
-exports.deleteSleep = async (req, res) => {
+exports.update = async (req, res) => {
   const { id } = req.params
+  
+  const isIdEmpty = validator.isEmpty(id, { ignore_whitespace:true })
+  if (isIdEmpty) return res.status(400).json({error: 'Sleep id required'})
+  
+  if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({error: 'No such sleep id found'})
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({error: 'No such sleep'})
-  }
-
-  const sleep = await Sleep.findByIdAndDelete(id)
-
-  if(!sleep) {
-    return res.status(400).json({error: 'No such sleep'})
-  }
-
-  res.status(200).json(sleep)
-
-}
-
-exports.updateSleep = async (req, res) => {
-  const { id } = req.params
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({error: 'No such sleep record found'})
-  }
-
-  const sleep = await Sleep.findOneAndUpdate({_id: id}, {
-    ...req.body
-  })
-
-  if (!sleep) {
-    return res.status(400).json({error: 'No such sleep record found'})
-  }
-
+  const sleep = await Sleep.findOneAndUpdate({_id: id}, {...req.body }).lean().exec()
+  if (!sleep) return res.status(400).json({error: 'No such sleep record found'})
+  
   // res.status(200).json(sleep)
   //after update return new record
   const user_id = req.user._id
-  const updatedRecord = await Sleep.find({user_id}).sort({createdAt: -1})
+  const updatedRecord = await Sleep.find({user_id}).sort({createdAt: -1}).lean()
   res.status(200).json(updatedRecord)
+}
+
+exports.delete = async (req, res) => {
+  const { id } = req.params
+
+  const isIdEmpty = validator.isEmpty(id, { ignore_whitespace:true })
+  if (isIdEmpty) return res.status(400).json({error: 'Sleep id required'})
+
+  if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({error: 'No such sleep id found'})
+
+  const sleep = await Sleep.findByIdAndDelete(id).lean().exec()
+  if(!sleep) return res.status(400).json({error: 'No such sleep record found'})
+
+  res.status(200).json(sleep)
 }

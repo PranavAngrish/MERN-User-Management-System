@@ -5,12 +5,12 @@ const requireAuth = require('../middleware/requireAuth')
 router.use(requireAuth)
 
 router.route('/')
-    .get(sleepController.getSleeps)
-    .post(sleepController.createSleep)
+    .get(sleepController.getAll)
+    .post(sleepController.create)
 
 router.route('/:id')
-    .get(sleepController.getSleep)
-    .delete(sleepController.deleteSleep)
-    .patch(sleepController.updateSleep)
+    .get(sleepController.getById)
+    .patch(sleepController.update)
+    .delete(sleepController.delete)
 
 module.exports = router
