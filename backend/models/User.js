@@ -39,27 +39,24 @@ userSchema.statics.signup = async function(name, email, password) {
 
   const salt = await bcrypt.genSalt(10)
   const hash = await bcrypt.hash(password, salt)
-  // const userObject = (!Array.isArray(roles) || !roles.length) ? { name: name.trim(), email: email.trim(), password: hash } : { name: name.trim(), email: email.trim(), password: hash, roles }
-  const user = await this.create({ name: name.trim(), email: email.trim(), password: hash })
-
+  const user = await this.create({ name: name.trim(), email: email.trim(), password: hash }).lean()
   if(!user) throw Error('Invalid user data received')
 
-  return user.select('-password').lean()
+  return user
 }
 
 userSchema.statics.login = async function(email, password) {
   const isEmailEmpty = validator.isEmpty(email, { ignore_whitespace:true })
   const isPasswordEmpty = validator.isEmpty(password, { ignore_whitespace:true })
-
   if (isEmailEmpty || isPasswordEmpty) throw Error('All fields must be filled')
 
-  const user = await this.findOne({ email: email.trim() })
+  const user = await this.findOne({ email: email.trim() }).lean()
   if (!user) throw Error('Incorrect email or email doesn\'t exist')
 
   const match = await bcrypt.compare(password, user.password)
   if (!match) throw Error('Incorrect password')
 
-  return user.select('-password').lean()
+  return user
 }
 
 module.exports = mongoose.model('User', userSchema)

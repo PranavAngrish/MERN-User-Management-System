@@ -8,10 +8,10 @@ exports.login = async (req, res) => {
 
   try {
     const user = await User.login(email, password)
-    const accessToken = jwt.sign({_id: user._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
+    const accessToken = jwt.sign({_id: user._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10s' })
     const refreshToken = createRefreshToken(user._id)
     res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
-    res.status(200).json({name: user.name, email, accessToken})
+    res.status(200).json({name: user.name, email, roles: user.roles, accessToken})
   } catch (error) {
     res.status(400).json({error: error.message})
   }
@@ -22,11 +22,13 @@ exports.signup = async (req, res) => {
 
   try {
     const user = await User.signup(name, email, password)
-    const accessToken = jwt.sign({_id: user._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
+    const accessToken = jwt.sign({_id: user._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10s' })
     const refreshToken = createRefreshToken(user._id)
     res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
-    res.status(200).json({name: user.name, email, accessToken})
+    res.status(200).json({name: user.name, email, roles: user.roles, accessToken})
   } catch (error) {
+    if(error.message === "Email already in use") res.status(409).json({error: error.message})
+    
     res.status(400).json({error: error.message})
   }
 }
@@ -50,9 +52,9 @@ exports.refresh = (req, res) => {
       
       if (!foundUser) return res.status(401).json({ error: 'Unauthorized user not found' })
 
-      const accessToken = jwt.sign({_id: foundUser._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
+      const accessToken = jwt.sign({_id: foundUser._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10s' })
 
-      res.json({ name: foundUser.name, email: foundUser.email, accessToken })
+      res.json({ name: foundUser.name, email: foundUser.email, roles: foundUser.roles, accessToken })
     }
   )
 }
