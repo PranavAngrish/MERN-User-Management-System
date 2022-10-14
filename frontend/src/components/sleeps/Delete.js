@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { useSleepsContext } from '../../../hooks/useSleepsContext'
-import { useAuthContext } from '../../../hooks/useAuthContext'
 import { BsFillTrashFill } from 'react-icons/bs'
 import { Alert, Button, Form, Modal } from 'react-bootstrap'
-import useAxiosPrivate from '../../../hooks/useAxiosPrivate'
+import { useSleepsContext } from '../../hooks/useSleepsContext'
+import { useAuthContext } from '../../hooks/useAuthContext'
+import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 
 const Delete = ({sleep}) => {
     const axiosPrivate = useAxiosPrivate()

@@ -3,7 +3,7 @@ import { useAuthContext } from '../hooks/useAuthContext'
 import { useSleepsContext } from '../hooks/useSleepsContext'
 import { Link } from 'react-router-dom'
 import useAxiosPrivate from "../hooks/useAxiosPrivate"
-import Details from '../components/sleeps/details/Index'
+import Details from '../components/sleeps/Index'
 import SleepForm from '../components/sleeps/Add'
 
 const Sleep = () => {
@@ -22,7 +22,7 @@ const Sleep = () => {
         })
         isMounted && dispatch({type: 'SET_SLEEPS', payload: response.data})
       } catch (err) {
-        console.log(err)
+        // console.log(err)
       }
     }
 

@@ -1,9 +1,9 @@
 import { useRef, useState } from 'react'
-import { Alert, Button, Form, Modal } from 'react-bootstrap'
 import { BsPencilSquare } from "react-icons/bs"
-import { useSleepsContext } from '../../../hooks/useSleepsContext'
-import { useAuthContext } from '../../../hooks/useAuthContext'
-import useAxiosPrivate from '../../../hooks/useAxiosPrivate'
+import { Alert, Button, Form, Modal } from 'react-bootstrap'
+import { useSleepsContext } from '../../hooks/useSleepsContext'
+import { useAuthContext } from '../../hooks/useAuthContext'
+import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 const validator = require('validator')
 
 const Edit = ({sleep}) => {
