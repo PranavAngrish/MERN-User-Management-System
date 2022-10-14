@@ -4,8 +4,10 @@ import Home from './pages/Home'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Navbar from './components/Navbar'
-import Sleep from './pages/Sleep'
 import NotFound from './pages/NotFound'
+import User from './pages/User'
+import Sleep from './pages/Sleep'
+import Note from './pages/Note'
 
 function App() {
   const { user } = useAuthContext()
@@ -19,7 +21,9 @@ function App() {
             <Route path="/" element={<Home />}/>
             <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
             <Route path="/signup" element={!user ? <Signup /> : <Navigate to="/" />} />
+            <Route path="/user" element={user ? <User /> : <Navigate to="/login" />} />
             <Route path="/sleep" element={user ? <Sleep /> : <Navigate to="/login" />} />
+            <Route path="/note" element={user ? <Note /> : <Navigate to="/login" />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>

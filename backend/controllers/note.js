@@ -71,7 +71,7 @@ exports.delete = async (req, res) => {
     if (isIdEmpty) return res.status(400).json({error: 'Note id required'})
     if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({error: 'No such note id found'})
 
-    const note = await Note.findByIdAndDelete(id).exec()
+    const note = await Note.findByIdAndDelete(id).lean().exec()
     if (!note) return res.status(400).json({ error: 'Note not found' })
 
     const reply = `Note '${result.title}' with ID ${result._id} deleted`
