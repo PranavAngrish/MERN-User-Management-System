@@ -7,7 +7,7 @@ const Index = ({ sleep }) => {
 //   const [error, setError] = useState(null)
 
   return (
-    <div className="card my-3">
+    <div className="card mb-3">
         <div className="card-body d-flex justify-content-between align-items-start">
             <div>
                 <div className="fs-4 mb-1 text-primary">{sleep.title}</div>

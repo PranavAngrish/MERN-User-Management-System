@@ -5,10 +5,10 @@ import { Link } from 'react-router-dom'
 
 const Signup = () => {
   const {signup, error, isLoading} = useSignup()
+  const [changeIcon, setChangeIcon] = useState(false)
   const nameRef = useRef('')
   const emailRef = useRef('')
   const passwordRef = useRef('')
-  const [isShow, setShow] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -19,10 +19,10 @@ const Signup = () => {
     e.preventDefault()
     if(passwordRef.current.type === "password") {
       passwordRef.current.type = "text"
-      setShow(true)
+      setChangeIcon(true)
     }else{
       passwordRef.current.type = "password"
-      setShow(false)
+      setChangeIcon(false)
     }
   }
 
@@ -36,7 +36,7 @@ const Signup = () => {
       <label>Password:</label>
       <div className="d-flex">
           <input type="password" ref={passwordRef} autoComplete="off"/>
-          <button className="btn mb-2" onClick={handleShowPassword}>{isShow ? <FaEyeSlash/> : <FaEye/>}</button>
+          <button className="btn mb-2" onClick={handleShowPassword}>{changeIcon ? <FaEyeSlash/> : <FaEye/>}</button>
         </div>
       <div className="signup-prompt">Already have an account ? <Link to="/login">Login</Link></div>
       <button className="w-100 mt-2" disabled={isLoading}>Sign Up</button>

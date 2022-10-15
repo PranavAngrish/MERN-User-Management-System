@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { useAuthContext } from '../hooks/useAuthContext'
 import { useSleepsContext } from '../hooks/useSleepsContext'
-import { Link } from 'react-router-dom'
 import useAxiosPrivate from "../hooks/useAxiosPrivate"
 import Details from '../components/sleeps/Index'
 import SleepForm from '../components/sleeps/Add'
@@ -37,15 +36,12 @@ const Sleep = () => {
   }, [axiosPrivate, dispatch, user])
 
   return (
-    <div className="home">
-      
-      <div className="sleeps">
-        {sleeps && sleeps.map(sleep => (
-          <Details sleep={sleep} key={sleep._id} />
-        ))}
-      </div>
+    <div className="sleeps">
+      <div>
+      {sleeps && sleeps.map(sleep => (
+        <Details sleep={sleep} key={sleep._id} />
+      ))}</div>
       <SleepForm />
-      <Link to="/">Home</Link>
     </div>
   )
 }

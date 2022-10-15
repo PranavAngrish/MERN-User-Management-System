@@ -20,5 +20,5 @@ export const AuthContextProvider = ({children}) => {
     //     if (user) dispatch({ type: 'LOGIN', payload: user })
     // }, [])
 
-    return (<AuthContext.Provider value={{ ...state, dispatch }}>{ children } </AuthContext.Provider>)
+    return (<AuthContext.Provider value={{ ...state, dispatch }}>{ children }</AuthContext.Provider>)
 }
