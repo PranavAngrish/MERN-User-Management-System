@@ -1,14 +1,16 @@
-import { useRef, useState } from "react"
-import { useLogin } from "../hooks/useLogin"
+import { useRef, useState } from 'react'
+import { useLogin } from '../hooks/useLogin'
 import { Link } from 'react-router-dom'
-import { FaEye, FaEyeSlash } from "react-icons/fa"
-import { BsInfoCircleFill } from "react-icons/bs"
+import { FaEye, FaEyeSlash } from 'react-icons/fa'
+import { BsInfoCircleFill } from 'react-icons/bs'
+import usePersist from '../hooks/usePersist'
 
 const Login = () => {
-  const {login, error, isLoading} = useLogin()
+  const { login, error, isLoading } = useLogin()
+  const {persist, setPersist} = usePersist()
+  const [changeIcon, setChangeIcon] = useState(false)
   const emailRef = useRef('')
   const passwordRef = useRef('')
-  const [isShow, setShow] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -19,10 +21,10 @@ const Login = () => {
     e.preventDefault()
     if(passwordRef.current.type === "password") {
       passwordRef.current.type = "text"
-      setShow(true)
+      setChangeIcon(true)
     }else{
       passwordRef.current.type = "password"
-      setShow(false)
+      setChangeIcon(false)
     }
   }
 
@@ -35,20 +37,19 @@ const Login = () => {
         <label>Password:</label>
         <div className="d-flex">
           <input type="password" ref={passwordRef} autoComplete="on"/>
-          <button className="btn mb-2" onClick={handleShowPassword}>{isShow ? <FaEyeSlash/> : <FaEye/>}</button>
+          <button className="btn mb-2" onClick={handleShowPassword}>{changeIcon ? <FaEyeSlash/> : <FaEye/>}</button>
         </div>
         <div className="signup-prompt">Create an account ? <Link to="/signup">Signup</Link></div>
         <button className="w-100 mt-2" disabled={isLoading}>Log In</button>
         <div className="form-check mt-3">
-            <input className="form-check-input" type="checkbox"/>
-            <label className="form-check-label mx-2" style={{paddingTop:"3px"}}>
-              Keep me logged in
-            </label>
+          <label htmlFor="persist" className="form-check-label">
+            <input id="persist" className="form-check-input" type="checkbox" onChange={() => {setPersist(prev => !prev)}} checked={persist}/>
+            <div className="mx-2" style={{paddingTop:"2px"}}>Keep me logged in</div>
+          </label>
         </div>
-        
         {error && <div className="error">{error}</div>}
       </form>
-      {false && (<div className="alert alert-info" role="alert" style={{maxWidth: "400px", margin: "0 auto"}}>
+      {persist && (<div className="alert alert-info" role="alert" style={{maxWidth: "400px", margin: "0 auto"}}>
         <div className="d-flex align-items-center mx-3">
           <BsInfoCircleFill/><div className="mx-2"><strong>Info:</strong></div>
         </div>

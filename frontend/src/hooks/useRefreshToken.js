@@ -11,9 +11,7 @@ const useRefreshToken = () => {
             const response = await axios.post('/api/auth/refresh', {
                 withCredentials: true
             }) 
-
-            dispatch({type: 'LOGIN', payload: {...user, accessToken: response.data.accessToken}})
-
+            dispatch({type: 'LOGIN', payload: response.data})
             return response.data.accessToken
         } catch (error) {
             console.log(error)

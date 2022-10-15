@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthContext } from './hooks/useAuthContext'
+import { ROLES } from './config/roles'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
@@ -8,6 +9,7 @@ import NotFound from './pages/NotFound'
 import User from './pages/User'
 import Sleep from './pages/Sleep'
 import Note from './pages/Note'
+import PersistLogin from './components/PersistLogin'
 
 function App() {
   const { user } = useAuthContext()
@@ -21,9 +23,13 @@ function App() {
             <Route path="/" element={<Home />}/>
             <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
             <Route path="/signup" element={!user ? <Signup /> : <Navigate to="/" />} />
-            <Route path="/user" element={user ? <User /> : <Navigate to="/login" />} />
-            <Route path="/sleep" element={user ? <Sleep /> : <Navigate to="/login" />} />
-            <Route path="/note" element={user ? <Note /> : <Navigate to="/login" />} />
+
+            <Route element={<PersistLogin />}>
+              <Route path="/user" element={user ? <User /> : <Navigate to="/login" />} />
+              <Route path="/sleep" element={user ? <Sleep /> : <Navigate to="/login" />} />
+              <Route path="/note" element={user ? <Note /> : <Navigate to="/login" />} />
+            </Route>
+            
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
