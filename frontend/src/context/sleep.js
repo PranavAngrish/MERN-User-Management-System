@@ -19,7 +19,5 @@ export const sleepsReducer = (state, action) => {
 
 export const SleepsContextProvider = ({ children }) => {
   const [state, dispatch] = useReducer(sleepsReducer, { sleeps: null })
-  return (
-    <SleepsContext.Provider value={{ ...state, dispatch }}>{ children }</SleepsContext.Provider>
-  )
+  return (<SleepsContext.Provider value={{ ...state, dispatch }}>{ children }</SleepsContext.Provider>)
 }

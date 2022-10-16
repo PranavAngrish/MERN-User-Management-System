@@ -5,6 +5,7 @@ import './index.css'
 import App from './App'
 import { AuthContextProvider } from './context/auth'
 import { SleepsContextProvider } from './context/sleep'
+import { UserContextProvider } from './context/user'
 import { disableReactDevTools } from '@fvilers/disable-react-devtools'
 
 if (process.env.NODE_ENV === 'production') disableReactDevTools()
@@ -13,9 +14,11 @@ const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(
   <React.StrictMode>
     <AuthContextProvider>
-      <SleepsContextProvider>
-        <App />
-      </SleepsContextProvider>
+      <UserContextProvider>
+        <SleepsContextProvider>
+          <App />
+        </SleepsContextProvider>
+      </UserContextProvider>
     </AuthContextProvider>
   </React.StrictMode>
 )
