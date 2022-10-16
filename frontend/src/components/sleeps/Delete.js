@@ -8,13 +8,13 @@ import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 const Delete = ({sleep}) => {
     const axiosPrivate = useAxiosPrivate()
     const { dispatch } =  useSleepsContext()
-    const { user } = useAuthContext()
+    const { auth } = useAuthContext()
     const [error, setError] = useState(null)
     const [show, setShow] = useState(false)
 
     const handleDelete = async () => {
        
-        if(!user) {
+        if(!auth) {
           setError('You must be logged in') 
           setShow(!show)
           return

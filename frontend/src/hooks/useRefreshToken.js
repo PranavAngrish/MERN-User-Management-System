@@ -3,7 +3,7 @@ import { useAuthContext } from "../hooks/useAuthContext"
 import { useLogout } from '../hooks/useLogout'
 
 const useRefreshToken = () => {
-    const {user, dispatch} = useAuthContext()
+    const { dispatch } = useAuthContext()
     const { logout } = useLogout()
 
     const refresh = async () => {

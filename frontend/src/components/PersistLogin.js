@@ -6,7 +6,7 @@ import usePersist from '../hooks/usePersist'
 
 const PersistLogin = () => {
     const refresh = useRefreshToken() 
-    const { user } = useAuthContext()
+    const { auth } = useAuthContext()
     const {persist} = usePersist()
     const [isLoading, setIsLoading] = useState(true) 
 
@@ -23,7 +23,7 @@ const PersistLogin = () => {
             }
         }
 
-        !user?.accessToken && persist ? verifyRefreshToken() : setIsLoading(false) 
+        !auth?.accessToken && persist ? verifyRefreshToken() : setIsLoading(false) 
 
         return () => isMounted = false 
     }, [])

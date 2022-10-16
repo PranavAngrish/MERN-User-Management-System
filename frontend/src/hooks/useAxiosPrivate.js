@@ -6,14 +6,14 @@ import useRefreshToken from './useRefreshToken'
 
 const useAxiosPrivate = () => {
     const { logout } = useLogout()
-    const {user} = useAuthContext()
+    const {auth} = useAuthContext()
     const refresh = useRefreshToken() 
 
     useEffect(() => {
         const requestIntercept = axiosPrivate.interceptors.request.use(
             config => {
                 if (!config.headers['Authorization']) {
-                    config.headers['Authorization'] = `Bearer ${user.accessToken}`
+                    config.headers['Authorization'] = `Bearer ${auth.accessToken}`
                 }
                 return config 
             }, (error) => Promise.reject(error)
@@ -45,7 +45,7 @@ const useAxiosPrivate = () => {
             axiosPrivate.interceptors.request.eject(requestIntercept) 
             axiosPrivate.interceptors.response.eject(responseIntercept) 
         }
-    }, [user, refresh, logout])
+    }, [auth, refresh, logout])
 
     return axiosPrivate 
 }

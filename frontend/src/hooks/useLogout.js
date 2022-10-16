@@ -2,7 +2,7 @@ import { useAuthContext } from './useAuthContext'
 import { useSleepsContext } from './useSleepsContext'
 
 export const useLogout = () => {
-  const { user, dispatch } = useAuthContext()
+  const { auth, dispatch } = useAuthContext()
   const { dispatch: dispatchSleeps } = useSleepsContext()
 
   const logout = async () => {
@@ -10,7 +10,7 @@ export const useLogout = () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${user.accessToken}`
+        'Authorization': `Bearer ${auth.accessToken}`
       }
     })
 

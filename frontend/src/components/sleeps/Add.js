@@ -6,7 +6,7 @@ import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 const Add = () => {
   const axiosPrivate = useAxiosPrivate()
   const { dispatch } = useSleepsContext()
-  const { user } = useAuthContext()
+  const { auth } = useAuthContext()
   const titleRef = useRef('')
   const loadRef = useRef('')
   const repsRef = useRef('')
@@ -16,7 +16,7 @@ const Add = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!user) {
+    if (!auth) {
       setError('You must be logged in')
       return
     }

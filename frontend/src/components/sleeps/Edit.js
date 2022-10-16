@@ -9,7 +9,7 @@ const validator = require('validator')
 const Edit = ({sleep}) => {
     const axiosPrivate = useAxiosPrivate()
     const { dispatch } =  useSleepsContext()
-    const { user } = useAuthContext()
+    const { auth } = useAuthContext()
     const [error, setError] = useState(null)
     const [show, setShow] = useState(false)
     const titleRef = useRef('')
@@ -26,7 +26,7 @@ const Edit = ({sleep}) => {
           }
         })
         
-        if (!user) {
+        if (!auth) {
           setError('You must be logged in')
           return
         }

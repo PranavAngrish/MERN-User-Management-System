@@ -12,7 +12,7 @@ import Note from './pages/Note'
 import PersistLogin from './components/PersistLogin'
 
 function App() {
-  const { user } = useAuthContext()
+  const { auth } = useAuthContext()
 
   return (
     <div className="App">
@@ -21,13 +21,13 @@ function App() {
         <div className="pages">
           <Routes>
             <Route path="/" element={<Home />}/>
-            <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
-            <Route path="/signup" element={!user ? <Signup /> : <Navigate to="/" />} />
+            <Route path="/login" element={!auth ? <Login /> : <Navigate to="/" />} />
+            <Route path="/signup" element={!auth ? <Signup /> : <Navigate to="/" />} />
 
             <Route element={<PersistLogin />}>
-              <Route path="/user" element={user ? <User /> : <Navigate to="/login" />} />
-              <Route path="/sleep" element={user ? <Sleep /> : <Navigate to="/login" />} />
-              <Route path="/note" element={user ? <Note /> : <Navigate to="/login" />} />
+              <Route path="/user" element={auth ? <User /> : <Navigate to="/login" />} />
+              <Route path="/sleep" element={auth ? <Sleep /> : <Navigate to="/login" />} />
+              <Route path="/note" element={auth ? <Note /> : <Navigate to="/login" />} />
             </Route>
             
             <Route path="*" element={<NotFound />} />

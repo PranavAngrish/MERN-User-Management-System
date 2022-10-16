@@ -5,7 +5,7 @@ import { Link } from "react-router-dom"
 
 const Navbars = () => {
   const { logout } = useLogout()
-  const { user } = useAuthContext()
+  const { auth } = useAuthContext()
 
   return (
     <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
@@ -15,13 +15,13 @@ const Navbars = () => {
         <Navbar.Collapse id="responsive-navbar-nav">
           <Navbar.Collapse className="justify-content-end">
             <Nav>
-              {user && (
+              {auth && (
                 <>
-                  <Navbar.Text>{user.name}</Navbar.Text>
+                  <Navbar.Text>{auth.name}</Navbar.Text>
                   <Button variant="outline-warning" className="mx-3" onClick={() => logout()}>Log Out</Button>
                 </>
               )}
-              {!user && (
+              {!auth && (
                 <>
                   <Nav.Link href="/login">Login</Nav.Link>
                   <Nav.Link href="/signup">Signup</Nav.Link>

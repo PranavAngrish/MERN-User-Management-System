@@ -6,7 +6,7 @@ import Details from '../components/sleeps/Index'
 import SleepForm from '../components/sleeps/Add'
 
 const Sleep = () => {
-  const {user} = useAuthContext()
+  const {auth} = useAuthContext()
   const {sleeps, dispatch} = useSleepsContext()
   const axiosPrivate = useAxiosPrivate()
 
@@ -25,7 +25,7 @@ const Sleep = () => {
       }
     }
 
-    if(user){
+    if(auth){
       getSleeps()
     }
 
@@ -33,7 +33,7 @@ const Sleep = () => {
       isMounted = false
       abortController.abort()
     }
-  }, [axiosPrivate, dispatch, user])
+  }, [axiosPrivate, dispatch, auth])
 
   return (
     <div className="sleeps">
