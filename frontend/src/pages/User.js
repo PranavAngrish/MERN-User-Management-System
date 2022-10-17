@@ -1,8 +1,12 @@
-import React from 'react'
+import Details from '../components/users/Index'
+import Add from '../components/users/Add'
 
 const User = () => {
   return (
-    <div>User</div>
+    <>
+      <Add />
+      <Details/>
+    </>
   )
 }
 
