@@ -25,6 +25,8 @@ app.use((req, res, next) => {
 })
 
 app.use('/api/auth', require('./routes/auth'))
+app.use('/api/users', require('./routes/user'))
+app.use('/api/notes', require('./routes/note'))
 app.use('/api/sleeps', require('./routes/sleep'))
 // app.use(errorHandler)
 

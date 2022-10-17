@@ -38,9 +38,10 @@ const Sleep = () => {
   return (
     <div className="sleeps">
       <div>
-      {sleeps && sleeps.map(sleep => (
-        <Details sleep={sleep} key={sleep._id} />
-      ))}</div>
+        {sleeps && sleeps.map(sleep => (
+          <Details sleep={sleep} key={sleep._id} />
+        ))}
+      </div>
       <SleepForm />
     </div>
   )

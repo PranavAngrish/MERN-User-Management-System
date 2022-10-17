@@ -14,7 +14,7 @@ const useRefreshToken = () => {
             dispatch({type: 'LOGIN', payload: response.data})
             return response.data.accessToken
         } catch (error) {
-            console.log(error)
+            // console.log(error)
             if((error.response.status === 403 && error.response.data.error === "Forbidden") || error.response.status === 401){
                 logout()
                 return

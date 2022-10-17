@@ -10,7 +10,7 @@ export const useLogout = () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${auth.accessToken}`
+        'Authorization': `Bearer ${auth?.accessToken}`
       }
     })
 

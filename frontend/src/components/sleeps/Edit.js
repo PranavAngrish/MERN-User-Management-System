@@ -17,12 +17,12 @@ const Edit = ({sleep}) => {
     const repsRef = useRef('')
 
     const handleUpdate = async () => {
-        const updatesleep = { title: titleRef.current.value, load: loadRef.current.value, reps: repsRef.current.value }
-        const prevSleep  = [titleRef.current.placeholder, loadRef.current.placeholder,  repsRef.current.placeholder]
+        const updateSleep = { title: titleRef.current.value, load: loadRef.current.value, reps: repsRef.current.value }
+        const prevSleep  = [titleRef.current.defaultValue, loadRef.current.defaultValue,  repsRef.current.defaultValue]
       
-        Object.keys(updatesleep).forEach(key => {
-          if (validator.isEmpty(updatesleep[key], { ignore_whitespace:true }) || prevSleep.includes(updatesleep[key])) {
-            delete updatesleep[key]
+        Object.keys(updateSleep).forEach(key => {
+          if (validator.isEmpty(updateSleep[key], { ignore_whitespace:true }) || prevSleep.includes(updateSleep[key])) {
+            delete updateSleep[key]
           }
         })
         
@@ -31,11 +31,11 @@ const Edit = ({sleep}) => {
           return
         }
     
-        const checkChange = Object.keys(updatesleep).length === 0
+        const checkChange = Object.keys(updateSleep).length === 0
     
         if(!checkChange){
           try {
-            const response = await axiosPrivate.patch('/api/sleeps/' + sleep._id, updatesleep)
+            const response = await axiosPrivate.patch('/api/sleeps/' + sleep._id, updateSleep)
             setError(null)
             setShow(false)
             dispatch({type: 'UPDATE_SLEEP', payload: response.data})
