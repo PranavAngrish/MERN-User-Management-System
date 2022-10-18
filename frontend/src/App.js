@@ -1,9 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthContext } from './hooks/useAuthContext'
+import { ROLES } from './config/roles'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Navbar from './components/Navbar'
+import Status from './components/Status'
 import NotFound from './pages/NotFound'
 import User from './pages/User'
 import Sleep from './pages/Sleep'
@@ -17,6 +19,7 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <Navbar />
+        <Status />
         <div className="container mt-3">
           <Routes>
             <Route path="/" element={<Home />}/>
