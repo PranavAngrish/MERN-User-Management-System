@@ -4,14 +4,14 @@ import { useAuthContext } from '../../hooks/useAuthContext'
 import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 
 const Add = () => {
+  const { auth } = useAuthContext()
   const axiosPrivate = useAxiosPrivate()
   const { dispatch } = useSleepsContext()
-  const { auth } = useAuthContext()
+  const [error, setError] = useState(null)
+  const [emptyFields, setEmptyFields] = useState([])
   const titleRef = useRef('')
   const loadRef = useRef('')
   const repsRef = useRef('')
-  const [error, setError] = useState(null)
-  const [emptyFields, setEmptyFields] = useState([])
 
   const handleSubmit = async (e) => {
     e.preventDefault()

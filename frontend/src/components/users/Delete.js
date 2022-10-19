@@ -24,7 +24,7 @@ const Delete = ({user}) => {
       const response = await axiosPrivate.delete('/api/users/' + user._id)
       dispatch({type: 'DELETE_USER', payload: response.data})
       setError(null)
-      setShow(!show)
+      setShow(false)
     } catch (error) {
       // console.log(error)
     }
@@ -39,7 +39,7 @@ const Delete = ({user}) => {
           {!error && (<Modal.Title className="d-inline-flex align-items-center"><GoAlert/>&nbsp;Warning</Modal.Title>)}
           {error && (<Modal.Title>Error</Modal.Title>)}
         </Modal.Header> 
-        <Modal.Body closeButton>
+        <Modal.Body>
           Are you sure, delete user <strong>{user.name}</strong> ?
           {error && (<div className="alert alert-danger" role="alert">{error}</div>)}
         </Modal.Body>
