@@ -40,47 +40,47 @@ exports.create = async (req, res) => {
 }
 
 exports.update = async (req, res) => {
-    const { id, name, email, roles, active } = req.body
+    const { id, name, email, password, roles, active } = req.body
 
     const isIdEmpty = validator.isEmpty(id, { ignore_whitespace:true })
-    const isNameEmpty = validator.isEmpty(name, { ignore_whitespace:true })
-    const isEmailEmpty = validator.isEmpty(email, { ignore_whitespace:true })
-    const isPasswordEmpty = validator.isEmpty(password, { ignore_whitespace:true })
-    const checkField = isIdEmpty || isNameEmpty || isEmailEmpty || isPasswordEmpty || !Array.isArray(roles) || !roles.length || typeof active !== 'boolean'
-
-    if (checkField) return res.status(400).json({ error: 'All fields must be filled'})
-    if (!validator.isEmail(email)) return res.status(400).json({ error: 'Email not valid'})
-    if (!validator.isStrongPassword(password)) return res.status(400).json({ error: 'Password not strong enough'})
+    if (isIdEmpty) return res.status(400).json({error: 'User id required'})
     if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({error: 'No such user id found'})
+    
+    const checkUser = await User.findById(id).exec()
+    if (!checkUser) return res.status(400).json({ error: 'User not found' })
 
-    const user = await User.findById(id).exec()
-    if (!user) return res.status(400).json({ error: 'User not found' })
+    if(email){
+        if(!validator.isEmail(email)) return res.status(400).json({ error: 'Email not valid'})
 
-    const duplicateEmail = await User.findOne({ email }).collation({ locale: 'en', strength: 2 }).lean().exec()
-    if (duplicateEmail && duplicateEmail?._id.toString() !== id) return res.status(409).json({ error: 'Email already in use' })
+        const duplicateEmail = await User.findOne({ email: req.body?.email }).collation({ locale: 'en', strength: 2 }).lean().exec()
+        if (duplicateEmail && duplicateEmail?._id.toString() !== id) return res.status(409).json({ error: 'Email already in use' })
+    }
 
-    user.name = name
-    user.email = email
-    user.roles = roles
-    user.active = active
+    if(password){if(!validator.isStrongPassword(password)) return res.status(400).json({ error: 'Password not strong enough'})}
+    if(roles){if (!Array.isArray(roles) || !roles.length) return res.status(400).json({ error: 'Invalid data type received' })}
+    if(active){if(typeof active !== 'boolean') return res.status(400).json({ error: 'Invalid data type received' })}
 
-    const updatedUser = await user.save()
-    res.status(200).json(`${updatedUser.name} details updated`)
+    const user = await User.findOneAndUpdate({_id: id}, {...req.body}).lean().exec()
+    if (!user) return res.status(400).json({error: 'Something went wrong, during update'})
+
+    // res.status(200).json(`${updatedUser.name} details updated`)
+    const users = await User.find().select('-password').lean()
+    res.status(200).json(users)
 }
 
 exports.delete = async (req, res) => {
-    const { id } = req.body
+    const { id } = req.params
 
     const isIdEmpty = validator.isEmpty(id, { ignore_whitespace:true })
     if (isIdEmpty) return res.status(400).json({error: 'User id required'})
     if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({error: 'No such user id found'})
 
-    const note = await Note.findOne({ user: id }).lean().exec()
-    if (note) return res.status(400).json({ error: 'User has assigned notes' })
+    // const note = await Note.findOne({ user: id }).lean().exec()
+    // if (note) return res.status(400).json({ error: 'User has assigned notes' })
 
     const user = await User.findByIdAndDelete(id).lean().exec()
     if (!user) return res.status(400).json({ error: 'User not found' })
 
-    const reply = `User ${user.name} with ID ${user._id} deleted`
-    res.status(200).json(user, reply)
+    // const reply = `User ${user.name} with ID ${user._id} deleted`
+    res.status(200).json(user)
 }
