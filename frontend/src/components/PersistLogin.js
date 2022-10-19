@@ -1,8 +1,9 @@
+import { useState, useEffect } from 'react'
 import { Outlet } from "react-router-dom" 
-import { useState, useEffect } from "react" 
 import { useAuthContext } from '../hooks/useAuthContext'
 import useRefreshToken from '../hooks/useRefreshToken' 
 import usePersist from '../hooks/usePersist'
+import Loading from './Loading'
 
 const PersistLogin = () => {
     const refresh = useRefreshToken() 
@@ -33,13 +34,7 @@ const PersistLogin = () => {
             {!persist ? 
                 <Outlet /> 
                 : isLoading ? 
-                    (
-                        <div className="text-center">
-                            <div className="spinner-border" role="status" style={{width: "3rem", height: "3rem"}}>
-                                <span className="visually-hidden">Loading...</span>
-                            </div>
-                        </div>
-                    ) 
+                    <Loading /> 
                     : <Outlet />}
         </>
     )
