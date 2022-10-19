@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { BsPencilSquare } from "react-icons/bs"
+import { BsPencilSquare } from 'react-icons/bs'
+import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { Alert, Button, Form, Modal } from 'react-bootstrap'
 import { useUserContext } from '../../hooks/useUserContext'
 import { useAuthContext } from '../../hooks/useAuthContext'
@@ -12,14 +13,27 @@ const Edit = ({user}) => {
   const { auth } = useAuthContext()
   const [error, setError] = useState(null)
   const [show, setShow] = useState(false)
+  const [changeIcon, setChangeIcon] = useState(false)
   const [active, setActive] = useState(user.active)
   const nameRef = useRef('')
   const emailRef = useRef('')
+  const passwordRef = useRef('')
   const rolesRef = useRef([])
   const activeRef = useRef('')
 
+  const handleShowPassword =  (e) => {
+    e.preventDefault()
+    if(passwordRef.current.type === "password") {
+      passwordRef.current.type = "text"
+      setChangeIcon(true)
+    }else{
+      passwordRef.current.type = "password"
+      setChangeIcon(false)
+    }
+  }
+
   const handleUpdate = async () => {
-  const updateUser = {name: nameRef.current.value, email: emailRef.current.value, roles: rolesRef.current.value, active: activeRef.current.checked}
+  const updateUser = {name: nameRef.current.value, email: emailRef.current.value, password: passwordRef.current.value, roles: rolesRef.current.value, active: activeRef.current.checked}
   const prevUser  = [user.name, user.email, user.roles[0], user.active]
 
   Object.keys(updateUser).forEach(key => {
@@ -73,6 +87,13 @@ const Edit = ({user}) => {
           <Form.Group className="mb-3">
             <Form.Label>Email:</Form.Label>
             <Form.Control type="text" defaultValue={user.email} ref={emailRef}/>
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Password: </Form.Label>
+            <div className="d-flex">
+              <Form.Control type="password" ref={passwordRef} autoComplete="on"/>
+              <Button variant="default" className="mb-2" onClick={handleShowPassword}>{changeIcon ? <FaEyeSlash/> : <FaEye/>}</Button>
+            </div>
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Roles:</Form.Label>

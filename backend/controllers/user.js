@@ -40,7 +40,7 @@ exports.create = async (req, res) => {
 }
 
 exports.update = async (req, res) => {
-    const { id, name, email, password, roles, active } = req.body
+    const { id, name, email, roles, active } = req.body
 
     const isIdEmpty = validator.isEmpty(id, { ignore_whitespace:true })
     if (isIdEmpty) return res.status(400).json({error: 'User id required'})
@@ -55,7 +55,13 @@ exports.update = async (req, res) => {
         if (duplicateEmail && duplicateEmail?._id.toString() !== id) return res.status(409).json({ error: 'Email already in use' })
     }
 
-    if(password){if(!validator.isStrongPassword(password)) return res.status(400).json({ error: 'Password not strong enough' })}
+    if(req.body.password){
+        if(!validator.isStrongPassword(req.body.password)) return res.status(400).json({ error: 'Password not strong enough' })
+        const salt = await bcrypt.genSalt(10)
+        const hash = await bcrypt.hash(req.body.password, salt)
+        req.body.password = hash
+    }
+
     if(roles){if (!Array.isArray(roles) || !roles.length) return res.status(400).json({ error: 'Invalid roles data type received' })}
     if(active){if(typeof active !== 'boolean') return res.status(400).json({ error: 'Invalid active data type received' })}
 
