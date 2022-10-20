@@ -13,14 +13,18 @@ const requireAuth = async (req, res, next) => {
     process.env.ACCESS_TOKEN_SECRET, 
     async (err, decoded) => {
       if (err?.name == "TokenExpiredError") return res.status(403).json({ error: 'Forbidden token expired'})
-
       if (err) return res.status(403).json({ error: 'Forbidden'})
 
-      req.user = await User.findOne({ _id: decoded._id }).select('_id')
-
-      if (!req.user._id) return res.status(401).json({ error: 'Unauthorized' })
-
-      next()
+      const checkActive = await User.findOne({ _id: decoded._id }).select('_id active').lean().exec()
+      
+      if(checkActive.active){
+        req.user = checkActive._id
+        if (!req.user._id) return res.status(401).json({ error: 'Unauthorized' })
+        next()
+      } else{
+        res.clearCookie('jwt', { httpOnly: true, sameSite: 'Lax', secure: true })
+        res.status(400).json({ error: 'Your account has been blocked' })
+      }
   })
 }
 

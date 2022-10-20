@@ -28,7 +28,6 @@ exports.signup = async (req, res) => {
     res.status(200).json({name: user.name, email, roles: user.roles, accessToken})
   } catch (error) {
     if(error.message === "Email already in use") res.status(409).json({error: error.message})
-    
     res.status(400).json({error: error.message})
   }
 }
@@ -48,13 +47,16 @@ exports.refresh = (req, res) => {
 
       if (err) return res.status(403).json({ error: 'Forbidden'})
 
-      const foundUser = await User.findOne({ _id: decoded._id }).exec()
-      
+      const foundUser = await User.findOne({ _id: decoded._id }).lean().exec()
       if (!foundUser) return res.status(401).json({ error: 'Unauthorized user not found' })
 
-      const accessToken = jwt.sign({_id: foundUser._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10s' })
-
-      res.json({ name: foundUser.name, email: foundUser.email, roles: foundUser.roles, accessToken })
+      if(foundUser.active){
+        const accessToken = jwt.sign({_id: foundUser._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10s' })
+        res.status(200).json({ name: foundUser.name, email: foundUser.email, roles: foundUser.roles, accessToken })
+      }else{
+        res.clearCookie('jwt', { httpOnly: true, sameSite: 'Lax', secure: true })
+        res.status(400).json({ error: 'Your account has been blocked' })
+      }
     }
   )
 }
@@ -63,5 +65,5 @@ exports.logout = async (req, res) => {
   const token = req.cookies.jwt
   if (!token) return res.sendStatus(204)
   res.clearCookie('jwt', { httpOnly: true, sameSite: 'Lax', secure: true })
-  res.json({ error: 'Cookie cleared' })
+  res.status(200).json({ error: 'Logout successful '})
 }

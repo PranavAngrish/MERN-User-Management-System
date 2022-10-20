@@ -51,10 +51,12 @@ userSchema.statics.login = async function(email, password) {
   if (isEmailEmpty || isPasswordEmpty) throw Error('All fields must be filled')
 
   const user = await this.findOne({ email: email.trim() }).lean()
-  if (!user) throw Error('Incorrect email or email doesn\'t exist')
+  if (!user) throw Error('Incorrect Email')
 
   const match = await bcrypt.compare(password, user.password)
-  if (!match) throw Error('Incorrect password')
+  if (!match) throw Error('Incorrect Password')
+
+  if(!user.active) throw Error('Your account has not been activated')
 
   return user
 }
