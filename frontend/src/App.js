@@ -11,6 +11,8 @@ import User from './pages/User'
 import Sleep from './pages/Sleep'
 import Note from './pages/Note'
 import PersistLogin from './components/PersistLogin'
+import CheckLogin from './components/CheckLogin'
+import RequireAuth from './components/RequireAuth'
 
 function App() {
   const { auth } = useAuthContext()
@@ -20,16 +22,25 @@ function App() {
       <BrowserRouter>
         <Navbar />
         <Status />
+        
         <div className="container mt-3">
           <Routes>
-            <Route path="/" element={<Home />}/>
             <Route path="/login" element={!auth ? <Login /> : <Navigate to="/" />} />
             <Route path="/signup" element={!auth ? <Signup /> : <Navigate to="/" />} />
 
             <Route element={<PersistLogin />}>
-              <Route path="/user" element={auth ? <User /> : <Navigate to="/login" />} />
-              <Route path="/sleep" element={auth ? <Sleep /> : <Navigate to="/login" />} />
-              <Route path="/note" element={auth ? <Note /> : <Navigate to="/login" />} />
+              <Route path="/" element={<Home />}/>
+
+              <Route element={<CheckLogin />}>
+                <Route element={<RequireAuth Roles={[...Object.values(ROLES)]} />}>
+                  <Route path="/sleep" element={<Sleep />} />
+                  <Route path="/note" element={<Note />} />
+                </Route>
+
+                <Route element={<RequireAuth Roles={[ROLES.Admin]} />}>
+                  <Route path="/user" element={<User />} />
+                </Route>
+              </Route>
             </Route>
             
             <Route path="*" element={<NotFound />} />
