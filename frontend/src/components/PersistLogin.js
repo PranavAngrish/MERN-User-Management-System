@@ -8,7 +8,7 @@ import Loading from './Loading'
 const PersistLogin = () => {
     const refresh = useRefreshToken() 
     const { auth } = useAuthContext()
-    const {persist} = usePersist()
+    const { persist } = usePersist()
     const [isLoading, setIsLoading] = useState(true) 
 
     useEffect(() => {

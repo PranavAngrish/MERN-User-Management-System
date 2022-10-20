@@ -75,7 +75,6 @@ exports.delete = async (req, res) => {
 
   const isIdEmpty = validator.isEmpty(id, { ignore_whitespace:true })
   if (isIdEmpty) return res.status(400).json({error: 'Sleep id required'})
-
   if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({error: 'No such sleep id found'})
 
   const sleep = await Sleep.findByIdAndDelete(id).lean().exec()

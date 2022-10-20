@@ -1,7 +1,7 @@
 import { useLogout } from '../hooks/useLogout'
 import { useTitleContext } from '../context/title'
 import { useAuthContext } from '../hooks/useAuthContext'
-import { Container, Nav, Navbar, Button } from "react-bootstrap"
+import { Nav, Navbar, Button } from "react-bootstrap"
 import { Link } from "react-router-dom"
 
 const Navbars = () => {
