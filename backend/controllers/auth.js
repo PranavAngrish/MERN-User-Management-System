@@ -8,7 +8,7 @@ exports.login = async (req, res) => {
 
   try {
     const user = await User.login(email, password)
-    const accessToken = jwt.sign({_id: user._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10s' })
+    const accessToken = jwt.sign({_id: user._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
     const refreshToken = createRefreshToken(user._id)
     res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
     res.status(200).json({name: user.name, email, roles: user.roles, accessToken})
@@ -22,7 +22,7 @@ exports.signup = async (req, res) => {
 
   try {
     const user = await User.signup(name, email, password)
-    const accessToken = jwt.sign({_id: user._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10s' })
+    const accessToken = jwt.sign({_id: user._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
     const refreshToken = createRefreshToken(user._id)
     res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
     res.status(200).json({name: user.name, email, roles: user.roles, accessToken})
@@ -51,7 +51,7 @@ exports.refresh = (req, res) => {
       if (!foundUser) return res.status(401).json({ error: 'Unauthorized user not found' })
 
       if(foundUser.active){
-        const accessToken = jwt.sign({_id: foundUser._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10s' })
+        const accessToken = jwt.sign({_id: foundUser._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
         res.status(200).json({ name: foundUser.name, email: foundUser.email, roles: foundUser.roles, accessToken })
       }else{
         res.clearCookie('jwt', { httpOnly: true, sameSite: 'Lax', secure: true })

@@ -3,7 +3,7 @@ import { ROLES } from '../config/roles'
 import { useAuthContext } from '../hooks/useAuthContext'
 import { BsFillPersonFill } from "react-icons/bs"
 import { FaAddressCard } from "react-icons/fa"
-import { Button, OverlayTrigger, Tooltip} from "react-bootstrap"
+import { OverlayTrigger, Tooltip} from "react-bootstrap"
 
 const Status = () => {
   const { auth } = useAuthContext()

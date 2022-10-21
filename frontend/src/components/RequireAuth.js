@@ -1,14 +1,9 @@
-import { useLocation, Navigate, Outlet } from 'react-router-dom'
+import { Outlet, Navigate } from "react-router-dom" 
 import { useAuthContext } from '../hooks/useAuthContext'
 
-const RequireAuth = ({ Roles }) => {
+const RequireAuth = () => {
     const { auth } = useAuthContext()
-    const location = useLocation() 
-    const checkRoles = auth.roles.find(role => Roles.includes(role))
-
-    return (
-        checkRoles && auth ? <Outlet /> : <Navigate to="/" />
-    ) 
+    return ( <>{auth ? <Outlet /> : <Navigate to="/login" />}</>)
 }
 
-export default RequireAuth 
+export default RequireAuth

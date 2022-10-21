@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './index.css'
 import App from './App'
-import { TitleContextProvider } from './context/title'
+import { PathContextProvider } from './context/path'
 import { AuthContextProvider } from './context/auth'
 import { UserContextProvider } from './context/user'
 import { SleepsContextProvider } from './context/sleep'
@@ -14,7 +14,7 @@ if (process.env.NODE_ENV === 'production') disableReactDevTools()
 const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(
   <React.StrictMode>
-    <TitleContextProvider>
+    <PathContextProvider>
       <AuthContextProvider>
         <UserContextProvider>
           <SleepsContextProvider>
@@ -22,6 +22,6 @@ root.render(
           </SleepsContextProvider>
         </UserContextProvider>
       </AuthContextProvider>
-    </TitleContextProvider>
+    </PathContextProvider>
   </React.StrictMode>
 )
