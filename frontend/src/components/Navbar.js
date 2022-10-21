@@ -1,18 +1,19 @@
 import { useLogout } from '../hooks/useLogout'
-import { useTitleContext } from '../context/title'
+import { usePathContext } from '../context/path'
 import { useAuthContext } from '../hooks/useAuthContext'
 import { Nav, Navbar, Button } from "react-bootstrap"
+import { FaHome } from "react-icons/fa"
 import { Link } from "react-router-dom"
 
 const Navbars = () => {
   const { logout } = useLogout()
   const { auth } = useAuthContext()
-  const { title, setTitle } = useTitleContext()
+  const { title, setTitle } = usePathContext()
 
   return (
     <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
       <div className="container-fluid">
-        <Navbar.Brand><h3><Link to="/" className="text-decoration-none text-white" onClick={e => setTitle("Welcome")}>{title}</Link></h3></Navbar.Brand>
+        <Navbar.Brand><h3><Link to="/" className="text-white" onClick={() => setTitle("Welcome")}><FaHome/></Link>&nbsp;{title}</h3></Navbar.Brand>
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
         <Navbar.Collapse id="responsive-navbar-nav">
           <Navbar.Collapse className="justify-content-end">

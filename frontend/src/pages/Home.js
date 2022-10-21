@@ -1,19 +1,23 @@
 import { Link } from 'react-router-dom'
 import { ROLES } from '../config/roles'
-import { useTitleContext } from '../context/title'
+import { usePathContext } from '../context/path'
 import { useAuthContext } from '../hooks/useAuthContext'
 
 const Home = () => {
     const { auth } = useAuthContext()
-    const { setTitle } = useTitleContext()
-    
+    const { setTitle, setLink } = usePathContext()
 
+    const handleClick = (title) => {
+        setTitle(title + " Management")
+        setLink('/' + title.toLowerCase())
+    }
+    
     return (
         <>
             <h1>Welcome</h1><br/>
-            {auth?.roles == ROLES.Admin && (<><Link to="/user" onClick={e => setTitle("User Management")}>User</Link><br/></>)}
-            <Link to="/sleep" onClick={e => setTitle("Sleep Management")}>Sleep</Link><br/>
-            <Link to="/note" onClick={e => setTitle("Note Management")}>Note</Link>
+            {auth?.roles == ROLES.Admin && (<><Link to="/user" onClick={() => handleClick("User")}>User</Link><br/></>)}
+            <Link to="/sleep" onClick={() => handleClick("Sleep")}>Sleep</Link><br/>
+            <Link to="/note" onClick={() => handleClick("Note")}>Note</Link>
         </>
     )
 }
