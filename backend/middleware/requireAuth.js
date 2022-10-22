@@ -15,11 +15,13 @@ const requireAuth = async (req, res, next) => {
       if (err?.name == "TokenExpiredError") return res.status(403).json({ error: 'Forbidden token expired'})
       if (err) return res.status(403).json({ error: 'Forbidden'})
 
-      const checkActive = await User.findOne({ _id: decoded._id }).select('_id active').lean().exec()
+      const checkActive = await User.findOne({ _id: decoded._id }).select('_id active roles').lean().exec()
       
       if(checkActive.active){
         req.user = checkActive._id
-        if (!req.user._id) return res.status(401).json({ error: 'Unauthorized' })
+        req.roles = checkActive.roles
+        if (!req.user._id) return res.status(401).json({ error: 'Unauthorized User ID' })
+        if(!req.roles) return res.status(401).json({ error: 'Unauthorized Roles' })
         next()
       } else{
         res.clearCookie('jwt', { httpOnly: true, sameSite: 'Lax', secure: true })
