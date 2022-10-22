@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { useAuthContext } from '../../hooks/useAuthContext'
 import { useUserContext } from '../../hooks/useUserContext'
 import useAxiosPrivate from '../../hooks/useAxiosPrivate'
-import Edit from './Edit'
 import Delete from './Delete'
+import View from './View'
+import Edit from './Edit'
 
 const Index = () => {
   const {auth} = useAuthContext()
@@ -59,6 +60,7 @@ const Index = () => {
                 </div>
               </td>
               <td>
+                <View user={user}/>
                 <Edit user={user}/>
                 <Delete user={user}/>
               </td>

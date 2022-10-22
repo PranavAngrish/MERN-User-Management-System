@@ -11,6 +11,20 @@ exports.getAll = async (req, res) => {
   res.status(200).json(sleeps)
 }
 
+exports.adminGetAll = async (req, res) => {
+  const admin_id = req.user._id
+  const user_id = req.body.id
+  const {id} = req.body
+
+  if(!user_id && (admin_id == user_id)) return res.status(400).json({ error: 'User id not found' })
+  if (!mongoose.Types.ObjectId.isValid(user_id)) return res.status(404).json({error: 'No such sleep id found'})
+
+  const sleeps = await Sleep.find({user_id: user_id}).sort({createdAt: -1}).lean()
+  if (!sleeps?.length) return res.status(400).json({ error: 'No sleeps record found' })
+
+  res.status(200).json(sleeps)
+}
+
 exports.getById = async (req, res) => {
   const { id } = req.params
 
