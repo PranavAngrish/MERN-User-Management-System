@@ -14,7 +14,6 @@ exports.getAll = async (req, res) => {
 exports.adminGetAll = async (req, res) => {
   const admin_id = req.user._id
   const user_id = req.body.id
-  const {id} = req.body
 
   if(!user_id && (admin_id == user_id)) return res.status(400).json({ error: 'User id not found' })
   if (!mongoose.Types.ObjectId.isValid(user_id)) return res.status(404).json({error: 'No such sleep id found'})
@@ -58,8 +57,13 @@ exports.create = async (req, res) => {
   }
 
   try {
-    const user_id = req.user._id
-    const sleep = await Sleep.create({ title, load, reps, user_id })
+    const userId = req.user._id
+    const targetUserId = req.body.id // user id that Admin use to update user record
+    let idToCreate = userId
+    if(targetUserId && (userId !== targetUserId) && (req.roles == "Admin")){
+      idToCreate = targetUserId
+    }
+    const sleep = await Sleep.create({ title, load, reps, user_id: idToCreate })
     res.status(201).json(sleep)
   } catch (error) {
     res.status(400).json({ error: error.message })
@@ -71,16 +75,20 @@ exports.update = async (req, res) => {
   
   const isIdEmpty = validator.isEmpty(id, { ignore_whitespace:true })
   if (isIdEmpty) return res.status(400).json({error: 'Sleep id required'})
-  
   if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({error: 'No such sleep id found'})
 
   const sleep = await Sleep.findOneAndUpdate({_id: id}, {...req.body }).lean().exec()
   if (!sleep) return res.status(400).json({error: 'No such sleep record found'})
   
-  // res.status(200).json(sleep)
   //after update return new record
-  const user_id = req.user._id
-  const updatedRecord = await Sleep.find({user_id}).sort({createdAt: -1}).lean()
+  const userId = req.user._id //normal record update id (user id/admin id) 
+  const targetUserId = req.body.id // user id that Admin use to update user record
+  let idToUpdate = userId
+  if(targetUserId && (userId !== targetUserId) && (req.roles == "Admin")){
+    idToUpdate = targetUserId
+  }
+  const updatedRecord = await Sleep.find({user_id: idToUpdate}).sort({createdAt: -1}).lean()
+  console.log(updatedRecord)
   res.status(200).json(updatedRecord)
 }
 

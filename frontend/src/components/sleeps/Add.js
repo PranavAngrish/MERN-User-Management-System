@@ -1,11 +1,13 @@
 import { useRef, useState } from 'react'
 import { useSleepsContext } from '../../hooks/useSleepsContext'
 import { useAuthContext } from '../../hooks/useAuthContext'
+import { useUserContext } from '../../hooks/useUserContext'
 import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 
 const Add = () => {
-  const { auth } = useAuthContext()
   const axiosPrivate = useAxiosPrivate()
+  const { auth } = useAuthContext()
+  const { targetUser } =  useUserContext()
   const { dispatch } = useSleepsContext()
   const [error, setError] = useState(null)
   const [emptyFields, setEmptyFields] = useState([])
@@ -24,6 +26,9 @@ const Add = () => {
     const sleep = {title: titleRef.current.value, load: loadRef.current.value, reps: repsRef.current.value}
     
     try {
+      if(targetUser?.userId && (auth.email !== targetUser?.userEmail) && (auth.roles == "Admin")){
+        sleep.id = targetUser.userId
+      }
       const response = await axiosPrivate.post('/api/sleeps', sleep)
       setEmptyFields([])
       setError(null)

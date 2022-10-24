@@ -28,6 +28,7 @@ app.use('/api/auth', require('./routes/auth'))
 app.use('/api/users', require('./routes/user'))
 app.use('/api/notes', require('./routes/note'))
 app.use('/api/sleeps', require('./routes/sleep'))
+app.use('/api/tasks', require('./routes/task'))
 // app.use(errorHandler)
 
 mongoose.connection.once('open', () => {
