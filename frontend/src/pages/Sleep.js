@@ -1,22 +1,25 @@
 import { useEffect } from 'react'
+import { usePathContext } from '../context/path'
+import { useUserContext } from '../hooks/useUserContext'
 import { useAuthContext } from '../hooks/useAuthContext'
 import { useSleepsContext } from '../hooks/useSleepsContext'
 import { BsFillPersonFill } from "react-icons/bs"
 import { FaAddressCard } from "react-icons/fa"
-import { useUserContext } from '../hooks/useUserContext'
 import useAxiosPrivate from "../hooks/useAxiosPrivate"
 import Details from '../components/sleeps/Index'
 import SleepForm from '../components/sleeps/Add'
 
 const Sleep = () => {
-  const {auth} = useAuthContext()
+  const { auth } = useAuthContext()
   const { targetUser } = useUserContext()
-  const {sleeps, dispatch} = useSleepsContext()
+  const { sleeps, dispatch } = useSleepsContext()
+  const { setTitle } = usePathContext()
   const axiosPrivate = useAxiosPrivate()
 
   useEffect(() => {
     let isMounted = true
     const abortController = new AbortController()
+    setTitle("Sleep Management")
 
     const getSleeps = async () => {
       try {

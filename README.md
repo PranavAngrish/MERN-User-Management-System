@@ -18,7 +18,7 @@
 - Task are assigned to specific employees.
 - Admin can view, edit, and delete all Task.
 - Task can only be deleted by Admin.
-- Task are either OPEN or COMPLETED.
+- Task are either PENDING, EXPIRED or COMPLETED.
 - User can only view and edit their assigned task.
 
 - Anyone can create a note when login.
