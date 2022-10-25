@@ -39,7 +39,7 @@ function App() {
                   <Route path="/note" element={<Note />} />
                 </Route>
 
-                <Route element={<RequireRoles Roles={[ROLES.Admin]} />}>
+                <Route element={<RequireRoles Roles={[ROLES.Root, ROLES.Admin]} />}>
                   <Route path="/user" element={<User />} />
                 </Route>
               </Route>

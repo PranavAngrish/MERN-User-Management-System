@@ -1,11 +1,17 @@
 const mongoose = require('mongoose')
 const User = require('../models/User')
 const Note = require('../models/Note')
-const bcrypt = require('bcrypt')
 const validator = require('validator')
+const ROLES_LIST = require('../config/rolesList')
+const bcrypt = require('bcrypt')
 
 exports.getAll = async (req, res) => {
-    const users = await User.find().select('-password').lean()
+    let users
+    if(req.roles == "Root"){
+        users = await User.find().select('-password').lean()
+    }else{
+        users = await User.find({$and: [{'roles': {$ne: ROLES_LIST.Root}},{'roles': {$ne: ROLES_LIST.Admin}}]}).select('-password').lean()
+    }
     if (!users?.length) return res.status(400).json({ error: 'No users found' })
     res.status(200).json(users)
 }
@@ -29,7 +35,9 @@ exports.create = async (req, res) => {
     const salt = await bcrypt.genSalt(10)
     const hash = await bcrypt.hash(password, salt)
 
-    const createUser = { name: name.trim(), email: email.trim(), password: hash, roles: roles ?? ["User"], active: active ?? true}
+    if(roles == ROLES_LIST.Admin) return res.status(400).json({error: 'Not authorized to create admin'})
+
+    const createUser = { name: name.trim(), email: email.trim(), password: hash, roles: roles ?? [ROLES_LIST.User], active: active ?? true}
     const user = await User.create(createUser)
 
     if (user) {
@@ -42,7 +50,8 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
     const { id, name, email, roles, active } = req.body
 
-    const isIdEmpty = validator.isEmpty(id, { ignore_whitespace:true })
+    const isIdEmpty = validator.isEmpty(id ?? "", { ignore_whitespace:true })
+    const isNameEmpty = validator.isEmpty(name ?? "", { ignore_whitespace:true })
     if (isIdEmpty) return res.status(400).json({error: 'User id required'})
     if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({error: 'No such user id found'})
     
@@ -65,6 +74,10 @@ exports.update = async (req, res) => {
     if(roles){if (!Array.isArray(roles) || !roles.length) return res.status(400).json({ error: 'Invalid roles data type received' })}
     if(active){if(typeof active !== 'boolean') return res.status(400).json({ error: 'Invalid active data type received' })}
 
+    const rootUser = await User.findById(id).lean().exec()
+    if(rootUser.roles == "Root") return res.status(400).json({error: 'Not authorized to edit this user'})
+    if(req.roles == ROLES_LIST.Admin && rootUser.roles == ROLES_LIST.Admin) return res.status(400).json({error: 'Not authorized to edit this user'})
+
     const user = await User.findOneAndUpdate({_id: id}, {...req.body}).lean().exec()
     if (!user) return res.status(400).json({error: 'Something went wrong, during update'})
 
@@ -82,6 +95,10 @@ exports.delete = async (req, res) => {
 
     // const note = await Note.findOne({ user: id }).lean().exec()
     // if (note) return res.status(400).json({ error: 'User has assigned notes' })
+
+    const rootUser = await User.findById(id).lean().exec()
+    if(rootUser.roles == "Root") return res.status(400).json({error: 'Not authorized to delete this user'})
+    if(req.roles == ROLES_LIST.Admin && rootUser.roles == ROLES_LIST.Admin) return res.status(400).json({error: 'Not authorized to delete this user'})
 
     const user = await User.findByIdAndDelete(id).lean().exec()
     if (!user) return res.status(400).json({ error: 'User not found' })

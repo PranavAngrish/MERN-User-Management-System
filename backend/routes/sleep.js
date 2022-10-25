@@ -17,6 +17,6 @@ router.route('/:id')
     .delete(sleepController.delete)
 
 router.route('/admin')
-    .post(requireRoles([ROLES_LIST.Admin]), sleepController.adminGetAll)
+    .post(requireRoles([ROLES_LIST.Root, ROLES_LIST.Admin]), sleepController.adminGetAll)
 
 module.exports = router
