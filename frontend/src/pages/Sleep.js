@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { ROLES } from '../config/roles'
 import { usePathContext } from '../context/path'
 import { useUserContext } from '../hooks/useUserContext'
 import { useAuthContext } from '../hooks/useAuthContext'
@@ -24,7 +25,7 @@ const Sleep = () => {
     const getSleeps = async () => {
       try {
         let response
-        if(targetUser?.userId && (auth.email !== targetUser.userEmail) && (auth.roles == "Admin")){
+        if(targetUser?.userId && (auth.email !== targetUser.userEmail) && (auth.roles == ROLES.Admin)){
           // Admin view
           response = await axiosPrivate.post('/api/sleeps/admin', {
             id: targetUser.userId,

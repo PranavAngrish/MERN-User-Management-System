@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const Sleep = require('../models/sleep')
 const validator = require('validator')
+const ROLES_LIST = require('../config/rolesList')
 
 exports.getAll = async (req, res) => {
   const user_id = req.user._id
@@ -60,7 +61,7 @@ exports.create = async (req, res) => {
     const userId = req.user._id
     const targetUserId = req.body.id // user id that Admin use to update user record
     let idToCreate = userId
-    if(targetUserId && (userId !== targetUserId) && (req.roles == "Admin")){
+    if(targetUserId && (userId !== targetUserId) && (req.roles == ROLES_LIST.Admin)){
       idToCreate = targetUserId
     }
     const sleep = await Sleep.create({ title, load, reps, user_id: idToCreate })
@@ -84,7 +85,7 @@ exports.update = async (req, res) => {
   const userId = req.user._id //normal record update id (user id/admin id) 
   const targetUserId = req.body.id // user id that Admin use to update user record
   let idToUpdate = userId
-  if(targetUserId && (userId !== targetUserId) && (req.roles == "Admin")){
+  if(targetUserId && (userId !== targetUserId) && (req.roles == ROLES_LIST.Admin)){
     idToUpdate = targetUserId
   }
   const updatedRecord = await Sleep.find({user_id: idToUpdate}).sort({createdAt: -1}).lean()

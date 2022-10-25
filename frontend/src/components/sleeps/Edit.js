@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { ROLES } from '../../config/roles'
 import { BsPencilSquare } from "react-icons/bs"
 import { Alert, Button, Form, Modal } from 'react-bootstrap'
 import { useSleepsContext } from '../../hooks/useSleepsContext'
@@ -37,7 +38,7 @@ const Edit = ({sleep }) => {
 
     if(!checkChange){
       try {
-        if(targetUser?.userId && (auth.email !== targetUser?.userEmail) && (auth.roles == "Admin")){
+        if(targetUser?.userId && (auth.email !== targetUser?.userEmail) && (auth.roles == ROLES.Admin)){
           updateSleep.id = targetUser.userId
         }
         const response = await axiosPrivate.patch('/api/sleeps/' + sleep._id, updateSleep)

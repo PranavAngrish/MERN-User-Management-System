@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { ROLES } from '../../config/roles'
 import { useSleepsContext } from '../../hooks/useSleepsContext'
 import { useAuthContext } from '../../hooks/useAuthContext'
 import { useUserContext } from '../../hooks/useUserContext'
@@ -26,7 +27,7 @@ const Add = () => {
     const sleep = {title: titleRef.current.value, load: loadRef.current.value, reps: repsRef.current.value}
     
     try {
-      if(targetUser?.userId && (auth.email !== targetUser?.userEmail) && (auth.roles == "Admin")){
+      if(targetUser?.userId && (auth.email !== targetUser?.userEmail) && (auth.roles == ROLES.Admin)){
         sleep.id = targetUser.userId
       }
       const response = await axiosPrivate.post('/api/sleeps', sleep)
