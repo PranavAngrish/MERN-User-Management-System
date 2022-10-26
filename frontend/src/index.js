@@ -6,6 +6,7 @@ import App from './App'
 import { PathContextProvider } from './context/path'
 import { AuthContextProvider } from './context/auth'
 import { UserContextProvider } from './context/user'
+import { TasksContextProvider } from './context/task'
 import { SleepsContextProvider } from './context/sleep'
 import { disableReactDevTools } from '@fvilers/disable-react-devtools'
 
@@ -17,9 +18,11 @@ root.render(
     <PathContextProvider>
       <AuthContextProvider>
         <UserContextProvider>
-          <SleepsContextProvider>
-            <App />
-          </SleepsContextProvider>
+          <TasksContextProvider>
+            <SleepsContextProvider>
+              <App />
+            </SleepsContextProvider>
+          </TasksContextProvider>
         </UserContextProvider>
       </AuthContextProvider>
     </PathContextProvider>

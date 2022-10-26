@@ -41,17 +41,11 @@ exports.create = async (req, res) => {
 
   const isTitleEmpty = validator.isEmpty(title ?? "", { ignore_whitespace:true })
   const isDescriptionEmpty = validator.isEmpty(description ?? "", { ignore_whitespace:true })
-  const isStatusEmpty = validator.isEmpty(status ?? "", { ignore_whitespace:true })
-  if (isTitleEmpty || isDescriptionEmpty || isStatusEmpty) return res.status(400).json({ error: 'All fields must be filled'})
+  if (isTitleEmpty || isDescriptionEmpty) return res.status(400).json({ error: 'All fields must be filled'})
 
   try {
-    const userId = req.user._id
-    const targetUserId = req.body.id // user id that Admin use to update user record
-    let idToCreate = userId
-    if(targetUserId && (userId !== targetUserId) && (req.roles == ROLES_LIST.Admin)){
-      idToCreate = targetUserId
-    }
-    const task = await Task.create({ title, description, status, user_id: idToCreate })
+    const adminId = req.user._id
+    const task = await Task.create({ title, description, createdBy: adminId })
     res.status(201).json(task)
   } catch (error) {
     res.status(400).json({ error: error.message })

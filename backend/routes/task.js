@@ -9,8 +9,11 @@ router.use(requireRoles([...Object.values(ROLES_LIST)]))
 
 router.route('/')
     .get(tasksController.getAll)
-    .post(tasksController.create)
-    .patch(tasksController.update)
-    .delete(tasksController.delete)
+    .post(requireRoles([ROLES_LIST.Root, ROLES_LIST.Admin]), tasksController.create)
+
+router.route('/:id')
+    .get(tasksController.getById)
+    .patch(requireRoles([ROLES_LIST.Root, ROLES_LIST.Admin]), tasksController.update)
+    .delete(requireRoles([ROLES_LIST.Root, ROLES_LIST.Admin]), tasksController.delete)
 
 module.exports = router

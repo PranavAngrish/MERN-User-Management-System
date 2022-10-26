@@ -3,9 +3,8 @@ const AutoIncrement = require('mongoose-sequence')(mongoose)
 
 const taskSchema = new mongoose.Schema(
     {
-        user_id: {
+        assignedTo: {
             type: mongoose.Schema.Types.ObjectId,
-            required: true,
             ref: 'User'
         },
         title: {
@@ -16,9 +15,15 @@ const taskSchema = new mongoose.Schema(
             type: String,
             required: true
         },
+        createdBy:{
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            ref: 'User'
+        },
         status: {
             type: String,
-            required: true
+            required: true,
+            default: "Pending"
         }
     }, {timestamps: true}
 )
