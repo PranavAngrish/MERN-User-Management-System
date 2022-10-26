@@ -11,8 +11,9 @@ import Signup from './pages/Signup'
 import Navbar from './components/Navbar'
 import Status from './components/Status'
 import NotFound from './pages/NotFound'
-import Sleep from './pages/Sleep'
 import Note from './pages/Note'
+import Sleep from './pages/Sleep'
+import Task from './pages/Task'
 import User from './pages/User'
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
                 <Route element={<RequireRoles Roles={[...Object.values(ROLES)]} />}>
                   <Route path="/sleep" element={<Sleep />} />
                   <Route path="/note" element={<Note />} />
+                  <Route path="/task" element={<Task />} />
                 </Route>
 
                 <Route element={<RequireRoles Roles={[ROLES.Root, ROLES.Admin]} />}>

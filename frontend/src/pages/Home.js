@@ -5,6 +5,7 @@ import { useAuthContext } from '../hooks/useAuthContext'
 import { useUserContext } from '../hooks/useUserContext'
 import { GiNightSleep } from 'react-icons/gi'
 import { FaUserFriends, FaTasks, FaStickyNote } from 'react-icons/fa'
+import { MdAccountCircle } from "react-icons/md"
 
 const Home = () => {
     const { auth } = useAuthContext()
@@ -19,7 +20,16 @@ const Home = () => {
     return (
         <>
             <div className="row">
-                {auth?.roles == ROLES.Admin && (<div className="col-sm-6">
+                <div className="col-lg-3">
+                    <div className="card">
+                        <div className="card-body">
+                            <h5 className="card-title">Account Management</h5>
+                            <p className="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                            <Link to="/account" onClick={() => handleClick("/account")}><button className="btn btn-primary"><MdAccountCircle/></button></Link>
+                        </div>
+                    </div>
+                </div>
+                {auth?.roles == ROLES.Admin && (<div className="col-lg-3">
                     <div className="card">
                         <div className="card-body">
                             <h5 className="card-title">User Management</h5>
@@ -29,7 +39,16 @@ const Home = () => {
                         </div>
                     </div>
                 </div>)}
-                <div className="col-sm-6">
+                <div className="col-lg-3">
+                    <div className="card">
+                        <div className="card-body">
+                            <h5 className="card-title">Task Management</h5>
+                            <p className="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                            <Link to="/task" onClick={() => handleClick("/task")}><button className="btn btn-primary"><FaTasks/></button></Link>
+                        </div>
+                    </div>
+                </div>
+                <div className="col-lg-3">
                     <div className="card">
                         <div className="card-body">
                             <h5 className="card-title">Sleep Management</h5>
@@ -38,7 +57,7 @@ const Home = () => {
                         </div>
                     </div>
                 </div>
-                <div className="col-sm-6">
+                <div className="col-lg-3">
                     <div className="card">
                         <div className="card-body">
                             <h5 className="card-title">Note Management</h5>
