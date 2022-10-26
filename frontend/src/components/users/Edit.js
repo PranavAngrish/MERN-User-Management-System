@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { ROLES } from '../../config/roles'
 import { BsPencilSquare } from 'react-icons/bs'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { Alert, Button, Form, Modal } from 'react-bootstrap'
@@ -102,10 +103,10 @@ const Edit = ({user}) => {
               <option value="Admin">Admin</option>
             </select>
           </Form.Group>
-          <Form.Group className="mb-3" controlId="formBasicCheckbox">
+          {(user.roles == ROLES.User) && (<Form.Group className="mb-3" controlId="formBasicCheckbox">
             <Form.Label>Active:</Form.Label>
             <Form.Check type="switch" ref={activeRef} defaultChecked={active} onClick={() => setActive(!active)}/>
-          </Form.Group>
+          </Form.Group>)}
           {error && (<Alert variant={'danger'}>{error}</Alert>)}
         </Modal.Body>
         <Modal.Footer>

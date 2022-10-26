@@ -27,6 +27,7 @@ const Delete = ({user}) => {
       setShow(false)
     } catch (error) {
       // console.log(error)
+      setError(error.response?.data.error)
     }
   }
 
@@ -40,7 +41,7 @@ const Delete = ({user}) => {
           {error && (<Modal.Title>Error</Modal.Title>)}
         </Modal.Header> 
         <Modal.Body>
-          Are you sure, delete user <strong>{user.name}</strong> ?
+          {!error && (<>Are you sure, delete user <strong>{user.name}</strong> ?</>)}
           {error && (<div className="alert alert-danger" role="alert">{error}</div>)}
         </Modal.Body>
         <Modal.Footer>
