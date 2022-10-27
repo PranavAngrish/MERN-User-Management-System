@@ -4,12 +4,29 @@ const validator = require('validator')
 const ROLES_LIST = require('../config/rolesList')
 
 exports.getAll = async (req, res) => {
-  const user_id = req.user._id
+  const userId = req.user._id
 
-  const tasks = await Task.find({user_id}).sort({createdAt: -1}).lean()
+  let tasks
+  if(req.roles == "Root"){
+    tasks = await Task.find().sort({createdAt: -1}).populate('createdBy', 'name').lean()
+  }else if(req.roles == "Admin"){
+    tasks = await Task.find({createdBy: userId}).populate('createdBy', 'name').sort({createdAt: -1}).lean()
+  }else{
+    tasks = await Task.find({assignedTo: userId}).populate('createdBy', 'name').sort({createdAt: -1}).lean()
+  }
+
   if (!tasks?.length) return res.status(400).json({ error: 'No tasks record found' })
-
   res.status(200).json(tasks)
+
+  // const task = {
+  //   Root: await Task.find().sort({createdAt: -1}).populate('createdBy', 'name').lean(),
+  //   Admin: await Task.find({createdBy: userId}).populate('createdBy', 'name').sort({createdAt: -1}).lean(),
+  //   User: await Task.find({assignedTo: userId}).populate('createdBy', 'name').sort({createdAt: -1}).lean()
+  // }
+  // const getTask = (t) => tasks[t]
+  // const tasks = getTask(req.roles)
+  // if (!tasks?.length) return res.status(400).json({ error: 'No tasks record found' })
+  // res.status(200).json(tasks)
 }
 
 exports.adminGetAll = async (req, res) => {
@@ -37,7 +54,7 @@ exports.getById = async (req, res) => {
 }
 
 exports.create = async (req, res) => {
-  const {title, description, status} = req.body
+  const {title, description} = req.body
 
   const isTitleEmpty = validator.isEmpty(title ?? "", { ignore_whitespace:true })
   const isDescriptionEmpty = validator.isEmpty(description ?? "", { ignore_whitespace:true })
@@ -77,9 +94,16 @@ exports.update = async (req, res) => {
 exports.delete = async (req, res) => {
   const { id } = req.params
 
-  const isIdEmpty = validator.isEmpty(id, { ignore_whitespace:true })
+  const isIdEmpty = validator.isEmpty(id ?? "", { ignore_whitespace:true })
   if (isIdEmpty) return res.status(400).json({error: 'Task id required'})
   if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({error: 'No such task id found'})
+  
+  const ownerId = req.user._id
+  const createdBy = await Task.find({createdBy: ownerId}).select('createdBy').lean().exec()
+  const owner = (req.roles == ROLES_LIST.Admin) || (createdBy == ownerId)
+  const deleteRight = owner || (req.roles == ROLES_LIST.Root)
+
+  if(!deleteRight) return res.status(400).json({error: 'Not authorized to delete this task'})
 
   const task = await Task.findByIdAndDelete(id).lean().exec()
   if(!task) return res.status(400).json({error: 'No such task record found'})
