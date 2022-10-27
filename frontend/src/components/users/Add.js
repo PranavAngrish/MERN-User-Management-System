@@ -3,6 +3,7 @@ import { Alert, Button, Form, Modal } from 'react-bootstrap'
 import { useUserContext } from '../../hooks/useUserContext'
 import { useAuthContext } from '../../hooks/useAuthContext'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
+import { GrAdd } from "react-icons/gr"
 import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 
 const Add = () => {
@@ -51,7 +52,7 @@ const Add = () => {
 
   return (
     <>
-      <button className="btn btn-outline-primary mb-2" onClick={() => setShow(!show)}>Add</button>
+      <button className="btn btn-outline-primary mb-2" onClick={() => setShow(!show)}><GrAdd /></button>
 
       <Modal show={show} onHide={() => {setShow(!show);setError(null)}} centered>
         <Modal.Header closeButton>
