@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { Alert, Button, Form, Modal } from 'react-bootstrap'
 import { useTasksContext } from '../../hooks/useTasksContext'
 import { useAuthContext } from '../../hooks/useAuthContext'
-import { GrAdd } from "react-icons/gr"
+import { BsPlusLg } from 'react-icons/bs'
 import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 
 const Add = () => {
@@ -36,7 +36,7 @@ const Add = () => {
 
   return (
     <>
-      <button className="btn btn-outline-primary mb-2" onClick={() => setShow(!show)}><GrAdd /></button>
+      <button className="btn btn-outline-primary mb-2" onClick={() => setShow(!show)}><BsPlusLg /></button>
 
       <Modal show={show} onHide={() => {setShow(!show);setError(null)}} centered>
         <Modal.Header closeButton>

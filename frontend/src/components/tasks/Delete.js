@@ -33,7 +33,7 @@ const Delete = ({ task }) => {
 
   return (
     <>
-      <button className="btn btn-outlined text-muted" onClick={() => setShow(!show)}> <BsFillTrashFill className="fs-5"/><small>&ensp;DELETE</small></button>
+      <button className="btn btn-outlined text-muted taskbtn" onClick={() => setShow(!show)}> <BsFillTrashFill className="fs-5"/><small>&ensp;DELETE</small></button>
 
       <Modal show={show} onHide={() => {setShow(!show);setError(null)}} centered>
         <Modal.Header closeButton>

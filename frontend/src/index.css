@@ -156,7 +156,7 @@ form.login {
   opacity: 0.5 !important;
 }
 
-.btn:hover {
+.taskbtn:hover {
   color: black !important;
 }
 
@@ -172,25 +172,5 @@ form.login {
 }
 
 .card {
-  border-radius: 10px !important;
-}
-
-a:hover {
-  background-color: #ccc !important;
-}
-
-.btn-outlined:active {
-  color: #FFF;
-  border-color: #fff !important;
-}
-
-img {
-  cursor: pointer;
-  overflow: visible;
-}
-
-.btn:focus,
-.btn:active {
-  outline: none !important;
-  box-shadow: none !important;
+  border-radius: 12px !important;
 }
