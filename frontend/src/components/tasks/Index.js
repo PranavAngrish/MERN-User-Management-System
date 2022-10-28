@@ -1,5 +1,5 @@
 import { AiOutlineSetting } from "react-icons/ai"
-import { BsPencilSquare, BsFillTrashFill, BsCalendarWeek, BiTime } from 'react-icons/bs'
+import { BsCalendarWeek } from 'react-icons/bs'
 import { BiTimer } from 'react-icons/bi'
 import { FaUserCircle } from "react-icons/fa"
 import { FiMoreHorizontal } from "react-icons/fi"
@@ -7,11 +7,15 @@ import { HiLink, HiOutlineStar } from "react-icons/hi"
 import { IoAddCircleOutline } from "react-icons/io5"
 import { MdAdminPanelSettings } from "react-icons/md"
 import { SiStatuspal } from "react-icons/si"
+import { ROLES } from '../../config/roles'
+import { useAuthContext } from '../../hooks/useAuthContext'
 import formatDistanceToNow from 'date-fns/formatDistanceToNow'
 import Delete from './Delete'
 import Edit from './Edit'
 
 const Index = ({ tasks }) => {
+  const { auth } = useAuthContext()
+  const admin = (auth.roles == ROLES.Admin) || (auth.roles == ROLES.Root)
 
   return (
     <>
@@ -37,41 +41,43 @@ const Index = ({ tasks }) => {
                     </h6>
                   </div>
               </div>
-                  <div className="col">
-                    <p className="card-text">{task.description}</p>
-                  </div>
-          </div>
-          <div className="card-footer bg-white px-0">
-              <div className="row">
-                  <div className="col-md-auto">
-                    <Edit task={task}/>
-                    <Delete task={task}/>
-                    <button className="btn btn-outlined text-muted">
-                        <AiOutlineSetting className="fs-5"/>
-                        <small>&ensp;SETTINGS</small>
-                    </button>
-                    <button className="btn btn-outlined text-muted">
-                        <HiLink className="plus fs-5"/>
-                        <small>&ensp;PROGRAM LINK</small>
-                    </button>
-                    <button className="btn btn-outlined text-muted">
-                        <FiMoreHorizontal className="more mr-2 fs-5"/>
-                        <small>&ensp;MORE</small>
-                    </button>
-                    <span className="vl"></span>
-                  </div>
-                  <div className="col-md-auto">
-                      <ul className="list-inline">
-                        <li className="list-inline-item">
-                            <FaUserCircle className="fs-3"/>
-                        </li>
-                        <li className="list-inline-item"> 
-                            <IoAddCircleOutline className="more fs-2"/>
-                        </li>
-                      </ul>
-                  </div>
+              <div className="col">
+                <p className="card-text">{task.description}</p>
               </div>
           </div>
+          {admin && (
+            <div className="card-footer bg-white px-0">
+                <div className="row">
+                    <div className="col-md-auto">
+                      <Edit task={task}/>
+                      <Delete task={task}/>
+                      <button className="btn btn-outlined text-muted taskbtn">
+                        <AiOutlineSetting className="fs-5"/>
+                        <small>&ensp;SETTINGS</small>
+                      </button>
+                      <button className="btn btn-outlined text-muted taskbtn">
+                        <HiLink className="plus fs-5"/>
+                        <small>&ensp;PROGRAM LINK</small>
+                      </button>
+                      <button className="btn btn-outlined text-muted taskbtn">
+                        <FiMoreHorizontal className="more mr-2 fs-5"/>
+                        <small>&ensp;MORE</small>
+                      </button>
+                      <span className="vl"></span>
+                    </div>
+                    <div className="col-md-auto">
+                        <ul className="list-inline">
+                          <li className="list-inline-item">
+                            <FaUserCircle className="fs-3"/>
+                          </li>
+                          <li className="list-inline-item"> 
+                            <IoAddCircleOutline className="more fs-2"/>
+                          </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+          )}
       </div>))}
     </>
   )

@@ -76,18 +76,16 @@ exports.update = async (req, res) => {
   if (isIdEmpty) return res.status(400).json({error: 'Task id required'})
   if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({error: 'No such task id found'})
 
+  const ownerId = req.user._id
+  const createdBy = await Task.find({createdBy: ownerId}).select('createdBy').lean().exec()
+  const owner = (req.roles == ROLES_LIST.Admin) || (createdBy == ownerId)
+  const updateRight = owner || (req.roles == ROLES_LIST.Root)
+  if(!updateRight) return res.status(400).json({error: 'Not authorized to edit this task'})
+  
   const task = await Task.findOneAndUpdate({_id: id}, {...req.body }).lean().exec()
   if (!task) return res.status(400).json({error: 'No such task record found'})
-  
-  //after update return new record
-  const userId = req.user._id //normal record update id (user id/admin id) 
-  const targetUserId = req.body.id // user id that Admin use to update user record
-  let idToUpdate = userId
-  if(targetUserId && (userId !== targetUserId) && (req.roles == ROLES_LIST.Admin)){
-    idToUpdate = targetUserId
-  }
-  const updatedRecord = await Task.find({user_id: idToUpdate}).sort({createdAt: -1}).lean()
-  console.log(updatedRecord)
+
+  const updatedRecord = await Task.find({createdBy: ownerId}).sort({createdAt: -1}).lean()
   res.status(200).json(updatedRecord)
 }
 
@@ -102,7 +100,6 @@ exports.delete = async (req, res) => {
   const createdBy = await Task.find({createdBy: ownerId}).select('createdBy').lean().exec()
   const owner = (req.roles == ROLES_LIST.Admin) || (createdBy == ownerId)
   const deleteRight = owner || (req.roles == ROLES_LIST.Root)
-
   if(!deleteRight) return res.status(400).json({error: 'Not authorized to delete this task'})
 
   const task = await Task.findByIdAndDelete(id).lean().exec()
