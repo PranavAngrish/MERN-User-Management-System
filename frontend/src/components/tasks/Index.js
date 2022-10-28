@@ -8,9 +8,8 @@ import { IoAddCircleOutline } from "react-icons/io5"
 import { MdAdminPanelSettings } from "react-icons/md"
 import { SiStatuspal } from "react-icons/si"
 import formatDistanceToNow from 'date-fns/formatDistanceToNow'
-// import Delete from './Delete'
-// import View from './View'
-// import Edit from './Edit'
+import Delete from './Delete'
+import Edit from './Edit'
 
 const Index = ({ tasks }) => {
 
@@ -45,14 +44,8 @@ const Index = ({ tasks }) => {
           <div className="card-footer bg-white px-0">
               <div className="row">
                   <div className="col-md-auto">
-                    <button className="btn btn-outlined text-muted">
-                        <BsPencilSquare className="fs-5"/>
-                        <small>&ensp;EDIT</small>
-                    </button>
-                    <button className="btn btn-outlined text-muted">
-                        <BsFillTrashFill className="fs-5"/>
-                        <small>&ensp;DELETE</small>
-                    </button>
+                    <Edit task={task}/>
+                    <Delete task={task}/>
                     <button className="btn btn-outlined text-muted">
                         <AiOutlineSetting className="fs-5"/>
                         <small>&ensp;SETTINGS</small>

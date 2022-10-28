@@ -29,8 +29,6 @@
 - Task are either PENDING, EXPIRED or COMPLETED.
 - User can only view and edit their assigned task.
 
-- Anyone can create a note when login.
-
 ---
 
 In fact, I don't know what kind of website this is. I just use it purely to learn about Authentication and Authorization. Just think it's a user management system.
