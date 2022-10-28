@@ -78,18 +78,18 @@ exports.update = async (req, res) => {
   if (isIdEmpty) return res.status(400).json({error: 'Sleep id required'})
   if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({error: 'No such sleep id found'})
 
-  const sleep = await Sleep.findOneAndUpdate({_id: id}, {...req.body }).lean().exec()
-  if (!sleep) return res.status(400).json({error: 'No such sleep record found'})
-  
-  //after update return new record
   const userId = req.user._id //normal record update id (user id/admin id) 
-  const targetUserId = req.body.id // user id that Admin use to update user record
+  const targetUserId = req.body.id //user id that Admin use to update user record
   let idToUpdate = userId
   if(targetUserId && (userId !== targetUserId) && (req.roles == ROLES_LIST.Admin)){
     idToUpdate = targetUserId
   }
+  
+  const sleep = await Sleep.findOneAndUpdate({_id: id}, {...req.body }).lean().exec()
+  if (!sleep) return res.status(400).json({error: 'No such sleep record found'})
+  
+  //after update return new record
   const updatedRecord = await Sleep.find({user_id: idToUpdate}).sort({createdAt: -1}).lean()
-  console.log(updatedRecord)
   res.status(200).json(updatedRecord)
 }
 
