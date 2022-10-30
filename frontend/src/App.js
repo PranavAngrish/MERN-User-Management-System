@@ -15,6 +15,7 @@ import Note from './pages/Note'
 import Sleep from './pages/Sleep'
 import Task from './pages/Task'
 import User from './pages/User'
+import Assign from './pages/Assign'
 
 function App() {
   const { auth } = useAuthContext()
@@ -39,6 +40,7 @@ function App() {
                   <Route path="/sleep" element={<Sleep />} />
                   <Route path="/note" element={<Note />} />
                   <Route path="/task" element={<Task />} />
+                  <Route path="/assign" element={<Assign />} />
                 </Route>
 
                 <Route element={<RequireRoles Roles={[ROLES.Root, ROLES.Admin]} />}>
