@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useAuthContext } from '../hooks/useAuthContext'
 import { useTasksContext } from '../hooks/useTasksContext'
 import { usePathContext } from '../context/path'
+import { ROLES } from '../config/roles'
 import useAxiosPrivate from '../hooks/useAxiosPrivate'
 import Details from '../components/tasks/Index'
 import Add from '../components/tasks/Add'
@@ -11,6 +12,7 @@ const Task = () => {
   const { setTitle } = usePathContext()
   const { tasks, dispatch } =  useTasksContext()
   const axiosPrivate = useAxiosPrivate()
+  const admin = (auth.roles == ROLES.Admin) || (auth.roles == ROLES.Root)
 
   useEffect(() => {
     setTitle("Task Management")
@@ -22,7 +24,6 @@ const Task = () => {
         const response = await axiosPrivate.get('/api/tasks', {
           signal: abortController.signal
         })
-        console.log(response.data)
         isMounted && dispatch({type: 'SET_TASKS', payload: response.data})
       } catch (err) {
         // console.log(err)
@@ -43,7 +44,7 @@ const Task = () => {
     <>
       {auth && (
         <>
-          <Add />
+          {admin && <Add />}
           {tasks && <Details tasks={tasks}/>}
         </>
       )}

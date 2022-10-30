@@ -49,7 +49,7 @@ const Add = () => {
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Description:</Form.Label>
-            <Form.Control type="text" ref={descriptionRef}/>
+            <Form.Control as="textarea" rows={3} ref={descriptionRef}/>
           </Form.Group>
           {error && (<Alert variant={'danger'}>{error}</Alert>)}
         </Modal.Body>

@@ -64,7 +64,7 @@ const Edit = ({ task }) => {
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Description:</Form.Label>
-            <Form.Control type="text" defaultValue={task.description} ref={descriptionRef}/>
+            <Form.Control as="textarea" rows={3} defaultValue={task.description} ref={descriptionRef}/>
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Status:</Form.Label>
