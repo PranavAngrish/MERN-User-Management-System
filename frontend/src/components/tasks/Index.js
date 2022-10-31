@@ -48,33 +48,33 @@ const Index = ({ tasks }) => {
         </div>
         {admin && (
           <div className="card-footer bg-white px-0">
-              <div className="row">
-                <div className="col-md-auto">
-                  <Edit task={task}/>
-                  <Delete task={task}/>
-                  <button className="btn btn-outlined text-muted taskbtn">
-                    <AiOutlineSetting className="fs-5"/>
-                    <small>&ensp;SETTINGS</small>
-                  </button>
-                  <button className="btn btn-outlined text-muted taskbtn">
-                    <HiLink className="plus fs-5"/>
-                    <small>&ensp;PROGRAM LINK</small>
-                  </button>
-                  <button className="btn btn-outlined text-muted taskbtn">
-                    <FiMoreHorizontal className="more mr-2 fs-5"/>
-                    <small>&ensp;MORE</small>
-                  </button>
-                  <span className="vl"></span>
-                </div>
-                <Link to="/assign" state={{title: task.title, createdBy: task.createdBy.name}}>
-                  <div className="col-md-auto mt-1">
-                    <ul className="list-inline">
-                      <li className="list-inline-item"><FaUserCircle className="fs-3"/></li>
-                      <li className="list-inline-item"><IoAddCircleOutline className="more fs-2"/></li>
-                    </ul>
-                  </div>
+            <div className="row">
+              <div className="col-md-auto">
+                <Edit task={task}/>
+                <Delete task={task}/>
+                <button className="btn btn-outlined text-muted taskbtn">
+                  <AiOutlineSetting className="fs-5"/>
+                  <small>&ensp;SETTINGS</small>
+                </button>
+                <button className="btn btn-outlined text-muted taskbtn">
+                  <HiLink className="plus fs-5"/>
+                  <small>&ensp;PROGRAM LINK</small>
+                </button>
+                <button className="btn btn-outlined text-muted taskbtn">
+                  <FiMoreHorizontal className="more mr-2 fs-5"/>
+                  <small>&ensp;MORE</small>
+                </button>
+                <span className="vl"></span>
+              </div>
+              <div className="col-md-auto mt-1">
+                <Link to="/assign" state={{id: task._id, title: task.title, createdBy: task.createdBy}}>
+                  <ul className="list-inline">
+                    <li className="list-inline-item"><FaUserCircle className="fs-3"/></li>
+                    <li className="list-inline-item"><IoAddCircleOutline className="more fs-2"/></li>
+                  </ul>
                 </Link>
               </div>
+            </div>
           </div>
         )}
       </div>))}

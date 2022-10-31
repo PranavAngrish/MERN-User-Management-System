@@ -1,4 +1,4 @@
-import { createContext, useReducer } from 'react'
+import { createContext, useReducer, useState } from 'react'
 
 export const TasksContext = createContext()
 
@@ -19,5 +19,6 @@ export const tasksReducer = (state, action) => {
 
 export const TasksContextProvider = ({ children }) => {
   const [state, dispatch] = useReducer(tasksReducer, { tasks: null })
-  return (<TasksContext.Provider value={{ ...state, dispatch }}>{ children }</TasksContext.Provider>)
+  const [assignedUser, setAssignedUser] = useState([])
+  return (<TasksContext.Provider value={{ ...state, dispatch, assignedUser, setAssignedUser }}>{ children }</TasksContext.Provider>)
 }

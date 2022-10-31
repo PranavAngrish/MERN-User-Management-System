@@ -4,7 +4,7 @@ const Index = ({ assignedUser }) => {
 
   return (
     <>
-      {assignedUser.map(user => (
+      {assignedUser.assignedTo.map(user => (
         <tr key={user._id}>
           <td>{user.name}</td>
           <td><Delete user={user}/></td>
