@@ -1,10 +1,9 @@
 const mongoose = require('mongoose')
-const AutoIncrement = require('mongoose-sequence')(mongoose)
 
 const taskSchema = new mongoose.Schema(
     {
         assignedTo: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: [mongoose.Schema.Types.ObjectId],
             ref: 'User'
         },
         title: {
@@ -27,11 +26,5 @@ const taskSchema = new mongoose.Schema(
         }
     }, {timestamps: true}
 )
-
-taskSchema.plugin(AutoIncrement, {
-    inc_field: 'ticket',
-    id: 'taskId',
-    start_seq: 888
-})
 
 module.exports = mongoose.model('Task', taskSchema)
