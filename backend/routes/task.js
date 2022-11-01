@@ -5,25 +5,22 @@ const requireRoles = require('../middleware/requireRoles')
 const ROLES_LIST = require('../config/rolesList')
 
 router.use(requireAuth)
-router.use(requireRoles([...Object.values(ROLES_LIST)]))
 
-router.route('/')
-    .get(tasksController.getAll)
-    .post(requireRoles([ROLES_LIST.Root, ROLES_LIST.Admin]), tasksController.create)
+router.route('/').get(requireRoles([...Object.values(ROLES_LIST)]), tasksController.getAll)
+
+router.use(requireRoles([ROLES_LIST.Root, ROLES_LIST.Admin]))
+
+router.route('/').post(tasksController.create)
 
 router.route('/:id')
     .get(tasksController.getById)
-    .patch(requireRoles([ROLES_LIST.Root, ROLES_LIST.Admin]), tasksController.update)
-    .delete(requireRoles([ROLES_LIST.Root, ROLES_LIST.Admin]), tasksController.delete)
+    .patch(tasksController.update)
+    .delete(tasksController.delete)
 
 router.route('/assign/:id')
-    .get(requireRoles([ROLES_LIST.Root, ROLES_LIST.Admin]), tasksController.getAssignUser)
-    .delete(requireRoles([ROLES_LIST.Root, ROLES_LIST.Admin]), tasksController.deleteAssign)
+    .get(tasksController.getAssignUser)
+    .delete(tasksController.deleteAssign)
 
-router.route('/assign')   
-    .post(requireRoles([ROLES_LIST.Root, ROLES_LIST.Admin]), tasksController.assignUser)
-
-router.route('/not-assign-user/:id')
-    .get(requireRoles([ROLES_LIST.Root, ROLES_LIST.Admin]), tasksController.getNotAssignUser)
+router.route('/assign').post(tasksController.assignUser)
 
 module.exports = router
