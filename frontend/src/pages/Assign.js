@@ -14,6 +14,7 @@ const Assgin = () => {
   const { auth } = useAuthContext()
   const { setTitle } = usePathContext()
   const { assignedUser, setAssignedUser } =  useTasksContext()
+  // const [assignedUser, setAssignedUser] = useState([])
   const axiosPrivate = useAxiosPrivate()
   const location = useLocation()
   const { id, title, createdBy } = location.state ?? ""
@@ -28,7 +29,6 @@ const Assgin = () => {
     const getAssignedUser = async () => {
       try {
         const response = await axiosPrivate.get('/api/tasks/assign/' + id)
-        console.log(response.data)
         isMounted && setAssignedUser(response.data)
       } catch (err) {
         // console.log(err)
@@ -65,7 +65,7 @@ const Assgin = () => {
                 </tr>
               </thead>
               <tbody>
-                <Details assignedUser={assignedUser}/>
+                <Details task_id={id}/>
               </tbody>
             </table>
           )}
