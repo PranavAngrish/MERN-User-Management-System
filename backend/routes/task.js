@@ -17,10 +17,11 @@ router.route('/:id')
     .patch(tasksController.update)
     .delete(tasksController.delete)
 
+router.route('/assign').post(tasksController.assignUser)
+
 router.route('/assign/:id')
     .get(tasksController.getAssignUser)
     .delete(tasksController.deleteAssign)
 
-router.route('/assign').post(tasksController.assignUser)
 
 module.exports = router

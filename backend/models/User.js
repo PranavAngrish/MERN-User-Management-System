@@ -23,6 +23,10 @@ const userSchema = new mongoose.Schema({
   active: {
     type: Boolean,
     default: true
+  },
+  tasks:{
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: 'Task'
   }
 })
 

@@ -6,8 +6,8 @@ const Index = ({ users }) => {
 
   return (
     <>
-      {users.map(user => (
-        <tr key={user._id}>
+      {users.map((user, index)=> (
+        <tr key={index}>
           <td>{user.name}</td>
           <td>{user.email}</td>
           <td>{user.roles}</td>

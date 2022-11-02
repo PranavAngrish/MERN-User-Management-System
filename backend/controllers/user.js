@@ -106,3 +106,22 @@ exports.delete = async (req, res) => {
     // const reply = `User ${user.name} with ID ${user._id} deleted`
     res.status(200).json(user)
 }
+
+exports.getNotAssignUser = async (req, res) => {
+    const { id } = req.params
+  
+    const isIdEmpty = validator.isEmpty(id ?? "", { ignore_whitespace:true })
+    if (isIdEmpty) return res.status(400).json({error: 'Task id required'})
+    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({error: 'No such task id found'})
+
+    const notAssign = await User.find({
+        $and: [
+            {tasks: {$ne: id}},
+            {roles: {$ne: ROLES_LIST.Root}},
+            {roles: {$ne: ROLES_LIST.Admin}}
+        ]
+    }).select('_id name').lean().exec()
+
+    if(!notAssign) return res.status(400).json({error: 'User not found'})
+    res.status(200).json(notAssign)
+}

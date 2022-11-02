@@ -144,7 +144,7 @@ exports.assignUser = async (req, res) => {
   const assignTasks = await Task.findByIdAndUpdate(task_id, {$push: {assignedTo: user_id}}).lean().exec()
   if(!assignTasks) return res.status(400).json({error: "Something went wrong, Can't assign tasks" })
 
-  const assignUser = await User.findByIdAndUpdate(user_id, {$push: {tasks: task_id}}).lean().exec()
+  const assignUser = user_id.map(async id => await User.findByIdAndUpdate(id, {$push: {tasks: task_id}}).lean().exec())
   if(!assignUser) return res.status(400).json({error: "Something went wrong, Can't assign user"})
 
   //return assigned user
