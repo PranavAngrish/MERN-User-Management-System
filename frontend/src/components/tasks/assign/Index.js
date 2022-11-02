@@ -1,7 +1,7 @@
 import { useTasksContext } from '../../../hooks/useTasksContext'
 import Delete from './Delete'
 
-const Index = ({ task_id }) => {
+const Index = () => {
   const { assignedUser } =  useTasksContext()
 
   return (
@@ -9,7 +9,7 @@ const Index = ({ task_id }) => {
       {assignedUser.assignedTo.map(user => (
         <tr key={user._id}>
           <td>{user.name}</td>
-          <td><Delete user_id={user._id}/></td>
+          <td><Delete user={user}/></td>
         </tr>
       ))}
     </>

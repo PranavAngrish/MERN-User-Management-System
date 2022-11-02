@@ -65,7 +65,7 @@ const Assgin = () => {
                 </tr>
               </thead>
               <tbody>
-                <Details task_id={id}/>
+                <Details/>
               </tbody>
             </table>
           )}
