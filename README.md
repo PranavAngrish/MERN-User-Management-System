@@ -7,7 +7,7 @@
 - Provide logout option.
 - Provide persist login option for 7 days.
 - Require users to login at least once a week for security.
-- Automatically log out after 15 minutes if the Persistent login option is unchecked.
+- Automatically log out after 15 minutes if the persistent login option is unchecked.
 - Roles can be User or Admin.
 - Display current user and assigned role.
 
@@ -23,11 +23,11 @@
 
 ---
 
-- Task are assigned to specific employees.
+- Task are assigned to specific user.
 - Root user and Admin can view, edit, and delete all Task.
-- Task can only be deleted by Root user and Admin.
-- Task are either PENDING, EXPIRED or COMPLETED.
-- User can only view and edit their assigned task.
+- Task can only be deleted by the admin or Root user who created the task.
+- Task status are either PENDING, EXPIRED or COMPLETED.
+- User can only view their assigned task.
 
 ---
 
