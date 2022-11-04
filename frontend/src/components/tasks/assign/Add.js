@@ -1,10 +1,13 @@
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { BsPlusLg } from 'react-icons/bs'
+import { BiArrowBack } from 'react-icons/bi'
 import { Modal, Button } from 'react-bootstrap'
 import { useTasksContext } from '../../../hooks/useTasksContext'
 import useAxiosPrivate from '../../../hooks/useAxiosPrivate'
 
 const Add = ({ task_id }) => {
+  const navigate = useNavigate()
   const axiosPrivate = useAxiosPrivate()
   const { setAssignedUser } =  useTasksContext()
   const [notAssignedUser, setNotAssignedUser] = useState([])
@@ -50,7 +53,10 @@ const Add = ({ task_id }) => {
 
   return (
     <>
-      <button className="btn btn-outline-primary mb-2" onClick={handleClick}><BsPlusLg /></button>
+      <div className="d-flex justify-content-between mb-2">
+        <button className="btn btn-outline-primary mb-2" onClick={() => navigate('/task', {replace: true})}><BiArrowBack /></button>
+        <button className="btn btn-outline-primary mb-2" onClick={handleClick}><BsPlusLg /></button>
+      </div>
 
       <Modal show={show} onHide={() => {setShow(!show)}} centered>
         <Modal.Header closeButton>

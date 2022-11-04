@@ -1,12 +1,15 @@
 import { useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Alert, Button, Form, Modal } from 'react-bootstrap'
 import { useUserContext } from '../../hooks/useUserContext'
 import { useAuthContext } from '../../hooks/useAuthContext'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
+import { BiArrowBack } from 'react-icons/bi'
 import { BsPlusLg } from 'react-icons/bs'
 import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 
 const Add = () => {
+  const navigate = useNavigate()
   const axiosPrivate = useAxiosPrivate()
   const { dispatch } =  useUserContext()
   const { auth } = useAuthContext()
@@ -52,7 +55,10 @@ const Add = () => {
 
   return (
     <>
-      <button className="btn btn-outline-primary mb-2" onClick={() => setShow(!show)}><BsPlusLg /></button>
+      <div className="d-flex justify-content-between">
+        <button className="btn btn-outline-primary mb-2" onClick={() => navigate('/', {replace: true})}><BiArrowBack /></button>
+        <button className="btn btn-outline-primary mb-2" onClick={() => setShow(!show)}><BsPlusLg /></button>
+      </div>
 
       <Modal show={show} onHide={() => {setShow(!show);setError(null)}} centered>
         <Modal.Header closeButton>
