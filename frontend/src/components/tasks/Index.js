@@ -1,12 +1,10 @@
-import { AiOutlineSetting } from "react-icons/ai"
+import { AiOutlineSetting, AiOutlineUsergroupAdd } from "react-icons/ai"
 import { BsCalendarWeek } from 'react-icons/bs'
 import { BiTimer } from 'react-icons/bi'
 import { FiMoreHorizontal } from "react-icons/fi"
 import { HiLink, HiOutlineStar } from "react-icons/hi"
 import { MdAdminPanelSettings } from "react-icons/md"
-import { IoAddCircleOutline } from "react-icons/io5"
 import { SiStatuspal } from "react-icons/si"
-import { FaUserCircle } from "react-icons/fa"
 import { Link } from 'react-router-dom'
 import { ROLES } from '../../config/roles'
 import { useAuthContext } from '../../hooks/useAuthContext'
@@ -38,6 +36,8 @@ const Index = ({ tasks }) => {
                       <BsCalendarWeek className="fs-6"/><small>&ensp;{new Date(task.createdAt).toLocaleDateString('en-GB')}</small>
                       <span className="vl"></span>
                       <BiTimer className="fs-5"/><small>&ensp;{formatDistanceToNow(new Date(task.createdAt), { addSuffix: true })}</small>
+                      <span className="vl"></span>
+                      <BiTimer className="fs-5"/><small>&ensp;{formatDistanceToNow(new Date(task.updatedAt), { addSuffix: true })}</small>
                     </p>
                   </h6>
                 </div>
@@ -50,9 +50,13 @@ const Index = ({ tasks }) => {
           <div className="card-footer bg-white px-0">
             <div className="row">
               <div className="col-md-auto">
+                <Link className="btn btn-outlined text-muted taskbtn" to="/assign" state={{id: task._id, title: task.title, createdBy: task.createdBy}}>
+                  <AiOutlineUsergroupAdd className="fs-4"/>
+                  <small>&ensp;ASSIGN</small>
+                </Link>
                 <Edit task={task}/>
                 <Delete task={task}/>
-                <button className="btn btn-outlined text-muted taskbtn">
+                {/* <button className="btn btn-outlined text-muted taskbtn">
                   <AiOutlineSetting className="fs-5"/>
                   <small>&ensp;SETTINGS</small>
                 </button>
@@ -64,15 +68,7 @@ const Index = ({ tasks }) => {
                   <FiMoreHorizontal className="more mr-2 fs-5"/>
                   <small>&ensp;MORE</small>
                 </button>
-                <span className="vl"></span>
-              </div>
-              <div className="col-md-auto mt-1">
-                <Link to="/assign" state={{id: task._id, title: task.title, createdBy: task.createdBy}}>
-                  <ul className="list-inline">
-                    <li className="list-inline-item"><FaUserCircle className="fs-3"/></li>
-                    <li className="list-inline-item"><IoAddCircleOutline className="more fs-2"/></li>
-                  </ul>
-                </Link>
+                <span className="vl"></span> */}
               </div>
             </div>
           </div>

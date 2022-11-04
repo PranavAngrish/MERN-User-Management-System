@@ -24,8 +24,7 @@ exports.getAll = async (req, res) => {
   //   Admin: await Task.find({createdBy: userId}).populate('createdBy', 'name').sort({createdAt: -1}).lean(),
   //   User: await Task.find({assignedTo: userId}).populate('createdBy', 'name').sort({createdAt: -1}).lean()
   // }
-  // const getTask = (t) => tasks[t]
-  // const tasks = getTask(req.roles)
+  // const tasks = task(req.roles)
   // if (!tasks) return res.status(400).json({ error: 'No tasks record found' })
   // res.status(200).json(tasks)
 }

@@ -13,7 +13,7 @@ const Navbars = () => {
   return (
     <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
       <div className="container-fluid">
-        <Navbar.Brand><h3><Link to="/" className="text-white" onClick={() => setTitle("Welcome")}><FaHome/></Link>&nbsp;{title}</h3></Navbar.Brand>
+        <Navbar.Brand><h3><Link to="/" className="text-white" onClick={() => setTitle("Welcome")}><FaHome/></Link>&ensp;{title}</h3></Navbar.Brand>
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
         <Navbar.Collapse id="responsive-navbar-nav">
           <Navbar.Collapse className="justify-content-end">

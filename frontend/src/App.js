@@ -40,11 +40,11 @@ function App() {
                   <Route path="/sleep" element={<Sleep />} />
                   <Route path="/note" element={<Note />} />
                   <Route path="/task" element={<Task />} />
-                  <Route path="/assign" element={<Assign />} />
                 </Route>
 
                 <Route element={<RequireRoles Roles={[ROLES.Root, ROLES.Admin]} />}>
                   <Route path="/user" element={<User />} />
+                  <Route path="/assign" element={<Assign />} />
                 </Route>
               </Route>
             </Route>

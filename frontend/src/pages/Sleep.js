@@ -20,7 +20,7 @@ const Sleep = () => {
   useEffect(() => {
     let isMounted = true
     const abortController = new AbortController()
-    setTitle("Sleep Management")
+    setTitle("Sleep Hour Management")
 
     const getSleeps = async () => {
       try {
