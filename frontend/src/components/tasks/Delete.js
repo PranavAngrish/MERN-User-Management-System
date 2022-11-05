@@ -21,7 +21,7 @@ const Delete = ({ task }) => {
     }
 
     try {
-      const response = await axiosPrivate.delete('/api/tasks/' + task._id)
+      const response = await axiosPrivate.delete(`/api/tasks/${task._id}`)
       dispatch({type: 'DELETE_TASK', payload: response.data})
       setError(null)
       setShow(false)

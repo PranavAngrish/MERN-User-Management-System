@@ -28,7 +28,7 @@ const Assgin = () => {
 
     const getAssignedUser = async () => {
       try {
-        const response = await axiosPrivate.get('/api/tasks/assign/' + id)
+        const response = await axiosPrivate.get(`/api/tasks/assign/${id}`)
         isMounted && setAssignedUser(response.data)
       } catch (err) {
         // console.log(err)

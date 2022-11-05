@@ -41,7 +41,7 @@ const Edit = ({sleep }) => {
         if(targetUser?.userId && (auth.email !== targetUser?.userEmail) && (auth.roles == ROLES.Admin)){
           updateSleep.id = targetUser.userId
         }
-        const response = await axiosPrivate.patch('/api/sleeps/' + sleep._id, updateSleep)
+        const response = await axiosPrivate.patch(`/api/sleeps/${sleep._id}`, updateSleep)
         setError(null)
         setShow(false)
         dispatch({type: 'UPDATE_SLEEP', payload: response.data})

@@ -20,7 +20,7 @@ const Delete = ({sleep}) => {
     }
 
     try {
-      const response = await axiosPrivate.delete('/api/sleeps/' + sleep._id)
+      const response = await axiosPrivate.delete(`/api/sleeps/${sleep._id}`)
       setError(null)
       dispatch({type: 'DELETE_SLEEP', payload: response.data})
     } catch (error) {

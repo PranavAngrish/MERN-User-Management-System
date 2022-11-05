@@ -36,7 +36,7 @@ const Edit = ({ task }) => {
 
   if(!checkChange){
     try {
-      const response = await axiosPrivate.patch('/api/tasks/' + task._id, updateTask)
+      const response = await axiosPrivate.patch(`/api/tasks/${task._id}`, updateTask)
       dispatch({type: 'UPDATE_TASK', payload: response.data})
       setError(null)
       setShow(false)
