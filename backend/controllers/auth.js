@@ -4,16 +4,38 @@ const jwt = require('jsonwebtoken')
 const createRefreshToken = (_id) => jwt.sign({_id}, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
 
 exports.login = async (req, res) => {
-  const {email, password} = req.body
+  const {email, password, gRecaptchaToken} = req.body
 
   try {
+    const reCaptchaRes =  await fetch("https://www.google.com/recaptcha/api/siteverify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: `secret=${process.env.REACT_APP_SECRET_KEY}&response=${req.body.gRecaptchaToken}`,
+    })
+
+    const result = await reCaptchaRes.json()
+
+    if (result.score > 0.5) {
+      res.status(200).json({
+        status: "success",
+        message: "Enquiry submitted successfully",
+      })
+    } else {
+      res.status(200).json({
+        status: "failure",
+        message: "Google ReCaptcha Failure",
+      })
+    }
+
     const user = await User.login(email, password)
     const accessToken = jwt.sign({_id: user._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
     const refreshToken = createRefreshToken(user._id)
     res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
     res.status(200).json({name: user.name, email, roles: user.roles, accessToken})
   } catch (error) {
-    res.status(400).json({error: error.message})
+    res.status(400).json({error: error.message, status: "failure",message: "Error submitting the enquiry form"})
   }
 }
 
