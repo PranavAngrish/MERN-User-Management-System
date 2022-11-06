@@ -19,7 +19,7 @@ exports.login = async (req, res) => {
       res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
       res.status(200).json({name: user.name, email, roles: user.roles, accessToken})
     } else {
-      throw Error('Google ReCaptcha validation Failure')
+      throw Error('Google ReCaptcha Validation Failure')
     }
   } catch (error) {
     res.status(400).json({error: error.message})

@@ -5,17 +5,17 @@ import { ROLES } from './config/roles'
 import PersistLogin from './components/PersistLogin'
 import RequireAuth from './components/RequireAuth'
 import RequireRoles from './components/RequireRoles'
-import Home from './pages/Home'
-import Login from './pages/Login'
+import Recaptcha from './pages/Recaptcha'
 import Signup from './pages/Signup'
 import Navbar from './components/Navbar'
 import Status from './components/Status'
-import NotFound from './pages/NotFound'
+import Home from './pages/Home'
 import Note from './pages/Note'
 import Sleep from './pages/Sleep'
 import Task from './pages/Task'
 import User from './pages/User'
 import Assign from './pages/Assign'
+import NotFound from './pages/NotFound'
 
 function App() {
   const { auth } = useAuthContext()
@@ -29,7 +29,7 @@ function App() {
         
         <div className="container mt-3">
           <Routes>
-            <Route path="/login" element={!auth ? <Login /> : <Navigate to={link} />} />
+            <Route path="/login" element={!auth ? <Recaptcha /> : <Navigate to={link} />} />
             <Route path="/signup" element={!auth ? <Signup /> : <Navigate to="/" />} />
 
             <Route element={<PersistLogin />}>
