@@ -1,41 +1,28 @@
 const User = require('../models/User')
 const jwt = require('jsonwebtoken')
+const axios = require('axios')
 
 const createRefreshToken = (_id) => jwt.sign({_id}, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
 
 exports.login = async (req, res) => {
-  const {email, password, gRecaptchaToken} = req.body
+  const { email, password, tokens } = req.body
 
   try {
-    const reCaptchaRes =  await fetch("https://www.google.com/recaptcha/api/siteverify", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: `secret=${process.env.REACT_APP_SECRET_KEY}&response=${req.body.gRecaptchaToken}`,
+    const reCaptchaRe = await axios.post(`https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${tokens}`, {
+      headers: {"Content-Type": "application/x-www-form-urlencoded"},
     })
 
-    const result = await reCaptchaRes.json()
-
-    if (result.score > 0.5) {
-      res.status(200).json({
-        status: "success",
-        message: "Enquiry submitted successfully",
-      })
+    if (reCaptchaRe.data.success && reCaptchaRe.data.score > 0.5) {
+      const user = await User.login(email, password)
+      const accessToken = jwt.sign({_id: user._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
+      const refreshToken = createRefreshToken(user._id)
+      res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
+      res.status(200).json({name: user.name, email, roles: user.roles, accessToken})
     } else {
-      res.status(200).json({
-        status: "failure",
-        message: "Google ReCaptcha Failure",
-      })
+      throw Error('Google ReCaptcha validation Failure')
     }
-
-    const user = await User.login(email, password)
-    const accessToken = jwt.sign({_id: user._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
-    const refreshToken = createRefreshToken(user._id)
-    res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
-    res.status(200).json({name: user.name, email, roles: user.roles, accessToken})
   } catch (error) {
-    res.status(400).json({error: error.message, status: "failure",message: "Error submitting the enquiry form"})
+    res.status(400).json({error: error.message})
   }
 }
 
