@@ -1,7 +1,11 @@
 const User = require('../models/User')
 const jwt = require('jsonwebtoken')
 const axios = require('axios')
+const { sendMail } = require('../config/sendMail')
+const { url } = require('../config/url')
 
+const dev = process.env.NODE_ENV !== 'production'
+const server = dev ? 'http://localhost:3000' : 'https://wwj-portfolio.vercel.app'
 const createRefreshToken = (_id) => jwt.sign({_id}, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
 
 exports.login = async (req, res) => {
@@ -27,16 +31,42 @@ exports.login = async (req, res) => {
 }
 
 exports.signup = async (req, res) => {
-  const {name, email, password} = req.body
+  const { name, email, password } = req.body
 
+  try {
+    const isNameEmpty = validator.isEmpty(name ?? '', { ignore_whitespace:true })
+    const isEmailEmpty = validator.isEmpty(email ?? '', { ignore_whitespace:true })
+    const isPasswordEmpty = validator.isEmpty(password ?? '', { ignore_whitespace:true })
+    if (isNameEmpty || isEmailEmpty || isPasswordEmpty) throw Error('All fields must be filled')
+    if (!validator.isEmail(email)) throw Error('Email not valid')
+    if (!validator.isStrongPassword(password)) throw Error('Password not strong enough')
+  
+    const exists = await this.findOne({ email }).lean().exec()
+    if (exists) throw Error('Email already in use')
+  
+    const salt = await bcrypt.genSalt(10)
+    const hash = await bcrypt.hash(password, salt)
+
+    const newUser = { name, email, password: hash }
+    const activation_token = jwt.sign(newUser, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
+    
+    const url = `${url}/api/auth/activate/${activation_token}`
+    sendMail.sendEmailRegister(email, url, "Verify your email")
+
+  } catch (error) {
+    res.status(400).json({error: error.message})
+  }
+}
+
+exports.activate = async (req, res) => {
   try {
     const user = await User.signup(name, email, password)
     const accessToken = jwt.sign({_id: user._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
     const refreshToken = createRefreshToken(user._id)
+
     res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
     res.status(200).json({name: user.name, email, roles: user.roles, accessToken})
   } catch (error) {
-    if(error.message === "Email already in use") res.status(409).json({error: error.message})
     res.status(400).json({error: error.message})
   }
 }
