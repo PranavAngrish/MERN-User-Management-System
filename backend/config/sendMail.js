@@ -33,7 +33,10 @@ const sendEmailRegister = (to, url, text) => {
             to: to,
             subject: "ACCOUNT ACTIVATION",
             text: "ACCOUNT ACTIVATION TESTING 123",
-            html: '<h1>ACCOUNT ACTIVATION TESTING 123</h1>',
+            html: `
+                <h1>ACCOUNT ACTIVATION TESTING 123</h1>
+                <a href=${url}>${text}</a>
+            `,
         } 
       
         const info = smtpTransport.sendMail(mailOptions)

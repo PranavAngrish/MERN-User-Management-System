@@ -4,8 +4,7 @@ const axios = require('axios')
 const { sendMail } = require('../config/sendMail')
 const { url } = require('../config/url')
 
-const dev = process.env.NODE_ENV !== 'production'
-const server = dev ? 'http://localhost:3000' : 'https://wwj-portfolio.vercel.app'
+const createAccessToken = (_id) => jwt.sign({_id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
 const createRefreshToken = (_id) => jwt.sign({_id}, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
 
 exports.login = async (req, res) => {
@@ -13,12 +12,13 @@ exports.login = async (req, res) => {
 
   try {
     const reCaptchaRe = await axios.post(`https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${tokens}`, {
-      headers: {"Content-Type": "application/x-www-form-urlencoded"},
+      headers: {"Content-Type": "application/x-www-form-urlencoded"}
     })
 
     if (reCaptchaRe.data.success && reCaptchaRe.data.score > 0.5) {
       const user = await User.login(email, password)
-      const accessToken = jwt.sign({_id: user._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
+      // const accessToken = jwt.sign({_id: user._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
+      const accessToken = createAccessToken(user._id)
       const refreshToken = createRefreshToken(user._id)
       res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
       res.status(200).json({name: user.name, email, roles: user.roles, accessToken})
@@ -41,7 +41,7 @@ exports.signup = async (req, res) => {
     if (!validator.isEmail(email)) throw Error('Email not valid')
     if (!validator.isStrongPassword(password)) throw Error('Password not strong enough')
   
-    const exists = await this.findOne({ email }).lean().exec()
+    const exists = await User.findOne({ email }).lean().exec()
     if (exists) throw Error('Email already in use')
   
     const salt = await bcrypt.genSalt(10)
@@ -50,18 +50,22 @@ exports.signup = async (req, res) => {
     const newUser = { name, email, password: hash }
     const activation_token = jwt.sign(newUser, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
     
-    const url = `${url}/api/auth/activate/${activation_token}`
-    sendMail.sendEmailRegister(email, url, "Verify your email")
+    const activateUrl = `${url}/activate/${activation_token}`
+    sendMail.sendEmailRegister(email, activateUrl, "Verify your email")
 
+    res.status(200).json({ msg: "Welcome! Please check your email." })
   } catch (error) {
     res.status(400).json({error: error.message})
   }
 }
 
 exports.activate = async (req, res) => {
+  const { activation_token } = req.body
+
   try {
     const user = await User.signup(name, email, password)
-    const accessToken = jwt.sign({_id: user._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
+    // const accessToken = jwt.sign({_id: user._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
+    const accessToken = createAccessToken(user._id)
     const refreshToken = createRefreshToken(user._id)
 
     res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
@@ -90,7 +94,8 @@ exports.refresh = (req, res) => {
       if (!foundUser) return res.status(401).json({ error: 'Unauthorized user not found' })
 
       if(foundUser.active){
-        const accessToken = jwt.sign({_id: foundUser._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
+        // const accessToken = jwt.sign({_id: foundUser._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
+        const accessToken = createAccessToken(foundUser._id)
         res.status(200).json({ name: foundUser.name, email: foundUser.email, roles: foundUser.roles, accessToken })
       }else{
         res.clearCookie('jwt', { httpOnly: true, sameSite: 'Lax', secure: true })

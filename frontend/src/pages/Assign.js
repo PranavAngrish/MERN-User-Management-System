@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { ROLES } from '../config/roles'
 import { usePathContext } from '../context/path'
 import { useAuthContext } from '../hooks/useAuthContext'
@@ -14,7 +14,6 @@ const Assgin = () => {
   const { auth } = useAuthContext()
   const { setTitle } = usePathContext()
   const { assignedUser, setAssignedUser } =  useTasksContext()
-  // const [assignedUser, setAssignedUser] = useState([])
   const axiosPrivate = useAxiosPrivate()
   const location = useLocation()
   const { id, title, createdBy } = location.state ?? ""

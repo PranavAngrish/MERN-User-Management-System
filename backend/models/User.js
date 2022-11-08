@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
   },
   active: {
     type: Boolean,
-    default: true
+    default: false
   },
   tasks:{
     type: [mongoose.Schema.Types.ObjectId],
@@ -31,9 +31,9 @@ const userSchema = new mongoose.Schema({
 })
 
 userSchema.statics.signup = async function(name, email, password) {
-  const isNameEmpty = validator.isEmpty(name, { ignore_whitespace:true })
-  const isEmailEmpty = validator.isEmpty(email, { ignore_whitespace:true })
-  const isPasswordEmpty = validator.isEmpty(password, { ignore_whitespace:true })
+  const isNameEmpty = validator.isEmpty(name ?? '', { ignore_whitespace:true })
+  const isEmailEmpty = validator.isEmpty(email ?? '', { ignore_whitespace:true })
+  const isPasswordEmpty = validator.isEmpty(password ?? '', { ignore_whitespace:true })
   if (isNameEmpty || isEmailEmpty || isPasswordEmpty) throw Error('All fields must be filled')
   if (!validator.isEmail(email)) throw Error('Email not valid')
   if (!validator.isStrongPassword(password)) throw Error('Password not strong enough')
