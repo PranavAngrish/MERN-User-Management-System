@@ -7,6 +7,7 @@ import RequireAuth from './components/RequireAuth'
 import RequireRoles from './components/RequireRoles'
 import Recaptcha from './pages/Recaptcha'
 import Signup from './pages/Signup'
+import Activate from './pages/auth/Activate'
 import Navbar from './components/Navbar'
 import Status from './components/Status'
 import Home from './pages/Home'
@@ -31,6 +32,7 @@ function App() {
           <Routes>
             <Route path="/login" element={!auth ? <Recaptcha /> : <Navigate to={link} />} />
             <Route path="/signup" element={!auth ? <Signup /> : <Navigate to="/" />} />
+            <Route path="/activate/:id" element={<Activate />} />
 
             <Route element={<PersistLogin />}>
               <Route path="/" element={<Home />}/>
