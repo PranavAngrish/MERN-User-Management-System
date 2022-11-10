@@ -46,4 +46,4 @@ const sendEmailRegister = (to, url, text) => {
     }
 }
 
-module.exports = sendEmailRegister
+module.exports = { sendEmailRegister }

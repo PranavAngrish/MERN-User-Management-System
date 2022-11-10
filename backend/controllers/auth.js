@@ -1,16 +1,18 @@
 const User = require('../models/User')
 const jwt = require('jsonwebtoken')
 const axios = require('axios')
-const { sendMail } = require('../config/sendMail')
+const bcrypt = require('bcrypt')
+const validator = require('validator')
+const sendMail= require('../config/sendMail')
 const { url } = require('../config/url')
 
 const createAccessToken = (_id) => jwt.sign({_id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
 const createRefreshToken = (_id) => jwt.sign({_id}, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
 
 exports.login = async (req, res) => {
-  const { email, password, tokens } = req.body
-
   try {
+    const { email, password, tokens } = req.body
+
     const reCaptchaRe = await axios.post(`https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${tokens}`, {
       headers: {"Content-Type": "application/x-www-form-urlencoded"}
     })
@@ -31,9 +33,9 @@ exports.login = async (req, res) => {
 }
 
 exports.signup = async (req, res) => {
-  const { name, email, password } = req.body
-
   try {
+    const { name, email, password } = req.body
+
     const isNameEmpty = validator.isEmpty(name ?? '', { ignore_whitespace:true })
     const isEmailEmpty = validator.isEmpty(email ?? '', { ignore_whitespace:true })
     const isPasswordEmpty = validator.isEmpty(password ?? '', { ignore_whitespace:true })
@@ -53,16 +55,26 @@ exports.signup = async (req, res) => {
     const activateUrl = `${url}/activate/${activation_token}`
     sendMail.sendEmailRegister(email, activateUrl, "Verify your email")
 
-    res.status(200).json({ msg: "Welcome! Please check your email." })
+    res.status(200).json({ mailSent: true })
   } catch (error) {
     res.status(400).json({error: error.message})
   }
 }
 
 exports.activate = async (req, res) => {
-  const { activation_token } = req.body
-
   try {
+    const { activation_token } = req.body
+
+    const verifyToken = jwt.verify(activation_token, process.env.ACCESS_TOKEN_SECRET, 
+      async (err, decoded) => {
+        if (err?.name == "TokenExpiredError") return res.status(403).json({ error: 'Forbidden token expired'})
+        if (err) return res.status(403).json({ error: 'Forbidden'})
+        return decoded
+      }
+    )
+
+    const { name, email, password } = verifyToken
+
     const user = await User.signup(name, email, password)
     // const accessToken = jwt.sign({_id: user._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
     const accessToken = createAccessToken(user._id)
