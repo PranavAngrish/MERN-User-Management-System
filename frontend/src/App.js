@@ -32,7 +32,7 @@ function App() {
           <Routes>
             <Route path="/login" element={!auth ? <Recaptcha /> : <Navigate to={link} />} />
             <Route path="/signup" element={!auth ? <Signup /> : <Navigate to="/" />} />
-            <Route path="/activate/:id" element={<Activate />} />
+            <Route path="/activate/:activation_token" element={<Activate />} />
 
             <Route element={<PersistLogin />}>
               <Route path="/" element={<Home />}/>

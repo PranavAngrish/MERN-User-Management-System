@@ -4,7 +4,7 @@ const axios = require('axios')
 const bcrypt = require('bcrypt')
 const validator = require('validator')
 const sendMail= require('../config/sendMail')
-const { url } = require('../config/url')
+const url = require('../config/url')
 
 const createAccessToken = (_id) => jwt.sign({_id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
 const createRefreshToken = (_id) => jwt.sign({_id}, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
@@ -50,10 +50,11 @@ exports.signup = async (req, res) => {
     const hash = await bcrypt.hash(password, salt)
 
     const newUser = { name, email, password: hash }
-    const activation_token = jwt.sign(newUser, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
+    const activation_token = jwt.sign(newUser, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' })
     
     const activateUrl = `${url}/activate/${activation_token}`
-    sendMail.sendEmailRegister(email, activateUrl, "Verify your email")
+    // sendMail.sendEmailRegister(email, activateUrl, "Verify your email")
+    console.log(activateUrl)
 
     res.status(200).json({ mailSent: true })
   } catch (error) {
@@ -65,24 +66,33 @@ exports.activate = async (req, res) => {
   try {
     const { activation_token } = req.body
 
-    const verifyToken = jwt.verify(activation_token, process.env.ACCESS_TOKEN_SECRET, 
+    jwt.verify(activation_token, process.env.ACCESS_TOKEN_SECRET, 
       async (err, decoded) => {
         if (err?.name == "TokenExpiredError") return res.status(403).json({ error: 'Forbidden token expired'})
         if (err) return res.status(403).json({ error: 'Forbidden'})
-        return decoded
+        let firstRun = true
+        const user = await User.signup(decoded.name, decoded.email, decoded.password, firstRun)
+        firstRun = false
+        // const accessToken = jwt.sign({_id: user._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
+        const accessToken = createAccessToken(user._id)
+        const refreshToken = createRefreshToken(user._id)
+
+        res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
+        res.status(200).json({name: user.name, email: user.email, roles: user.roles, accessToken})
       }
     )
 
-    const { name, email, password } = verifyToken
+    // const { name, email, password } = verifyToken
 
-    const user = await User.signup(name, email, password)
-    // const accessToken = jwt.sign({_id: user._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
-    const accessToken = createAccessToken(user._id)
-    const refreshToken = createRefreshToken(user._id)
+    // const user = await User.signup(name, email, password)
+    // // const accessToken = jwt.sign({_id: user._id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
+    // const accessToken = createAccessToken(user._id)
+    // const refreshToken = createRefreshToken(user._id)
 
-    res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
-    res.status(200).json({name: user.name, email, roles: user.roles, accessToken})
+    // res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
+    // res.status(200).json({name: user.name, email, roles: user.roles, accessToken})
   } catch (error) {
+    console.log(error)
     res.status(400).json({error: error.message})
   }
 }
