@@ -38,7 +38,7 @@ const Sleep = () => {
         }
         isMounted && dispatch({type: 'SET_SLEEPS', payload: response.data})
       } catch (err) {
-        dispatch({type: 'SET_SLEEPS', payload: null})
+        dispatch({type: 'SET_SLEEPS', payload: []})
         // console.log(err)
       }
     }

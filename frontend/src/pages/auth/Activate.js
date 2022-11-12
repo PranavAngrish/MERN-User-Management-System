@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { MdSpaceDashboard, MdOutlineVerifiedUser } from 'react-icons/md'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuthContext } from '../../hooks/useAuthContext'
@@ -11,48 +11,41 @@ const Activate = () => {
     const [ error, setError ] = useState(null)
     const [ isLoading, setIsLoading ] = useState(false)
     const { dispatch } = useAuthContext()
+    const executeOnce = useRef(false)
 
     useEffect(() => {
-      // let isMounted = true
+      let isMounted = true
+      const abortController = new AbortController()
         
-      // if(!activation_token) navigate('/not-found')
+      if(!activation_token) navigate('/not-found')
 
-      // const activateAccount = async () => {
-      //   setIsLoading(true)
-      //   setError(null) 
+      const activateAccount = async () => {
+        setIsLoading(true)
+        setError(null) 
 
-      //   try {
-      //     const response = await axios.post('/api/auth/activate', { activation_token })
-      //     isMounted && dispatch({type: 'LOGIN', payload: response.data})
-      //     setIsLoading(false)
-      //   } catch (error) {
-      //     setIsLoading(false)
-      //     setError(error.response.data.error)
-      //     navigate('/not-found')
-      //   }
-
-        // const response = await fetch('/api/auth/activate', {
-        //   method: 'POST',
-        //   headers: {'Content-Type': 'application/json'},
-        //   body: JSON.stringify({ activation_token })
-        // })
-        
-        // const json = await response.json()
-        
-        // if (!response.ok){
-        //   setIsLoading(false)
-        //   setError(json.error)
-        // }
-
-        // if (response.ok) {
-        //   isMounted && dispatch({type: 'LOGIN', payload: json})
-        //   setIsLoading(false)
-        // }
-      // }
+        try {
+          const response = await axios.post('/api/auth/activate', { 
+            activation_token,
+            signal: abortController.signal
+          })
+          isMounted && dispatch({type: 'LOGIN', payload: response.data})
+          setIsLoading(false)
+        } catch (error) {
+          setIsLoading(false)
+          setError(error.response.data.error)
+          navigate('/not-found')
+        }
+      }
       
-      // activateAccount()
-    
-        // return () => { isMounted = false }
+      if (executeOnce.current === true || process.env.NODE_ENV !== 'development') {
+        activateAccount()
+      }
+
+      return () => { 
+        isMounted = false 
+        executeOnce.current = true
+        abortController.abort()
+      }
     }, [])
 
     return (
