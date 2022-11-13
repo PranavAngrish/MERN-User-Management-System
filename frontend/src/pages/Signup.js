@@ -1,48 +1,22 @@
 import { useRef, useState } from 'react'
-// import { useSignup } from '../hooks/useSignup'
+import { useSignup } from '../hooks/useSignup'
 import { Link } from 'react-router-dom'
-import { AiOutlineReload } from 'react-icons/ai'
 import { BsInfoCircleFill } from 'react-icons/bs'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { TbMailForward } from 'react-icons/tb'
-import { VscError } from 'react-icons/vsc'
 import usePersist from '../hooks/usePersist'
 
 const Signup = () => {
-  // const {signup, error, isLoading} = useSignup()
-  const {persist, setPersist} = usePersist()
-  const [changeIcon, setChangeIcon] = useState(false)
-  const [verify, setVerify] = useState(false)
+  const { signup, error, isLoading, mailSent} = useSignup()
+  const { persist, setPersist } = usePersist()
+  const [ changeIcon, setChangeIcon ] = useState(false)
   const nameRef = useRef('')
   const emailRef = useRef('')
   const passwordRef = useRef('')
-  const [error, setError] = useState(null)
-  const [isLoading, setIsLoading] = useState(null)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    // await signup(nameRef.current.value, emailRef.current.value.trim(), passwordRef.current.value.trim())
-    setIsLoading(true)
-    setError(null)
-
-    const user = {name: nameRef.current.value, email: emailRef.current.value.trim(), password: passwordRef.current.value.trim()}
-    const response = await fetch('/api/auth/signup', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(user)
-    })
-
-    const json = await response.json()
-
-    if (!response.ok) {
-      setIsLoading(false)
-      setError(json.error)
-    }
-    
-    if (response.ok) {
-      setVerify(json.mailSent)
-      setIsLoading(false)
-    }
+    await signup(nameRef.current.value, emailRef.current.value.trim(), passwordRef.current.value.trim())
   }
 
   const handleShowPassword =  (e) => {
@@ -58,7 +32,7 @@ const Signup = () => {
 
   return (
     <>
-      {!verify && (
+      {!mailSent && (
         <>
           <form className="signup" onSubmit={handleSubmit}>
             <h3 className="text-center mb-4">Sign Up</h3>
@@ -104,25 +78,14 @@ const Signup = () => {
         </>
       )}
 
-    {/* <div className="popup center shadow">
-      <div className="icon">
-        <VscError className="fa"/>
+    {mailSent && (
+      <div className="verify center shadow">
+        <div className="icon"><TbMailForward className="fa"/></div>
+        <div className="fs-3 fw-semibold">Verify your email</div>
+        <div className="description">We've sent you a link in your email to verify your email address and activateyour account. Just click the link to complete the signup process.</div>
+        <small><div className="fw-semibold" style={{color: '#348df2'}}>The link in the email will expire in 15 minutes.</div></small>
       </div>
-      <div className="fs-3 fw-semibold">Account Activated</div>
-      <div className="description">Your email has been confirmed, check dashboard for more details.</div>
-      <div className="dismiss-btn mt-3">
-        <Link to="/signup"><button><AiOutlineReload />&nbsp;Try Again</button></Link>
-      </div>
-    </div> */}
-
-    {verify && (<div className="popup center shadow">
-      <div className="icon">
-        <TbMailForward className="fa"/>
-      </div>
-      <div className="fs-3 fw-semibold">Verify your email</div>
-      <div className="description">We've sent you a link in your email to verify your email address and activateyour account. Just click the link to complete the signup process</div>
-      <div className="description">The link in the email will expire in 15 minutes.</div>
-    </div>)}
+    )}
    </>
   )
 }

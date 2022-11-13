@@ -1,10 +1,9 @@
 import { useState } from 'react'
-import { useAuthContext } from './useAuthContext'
 
 export const useSignup = () => {
   const [error, setError] = useState(null)
   const [isLoading, setIsLoading] = useState(null)
-  const { dispatch } = useAuthContext()
+  const [mailSent, setMailSent] = useState(false)
 
   const signup = async (name, email, password) => {
     setIsLoading(true)
@@ -15,6 +14,7 @@ export const useSignup = () => {
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({ name, email, password })
     })
+
     const json = await response.json()
 
     if (!response.ok) {
@@ -23,10 +23,10 @@ export const useSignup = () => {
     }
     
     if (response.ok) {
-      dispatch({type: 'LOGIN', payload: json})
+      setMailSent(json.mailSent)
       setIsLoading(false)
     }
   }
 
-  return { signup, isLoading, error }
+  return { signup, isLoading, error, mailSent }
 }
