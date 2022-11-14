@@ -1,6 +1,7 @@
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 import { useAuthContext } from './useAuthContext'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
+import axios from '../api/axios' 
 
 export const useLogin = () => {
   const { executeRecaptcha } = useGoogleReCaptcha()
@@ -18,22 +19,13 @@ export const useLogin = () => {
     setIsLoading(true)
     setError(null)
 
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ email, password, token})
-    })
-    
-    const json = await response.json()
-
-    if (!response.ok) {
+    try {
+      const response = await axios.post('/api/auth/login', { email, password, token})
+      dispatch({type: 'LOGIN', payload: response.data})
       setIsLoading(false)
-      setError(json.error)
-    }
-
-    if (response.ok) {
-      dispatch({type: 'LOGIN', payload: json})
+    } catch (error) {
       setIsLoading(false)
+      setError(error.response.data.error)
     }
   }
 

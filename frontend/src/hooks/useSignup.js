@@ -1,30 +1,23 @@
 import { useState } from 'react'
+import axios from '../api/axios' 
 
 export const useSignup = () => {
-  const [error, setError] = useState(null)
-  const [isLoading, setIsLoading] = useState(null)
-  const [mailSent, setMailSent] = useState(false)
+  const [ error, setError ] = useState(null)
+  const [ isLoading, setIsLoading ] = useState(null)
+  const [ mailSent, setMailSent ] = useState(false)
 
   const signup = async (name, email, password) => {
     setIsLoading(true)
     setError(null)
 
-    const response = await fetch('/api/auth/signup', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ name, email, password })
-    })
-
-    const json = await response.json()
-
-    if (!response.ok) {
+    try {
+      const response = await axios.post('/api/auth/signup', { name, email, password })
+      setMailSent(response.data.mailSent)
       setIsLoading(false)
-      setError(json.error)
-    }
-    
-    if (response.ok) {
-      setMailSent(json.mailSent)
+    } catch (error) {
+      // console.log(error)
       setIsLoading(false)
+      setError(error.response.data.error)
     }
   }
 
