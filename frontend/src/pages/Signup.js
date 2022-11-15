@@ -82,7 +82,7 @@ const Signup = () => {
       <div className="verify center shadow">
         <div className="icon"><TbMailForward className="fa"/></div>
         <div className="fs-3 fw-semibold">Verify your email</div>
-        <div className="description">We've sent you a link in your email to verify your email address and activateyour account. Just click the link to complete the signup process.</div>
+        <div className="description">We've sent you a link in your email to verify your email address and activate your account. Just click the link to complete the signup process.</div>
         <small><div className="fw-semibold" style={{color: '#348df2'}}>The link in the email will expire in 15 minutes.</div></small>
       </div>
     )}

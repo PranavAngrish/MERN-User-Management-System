@@ -41,7 +41,7 @@ const Home = () => {
                 <div className="col-lg-3">
                     <div className="card my-2">
                         <div className="card-body">
-                            <h5 className="card-title">Task Management</h5>
+                            <h5 className="card-title">{accessRight ? "Task Management" : "Tasks"}</h5>
                             <p className="card-text">With supporting text below as a natural lead-in to additional content.</p>
                             <Link to="/task" onClick={() => handleClick("/task")}><button className="btn btn-primary"><FaTasks/></button></Link>
                         </div>

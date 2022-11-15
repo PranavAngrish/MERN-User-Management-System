@@ -30,12 +30,12 @@ function App() {
         
         <div className="container mt-3">
           <Routes>
-            <Route path="/login" element={!auth ? <Recaptcha /> : <Navigate to={link} />} />
-            <Route path="/signup" element={!auth ? <Signup /> : <Navigate to="/" />} />
             <Route path="/activate/:activation_token" element={<Activate />} />
 
             <Route element={<PersistLogin />}>
               <Route path="/" element={<Home />}/>
+              <Route path="/login" element={!auth ? <Recaptcha /> : <Navigate to={link} />} />
+              <Route path="/signup" element={!auth ? <Signup /> : <Navigate to="/" />} />
 
               <Route element={<RequireAuth />}>
                 <Route element={<RequireRoles Roles={[...Object.values(ROLES)]} />}>
