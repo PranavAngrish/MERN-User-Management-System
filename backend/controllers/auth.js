@@ -52,7 +52,6 @@ exports.signup = async (req, res) => {
     
     const activateUrl = `${url}/activate/${activation_token}`
     sendMail.sendEmailRegister(email, activateUrl, "Verify your email")
-    console.log(activateUrl)
 
     res.status(200).json({ mailSent: true })
   } catch (error) {
