@@ -12,8 +12,8 @@ const Index = ({ sleep }) => {
             <div>
                 <div className="fs-4 mb-1 text-primary">{sleep.title}</div>
                 <p>
-                    <strong className="fs-6 text-muted">Load (kg): </strong>{sleep.load}<br/>
-                    <strong className="fs-6 text-muted">Number of reps: </strong>{sleep.reps}<br/>
+                    <strong className="fs-6 text-muted">Sleep time: </strong>{sleep.sleep}<br/>
+                    <strong className="fs-6 text-muted">Wake time: </strong>{sleep.wake}<br/>
                     {formatDistanceToNow(new Date(sleep.createdAt), { addSuffix: true })}
                 </p>
             </div>

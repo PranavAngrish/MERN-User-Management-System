@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ROLES } from '../../config/roles'
 import { useSleepsContext } from '../../hooks/useSleepsContext'
 import { useAuthContext } from '../../hooks/useAuthContext'
@@ -12,9 +12,14 @@ const Add = () => {
   const { dispatch } = useSleepsContext()
   const [error, setError] = useState(null)
   const [emptyFields, setEmptyFields] = useState([])
-  const titleRef = useRef('')
-  const loadRef = useRef('')
-  const repsRef = useRef('')
+  const sleepRef = useRef('')
+  const wakeRef = useRef('')
+  const now = new Date().toISOString().split('.').shift()
+
+  useEffect(() => {
+    sleepRef.current.defaultValue = now
+    wakeRef.current.defaultValue = now
+  },[])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -24,7 +29,7 @@ const Add = () => {
       return
     }
 
-    const sleep = {title: titleRef.current.value, load: loadRef.current.value, reps: repsRef.current.value}
+    const sleep = {sleep: sleepRef.current.value, wake: wakeRef.current.value}
     
     try {
       if(targetUser?.userId && (auth.email !== targetUser?.userEmail) && (auth.roles == ROLES.Admin)){
@@ -33,9 +38,8 @@ const Add = () => {
       const response = await axiosPrivate.post('/api/sleeps', sleep)
       setEmptyFields([])
       setError(null)
-      titleRef.current.value = ''
-      loadRef.current.value = ''
-      repsRef.current.value = ''
+      sleepRef.current.value = now
+      wakeRef.current.value = now
       dispatch({type: 'CREATE_SLEEP', payload: response.data})
     } catch (error) {
       // console.log(error)
@@ -46,13 +50,18 @@ const Add = () => {
 
   return (
     <form className="create" onSubmit={handleSubmit}> 
-      <h3>Add New Sleep Hours</h3>
-      <label>Excersize Title:</label>
+      <h3>Record Sleep Hours</h3>
+      {/* var time = new Date() .toLocaleTimeString("en-US") */}
+      <label>Sleep Time:</label>
+      <input type="datetime-local" ref={sleepRef} className={emptyFields?.includes('sleep') ? 'error' : ''}/>
+      <label>Wake Time:</label>
+      <input type="datetime-local" ref={wakeRef} className={emptyFields?.includes('wake') ? 'error' : ''}/>
+      {/* <label>Excersize Title:</label>
       <input type="text" ref={titleRef} className={emptyFields?.includes('title') ? 'error' : ''}/>
       <label>Load (in kg):</label>
       <input type="number" ref={loadRef} className={emptyFields?.includes('load') ? 'error' : ''}/>
       <label>Number of Reps:</label>
-      <input type="number" ref={repsRef} className={emptyFields?.includes('reps') ? 'error' : ''}/>
+      <input type="number" ref={repsRef} className={emptyFields?.includes('reps') ? 'error' : ''}/> */}
       <button>Add Sleep</button>
       {error && <div className="error">{error}</div>}
     </form>
