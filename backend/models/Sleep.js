@@ -1,16 +1,16 @@
 const mongoose = require('mongoose')
 
 const sleepSchema = new mongoose.Schema({
-  title: {
+  date: {
     type: String,
     required: true
   },
-  reps: {
-    type: Number,
+  sleep: {
+    type: String,
     required: true
   },
-  load: {
-    type: Number,
+  wake: {
+    type: String,
     required: true
   },
   user_id: {

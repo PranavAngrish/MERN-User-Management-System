@@ -37,21 +37,29 @@ exports.getById = async (req, res) => {
 }
 
 exports.create = async (req, res) => {
-  const {title, load, reps} = req.body
+  const {sleep, wake} = req.body
 
   let emptyFields = []
 
-  if (!title) {
-    emptyFields.push('title')
+  if (!sleep) {
+    emptyFields.push('sleep')
   }
 
-  if (!load) {
-    emptyFields.push('load')
+  if (!wake) {
+    emptyFields.push('wake')
   }
 
-  if (!reps) {
-    emptyFields.push('reps')
-  }
+  // if (!title) {
+  //   emptyFields.push('title')
+  // }
+
+  // if (!load) {
+  //   emptyFields.push('load')
+  // }
+
+  // if (!reps) {
+  //   emptyFields.push('reps')
+  // }
   
   if (emptyFields.length > 0) {
     return res.status(400).json({ error: 'Please fill in all fields', emptyFields })
@@ -64,8 +72,8 @@ exports.create = async (req, res) => {
     if(targetUserId && (userId !== targetUserId) && (req.roles == ROLES_LIST.Admin)){
       idToCreate = targetUserId
     }
-    const sleep = await Sleep.create({ title, load, reps, user_id: idToCreate })
-    res.status(201).json(sleep)
+    const sleeps = await Sleep.create({ sleep, wake, user_id: idToCreate })
+    res.status(201).json(sleeps)
   } catch (error) {
     res.status(400).json({ error: error.message })
   }
