@@ -4,6 +4,7 @@ import { useSleepsContext } from '../../hooks/useSleepsContext'
 import { useAuthContext } from '../../hooks/useAuthContext'
 import { useUserContext } from '../../hooks/useUserContext'
 import useAxiosPrivate from '../../hooks/useAxiosPrivate'
+const moment = require('moment')
 
 const Add = () => {
   const axiosPrivate = useAxiosPrivate()
@@ -14,7 +15,7 @@ const Add = () => {
   const [emptyFields, setEmptyFields] = useState([])
   const sleepRef = useRef('')
   const wakeRef = useRef('')
-  const now = new Date().toISOString().split('.').shift()
+  const now = moment(new Date()).format('YYYY-MM-DD HH:mm')
 
   useEffect(() => {
     sleepRef.current.defaultValue = now
@@ -28,9 +29,9 @@ const Add = () => {
       setError('You must be logged in')
       return
     }
-
-    const sleep = {sleep: sleepRef.current.value, wake: wakeRef.current.value}
     
+    const sleep = {sleep: sleepRef.current.value, wake: wakeRef.current.value}
+
     try {
       if(targetUser?.userId && (auth.email !== targetUser?.userEmail) && (auth.roles == ROLES.Admin)){
         sleep.id = targetUser.userId
