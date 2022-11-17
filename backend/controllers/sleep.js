@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const Sleep = require('../models/sleep')
 const validator = require('validator')
 const ROLES_LIST = require('../config/rolesList')
+const moment = require('moment')
 
 exports.getAll = async (req, res) => {
   const user_id = req.user._id
@@ -69,10 +70,16 @@ exports.create = async (req, res) => {
     const userId = req.user._id
     const targetUserId = req.body.id // user id that Admin use to update user record
     let idToCreate = userId
+
     if(targetUserId && (userId !== targetUserId) && (req.roles == ROLES_LIST.Admin)){
       idToCreate = targetUserId
     }
-    const sleeps = await Sleep.create({ sleep, wake, user_id: idToCreate })
+
+    const start = moment(sleep)
+    const end = moment(wake)
+    const duration = end.diff(start, 'minutes')
+
+    const sleeps = await Sleep.create({ sleep, wake, duration, user_id: idToCreate })
     res.status(201).json(sleeps)
   } catch (error) {
     res.status(400).json({ error: error.message })
