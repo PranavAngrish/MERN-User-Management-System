@@ -13,15 +13,14 @@ const Edit = ({sleep }) => {
   const { targetUser } =  useUserContext()
   const { dispatch } =  useSleepsContext()
   const { auth } = useAuthContext()
-  const [error, setError] = useState(null)
-  const [show, setShow] = useState(false)
-  const titleRef = useRef('')
-  const loadRef = useRef('')
-  const repsRef = useRef('')
+  const [ error, setError ] = useState(null)
+  const [ show, setShow ] = useState(false)
+  const sleepRef = useRef('')
+  const wakeRef = useRef('')
   
   const handleUpdate = async () => {
-    const updateSleep = { title: titleRef.current.value, load: loadRef.current.value, reps: repsRef.current.value }
-    const prevSleep  = [titleRef.current.defaultValue, loadRef.current.defaultValue,  repsRef.current.defaultValue]
+    const updateSleep = {sleep: sleepRef.current.value, wake: wakeRef.current.value}
+    const prevSleep  = [sleepRef.current.defaultValue, wakeRef.current.defaultValue]
   
     Object.keys(updateSleep).forEach(key => {
       if (validator.isEmpty(updateSleep[key], { ignore_whitespace:true }) || prevSleep.includes(updateSleep[key])) {
@@ -63,19 +62,15 @@ const Edit = ({sleep }) => {
           <Modal.Title>Edit Sleep Record</Modal.Title>
         </Modal.Header> 
         <Modal.Body>
-            <Form.Group className="mb-3">
-              <Form.Label>Excersize Title:</Form.Label>
-              <Form.Control type="text" defaultValue={sleep.title} ref={titleRef} autoFocus/>
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Load (in kg):</Form.Label>
-              <Form.Control type="number" defaultValue={sleep.load} ref={loadRef} autoFocus/>
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Number of Reps:</Form.Label>
-              <Form.Control type="number" defaultValue={sleep.reps} ref={repsRef} autoFocus/>
-            </Form.Group>
-            {error && (<Alert variant={'danger'}>{error}</Alert>)}
+          <Form.Group className="mb-3">
+            <Form.Label>Sleep Time:</Form.Label>
+            <Form.Control type="datetime-local" defaultValue={sleep.sleep} ref={sleepRef}/>
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Wake Time:</Form.Label>
+            <Form.Control type="datetime-local" defaultValue={sleep.wake} ref={wakeRef}/>
+          </Form.Group>
+          {error && (<Alert variant={'danger'}>{error}</Alert>)}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="primary" onClick={handleUpdate}>Save Changes </Button>

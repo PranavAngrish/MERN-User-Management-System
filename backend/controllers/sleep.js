@@ -50,18 +50,6 @@ exports.create = async (req, res) => {
     emptyFields.push('wake')
   }
 
-  // if (!title) {
-  //   emptyFields.push('title')
-  // }
-
-  // if (!load) {
-  //   emptyFields.push('load')
-  // }
-
-  // if (!reps) {
-  //   emptyFields.push('reps')
-  // }
-  
   if (emptyFields.length > 0) {
     return res.status(400).json({ error: 'Please fill in all fields', emptyFields })
   }
@@ -70,11 +58,13 @@ exports.create = async (req, res) => {
     const userId = req.user._id
     const targetUserId = req.body.id // user id that Admin use to update user record
     let idToCreate = userId
-
+    
+    if((sleep > wake) || duration == 0) throw Error('Invalid datetime input')
+    
     if(targetUserId && (userId !== targetUserId) && (req.roles == ROLES_LIST.Admin)){
       idToCreate = targetUserId
     }
-
+    
     const start = moment(sleep)
     const end = moment(wake)
     const duration = end.diff(start, 'minutes')
@@ -88,6 +78,7 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   const { id } = req.params
+  const {sleep, wake} = req.body
   
   const isIdEmpty = validator.isEmpty(id, { ignore_whitespace:true })
   if (isIdEmpty) return res.status(400).json({error: 'Sleep id required'})
@@ -99,9 +90,14 @@ exports.update = async (req, res) => {
   if(targetUserId && (userId !== targetUserId) && (req.roles == ROLES_LIST.Admin)){
     idToUpdate = targetUserId
   }
+
+  const start = moment(sleep)
+  const end = moment(wake)
+  const duration = end.diff(start, 'minutes')
+  req.body = {...req.body, duration: duration}
   
-  const sleep = await Sleep.findOneAndUpdate({_id: id}, {...req.body }).lean().exec()
-  if (!sleep) return res.status(400).json({error: 'No such sleep record found'})
+  const sleeps = await Sleep.findOneAndUpdate({_id: id}, {...req.body }).lean().exec()
+  if (!sleeps) return res.status(400).json({error: 'No such sleep record found'})
   
   //after update return new record
   const updatedRecord = await Sleep.find({user_id: idToUpdate}).sort({createdAt: -1}).lean()
