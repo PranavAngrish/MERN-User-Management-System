@@ -11,8 +11,8 @@ const Add = () => {
   const { auth } = useAuthContext()
   const { targetUser } =  useUserContext()
   const { dispatch } = useSleepsContext()
-  const [error, setError] = useState(null)
-  const [emptyFields, setEmptyFields] = useState([])
+  const [ error, setError ] = useState(null)
+  const [ emptyFields, setEmptyFields ] = useState([])
   const sleepRef = useRef('')
   const wakeRef = useRef('')
   const now = moment(new Date()).format('YYYY-MM-DD HH:mm')
@@ -30,12 +30,14 @@ const Add = () => {
       return
     }
     
-    const sleep = {sleep: sleepRef.current.value, wake: wakeRef.current.value}
-
     try {
-      if(targetUser?.userId && (auth.email !== targetUser?.userEmail) && (auth.roles == ROLES.Admin)){
+      const rughtToAdd = auth.roles == ROLES.Admin || auth.roles == ROLES.Root
+      const sleep = {sleep: sleepRef.current.value, wake: wakeRef.current.value}
+
+      if(targetUser?.userId && (auth.email !== targetUser?.userEmail) && (rughtToAdd)){
         sleep.id = targetUser.userId
       }
+
       const response = await axiosPrivate.post('/api/sleeps', sleep)
       setEmptyFields([])
       setError(null)
@@ -52,17 +54,10 @@ const Add = () => {
   return (
     <form className="create" onSubmit={handleSubmit}> 
       <h3>Record Sleep Hours</h3>
-      {/* var time = new Date() .toLocaleTimeString("en-US") */}
       <label>Sleep Time:</label>
       <input type="datetime-local" ref={sleepRef} className={emptyFields?.includes('sleep') ? 'error' : ''}/>
       <label>Wake Time:</label>
       <input type="datetime-local" ref={wakeRef} className={emptyFields?.includes('wake') ? 'error' : ''}/>
-      {/* <label>Excersize Title:</label>
-      <input type="text" ref={titleRef} className={emptyFields?.includes('title') ? 'error' : ''}/>
-      <label>Load (in kg):</label>
-      <input type="number" ref={loadRef} className={emptyFields?.includes('load') ? 'error' : ''}/>
-      <label>Number of Reps:</label>
-      <input type="number" ref={repsRef} className={emptyFields?.includes('reps') ? 'error' : ''}/> */}
       <button>Add Sleep</button>
       {error && <div className="error">{error}</div>}
     </form>
