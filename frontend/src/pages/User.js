@@ -6,6 +6,7 @@ import { usePathContext } from '../context/path'
 import useAxiosPrivate from '../hooks/useAxiosPrivate'
 import Details from '../components/users/Index'
 import Add from '../components/users/Add'
+import SearchBar from '../components/users/SearchBar'
 
 const User = () => {
   const { auth } = useAuthContext()
@@ -46,6 +47,8 @@ const User = () => {
       {admin && (
         <>
           <Add />
+
+          <SearchBar/>
 
           {users && (
             <table className="table mt-2">
