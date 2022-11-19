@@ -33,10 +33,10 @@ const Login = () => {
       <form className="login" onSubmit={handleSubmit}>
         <h3 className="text-center mb-4">Log In</h3>
         <label>Email address:</label>
-        <input type="email"  ref={emailRef}/>
+        <input className="inputs" type="email" ref={emailRef}/>
         <label>Password:</label>
         <div className="d-flex">
-          <input type="password" ref={passwordRef} autoComplete="on"/>
+          <input className="inputs" type="password" ref={passwordRef} autoComplete="on"/>
           <button className="btn mb-2" onClick={handleShowPassword}>{changeIcon ? <FaEyeSlash/> : <FaEye/>}</button>
         </div>
         <div className="signup-prompt">Create an account ? <Link to="/signup">Signup</Link></div>
@@ -44,7 +44,7 @@ const Login = () => {
         <div className="form-check mt-3">
           <label htmlFor="persist" className="form-check-label">
             <input id="persist" className="form-check-input" type="checkbox" onChange={() => {setPersist(prev => !prev)}} checked={persist}/>
-            <div className="mx-2" style={{paddingTop:"2px"}}>Keep me logged in</div>
+            Keep me logged in
           </label>
         </div>
         {error && <div className="error">{error}</div>}

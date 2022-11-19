@@ -55,9 +55,9 @@ const Add = () => {
     <form className="create" onSubmit={handleSubmit}> 
       <h3>Record Sleep Hours</h3>
       <label>Sleep Time:</label>
-      <input type="datetime-local" ref={sleepRef} className={emptyFields?.includes('sleep') ? 'error' : ''}/>
+      <input className="inputs" type="datetime-local" ref={sleepRef}/>
       <label>Wake Time:</label>
-      <input type="datetime-local" ref={wakeRef} className={emptyFields?.includes('wake') ? 'error' : ''}/>
+      <input className="inputs" type="datetime-local" ref={wakeRef}/>
       <button>Add Sleep</button>
       {error && <div className="error">{error}</div>}
     </form>
