@@ -2,11 +2,11 @@ import Delete from './Delete'
 import View from './View'
 import Edit from './Edit'
 
-const Index = ({ users }) => {
+const Index = ({ filteredNames }) => {
 
   return (
     <>
-      {users.map((user, index)=> (
+      {filteredNames.map((user, index)=> (
         <tr key={index}>
           <td>{user.name}</td>
           <td>{user.email}</td>

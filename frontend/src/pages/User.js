@@ -1,17 +1,18 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ROLES } from '../config/roles'
+import { GoSearch } from "react-icons/go"
 import { useAuthContext } from '../hooks/useAuthContext'
 import { useUserContext } from '../hooks/useUserContext'
 import { usePathContext } from '../context/path'
 import useAxiosPrivate from '../hooks/useAxiosPrivate'
 import Details from '../components/users/Index'
 import Add from '../components/users/Add'
-import SearchBar from '../components/users/SearchBar'
 
 const User = () => {
   const { auth } = useAuthContext()
   const { setTitle } = usePathContext()
   const { users, dispatch } = useUserContext()
+  const [ query, setQuery ] = useState("")
   const axiosPrivate = useAxiosPrivate()
   const roles = (auth.roles == ROLES.Admin) || (auth.roles == ROLES.Root)
   const admin =  auth && roles
@@ -42,13 +43,22 @@ const User = () => {
     }
   },[])
 
+  const filteredNames = useMemo(() => {
+    return users?.filter(user => {
+      return user.name.toLowerCase().includes(query.toLowerCase())
+    })
+  }, [users, query])
+
   return (
     <>
       {admin && (
         <>
           <Add />
-
-          <SearchBar/>
+          
+          <div className="input-group mt-2 mb-3">
+            <input type="search" className="form-control" placeholder="Search..." value={query} onChange={e => setQuery(e.target.value)}/>
+            <button className="btn btn-outline-primary" type="button"><GoSearch/></button>
+          </div>
 
           {users && (
             <table className="table mt-2">
@@ -62,7 +72,7 @@ const User = () => {
                 </tr>
               </thead>
               <tbody>
-                <Details users={users}/>
+                <Details filteredNames={filteredNames}/>
               </tbody>
             </table>
           )}
