@@ -8,6 +8,7 @@
 - Provide persist login option for 7 days.
 - Require users to login at least once a week for security.
 - Automatically log out after 15 minutes if the persistent login option is unchecked.
+- Activate account after email verification.
 - Roles can be User or Admin.
 - Display current user and assigned role.
 
@@ -18,6 +19,7 @@
 - Admin cannot delete or change each other.
 - Root user and Admins can create new users.
 - Root user and Admins can change user name, email, password, and roles.
+- Provides a feature for searching user names to find users details.
 - Provide a permission feature that restricts user access as soon as possible if needed.
 - Provide a way to remove user access.
 
