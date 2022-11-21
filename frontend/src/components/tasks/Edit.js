@@ -18,36 +18,36 @@ const Edit = ({ task }) => {
   const statusRef = useRef('')
 
   const handleUpdate = async () => {
-  const updateTask = {title: titleRef.current.value, description: descriptionRef.current.value, status: statusRef.current.value}
-  const prevTask  = [task.title, task.description, task.status]
+    const updateTask = {title: titleRef.current.value, description: descriptionRef.current.value, status: statusRef.current.value}
+    const prevTask  = [task.title, task.description, task.status]
 
-  Object.keys(updateTask).forEach(key => {
-    if (validator.isEmpty(updateTask[key].toString(), { ignore_whitespace:true }) || prevTask.includes(updateTask[key])) {
-      delete updateTask[key]
+    Object.keys(updateTask).forEach(key => {
+      if (validator.isEmpty(updateTask[key].toString(), { ignore_whitespace:true }) || prevTask.includes(updateTask[key])) {
+        delete updateTask[key]
+      }
+    })
+    
+    if (!auth) {
+      setError('You must be logged in')
+      return
     }
-  })
-  
-  if (!auth) {
-    setError('You must be logged in')
-    return
-  }
 
-  const checkChange = Object.keys(updateTask).length === 0
+    const checkChange = Object.keys(updateTask).length === 0
 
-  if(!checkChange){
-    try {
-      const response = await axiosPrivate.patch(`/api/tasks/${task._id}`, updateTask)
-      dispatch({type: 'UPDATE_TASK', payload: response.data})
-      setError(null)
-      setShow(false)
-    } catch (error) {
-      statusRef.current.value = task.status
-      setError(error.response?.data.error)
+    if(!checkChange){
+      try {
+        const response = await axiosPrivate.patch(`/api/tasks/${task._id}`, updateTask)
+        dispatch({type: 'UPDATE_TASK', payload: response.data})
+        setError(null)
+        setShow(false)
+      } catch (error) {
+        statusRef.current.value = task.status
+        setError(error.response?.data.error)
+      }
+    }else{
+      setError("Nothing Changed")
     }
-  }else{
-    setError("Nothing Changed")
   }
-}
     
   return (
     <>

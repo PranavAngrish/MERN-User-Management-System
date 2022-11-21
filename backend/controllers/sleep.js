@@ -40,34 +40,34 @@ exports.getById = async (req, res) => {
 exports.create = async (req, res) => {
   const {sleep, wake} = req.body
 
-  let emptyFields = []
+  // let emptyFields = []
 
-  if (!sleep) {
-    emptyFields.push('sleep')
-  }
+  // if (!sleep) {
+  //   emptyFields.push('sleep')
+  // }
 
-  if (!wake) {
-    emptyFields.push('wake')
-  }
+  // if (!wake) {
+  //   emptyFields.push('wake')
+  // }
 
-  if (emptyFields.length > 0) {
-    return res.status(400).json({ error: 'Please fill in all fields', emptyFields })
-  }
+  // if (emptyFields.length > 0) {
+  //   return res.status(400).json({ error: 'Please fill in all fields', emptyFields })
+  // }
 
   try {
     const userId = req.user._id
     const targetUserId = req.body.id // user id that Admin use to update user record
     let idToCreate = userId
+
+    const start = moment(sleep)
+    const end = moment(wake)
+    const duration = end.diff(start, 'minutes')
     
     if((sleep > wake) || duration == 0) throw Error('Invalid datetime input')
     
     if(targetUserId && (userId !== targetUserId) && (req.roles == ROLES_LIST.Admin)){
       idToCreate = targetUserId
     }
-    
-    const start = moment(sleep)
-    const end = moment(wake)
-    const duration = end.diff(start, 'minutes')
 
     const sleeps = await Sleep.create({ sleep, wake, duration, user_id: idToCreate })
     res.status(201).json(sleeps)
