@@ -56,15 +56,15 @@ const Home = () => {
                         </div>
                     </div>
                 </div>
-                {/* <div className="col-lg-3">
+                <div className="col-lg-3">
                     <div className="card my-2">
                         <div className="card-body">
-                            <h5 className="card-title">Note Management</h5>
+                            <h5 className="card-title">Note</h5>
                             <p className="card-text">With supporting text below as a natural lead-in to additional content.</p>
                             <Link to="/note" onClick={() => handleClick("/note")}><button className="btn btn-primary"><FaStickyNote/></button></Link>
                         </div>
                     </div>
-                </div> */}
+                </div>
             </div>
         </>
     )

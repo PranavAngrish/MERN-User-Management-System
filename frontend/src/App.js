@@ -10,6 +10,8 @@ import Signup from './pages/Signup'
 import Activate from './pages/auth/Activate'
 import Navbar from './components/Navbar'
 import Status from './components/Status'
+import Add from './components/notes/Add'
+import Edit from './components/notes/Edit'
 import Home from './pages/Home'
 import Note from './pages/Note'
 import Sleep from './pages/Sleep'
@@ -42,6 +44,10 @@ function App() {
                   <Route path="/sleep" element={<Sleep />} />
                   <Route path="/note" element={<Note />} />
                   <Route path="/task" element={<Task />} />
+                  <Route path="/note" element={<Note />}>
+                    <Route path="/add" element={<Add />} />
+                    <Route path="/edit" element={<Edit />} />
+                  </Route>
                 </Route>
 
                 <Route element={<RequireRoles Roles={[ROLES.Root, ROLES.Admin]} />}>
