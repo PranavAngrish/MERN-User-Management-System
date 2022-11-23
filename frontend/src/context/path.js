@@ -9,4 +9,8 @@ export const PathContextProvider = ({ children }) => {
     return (<PathContext.Provider value={{title, setTitle, link, setLink}}>{ children }</PathContext.Provider>)
 }
 
-export const usePathContext = () => useContext(PathContext)
+export const usePathContext = () => {
+    const context = useContext(PathContext)
+    if(!context) throw Error('usePathContext must be used inside an PathContextProvider')
+    return context
+}

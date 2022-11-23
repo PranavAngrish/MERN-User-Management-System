@@ -11,7 +11,7 @@ export const sleepsReducer = (state, action) => {
       case 'UPDATE_SLEEP':
         return { sleeps: action.payload }
       case 'DELETE_SLEEP':
-        return { sleeps: state.sleeps.filter(w => w._id !== action.payload._id) }
+        return { sleeps: state.sleeps.filter(s => s._id !== action.payload._id) }
       default:
         return state
     }
