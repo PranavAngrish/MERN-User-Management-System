@@ -44,10 +44,9 @@ function App() {
                   <Route path="/sleep" element={<Sleep />} />
                   <Route path="/note" element={<Note />} />
                   <Route path="/task" element={<Task />} />
-                  <Route path="/note" element={<Note />}>
-                    <Route path="/add" element={<Add />} />
-                    <Route path="/edit" element={<Edit />} />
-                  </Route>
+                  <Route path="/note" element={<Note />} />
+                  <Route path="/note/add" element={<Add />} />
+                  <Route path="/note/edit" element={<Edit />} />
                 </Route>
 
                 <Route element={<RequireRoles Roles={[ROLES.Root, ROLES.Admin]} />}>

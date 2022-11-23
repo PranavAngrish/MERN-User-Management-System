@@ -7,7 +7,7 @@ const Edit = () => {
 
   return (
     <>
-      <h1 className="mb-4">Edit Note</h1>
+      <h1 className="my-3">Edit Note</h1>
       
       <Form onSubmit={handleSubmit}>
         <Stack gap={4}>

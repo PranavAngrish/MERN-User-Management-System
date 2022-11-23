@@ -12,7 +12,6 @@ const Add = () => {
   const { targetUser } =  useUserContext()
   const { dispatch } = useSleepsContext()
   const [ error, setError ] = useState(null)
-  const [ emptyFields, setEmptyFields ] = useState([])
   const sleepRef = useRef('')
   const wakeRef = useRef('')
   const now = moment(new Date()).format('YYYY-MM-DD HH:mm')
@@ -39,7 +38,6 @@ const Add = () => {
       }
 
       const response = await axiosPrivate.post('/api/sleeps', sleep)
-      setEmptyFields([])
       setError(null)
       sleepRef.current.value = now
       wakeRef.current.value = now
@@ -47,7 +45,6 @@ const Add = () => {
     } catch (error) {
       // console.log(error)
       setError(error.response?.data.error)
-      setEmptyFields(error.response?.data.emptyFields)
     }
   }
 
