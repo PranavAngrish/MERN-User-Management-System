@@ -8,7 +8,7 @@ import { useUserContext } from '../../hooks/useUserContext'
 import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 const validator = require('validator')
 
-const Edit = ({sleep }) => {
+const Edit = ({ sleep }) => {
   const axiosPrivate = useAxiosPrivate()
   const { targetUser } =  useUserContext()
   const { dispatch } =  useSleepsContext()

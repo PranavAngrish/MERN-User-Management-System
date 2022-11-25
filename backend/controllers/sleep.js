@@ -40,20 +40,6 @@ exports.getById = async (req, res) => {
 exports.create = async (req, res) => {
   const {sleep, wake} = req.body
 
-  // let emptyFields = []
-
-  // if (!sleep) {
-  //   emptyFields.push('sleep')
-  // }
-
-  // if (!wake) {
-  //   emptyFields.push('wake')
-  // }
-
-  // if (emptyFields.length > 0) {
-  //   return res.status(400).json({ error: 'Please fill in all fields', emptyFields })
-  // }
-
   try {
     const userId = req.user._id
     const targetUserId = req.body.id // user id that Admin use to update user record
