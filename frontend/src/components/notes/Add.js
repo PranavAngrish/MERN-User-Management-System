@@ -1,17 +1,18 @@
 import { useRef, useState } from 'react'
 import { Alert, Button, Col, Form, Row, Stack } from "react-bootstrap"
-import { useNotesContext } from '../../hooks/useNotesContext'
 import { useAuthContext } from '../../hooks/useAuthContext'
 import { useUserContext } from '../../hooks/useUserContext'
-import { Link } from 'react-router-dom'
+import { useNoteContext } from '../../context/note'
 import { ROLES } from '../../config/roles'
+import { Link, useNavigate } from 'react-router-dom'
 import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 
 const Add = () => {
+  const navigate = useNavigate()
   const axiosPrivate = useAxiosPrivate()
   const { auth } = useAuthContext()
   const { targetUser } =  useUserContext()
-  const { dispatch } = useNotesContext()
+  const { dispatch } = useNoteContext()
   const [ error, setError ] = useState(null)
   const titleRef = useRef('')
   const textRef = useRef('')
@@ -35,6 +36,7 @@ const Add = () => {
       const response = await axiosPrivate.post('/api/note', note)
       setError(null)
       dispatch({type: 'CREATE_NOTE', payload: response.data})
+      navigate('/note')
     } catch (error) {
       // console.log(error)
       setError(error.response?.data.error)

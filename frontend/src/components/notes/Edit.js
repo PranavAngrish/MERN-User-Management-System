@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react'
 import { Alert, Button, Col, Form, Row, Stack } from "react-bootstrap"
-import { useNotesContext } from '../../hooks/useNotesContext'
 import { useAuthContext } from '../../hooks/useAuthContext'
 import { useUserContext } from '../../hooks/useUserContext'
+import { useNoteContext } from '../../context/note'
 import { Link } from 'react-router-dom'
 import { ROLES } from '../../config/roles'
 import useAxiosPrivate from '../../hooks/useAxiosPrivate'
@@ -11,7 +11,7 @@ const Edit = ({ note }) => {
   const axiosPrivate = useAxiosPrivate()
   const { auth } = useAuthContext()
   const { targetUser } =  useUserContext()
-  const { dispatch } = useNotesContext()
+  const { dispatch } = useNoteContext()
   const [ error, setError ] = useState(null)
   const titleRef = useRef('')
   const textRef = useRef('')

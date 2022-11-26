@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const Note = require('../models/note')
+const Note = require('../models/Note')
 const validator = require('validator')
 const ROLES_LIST = require('../config/rolesList')
 

@@ -9,11 +9,23 @@ const Index = () => {
         <Col><h1>Notes</h1></Col>
         <Col xs="auto">
           <Stack gap={2} direction="horizontal">
-            <Link to="/"><Button variant="primary">Create</Button></Link>
+            <Link to="/note/add"><Button variant="primary">Create</Button></Link>
             {/* <Button variant="outline-secondary">Edit Tags</Button> */}
           </Stack>
         </Col>
       </Row>
+      
+      {/* <div className="row">
+        <div className="col-lg-3">
+          <div className="card my-2">
+              <div className="card-body">
+                  <h5 className="card-title">Note</h5>
+                  <p className="card-text">Tag</p>
+                  <Link to="/note" onClick={() => handleClick("/")}><button className="btn btn-primary"><FaStickyNote/></button></Link>
+              </div>
+          </div>
+        </div>
+      </div> */}
     </>
   )
 }
