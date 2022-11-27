@@ -12,6 +12,7 @@ import Navbar from './components/Navbar'
 import Status from './components/Status'
 import Add from './components/notes/Add'
 import Edit from './components/notes/Edit'
+import View from './components/notes/View'
 import Home from './pages/Home'
 import Note from './pages/Note'
 import Sleep from './pages/Sleep'
@@ -45,6 +46,7 @@ function App() {
                   <Route path="/note" element={<Note />} />
                   <Route path="/task" element={<Task />} />
                   <Route path="/note" element={<Note />} />
+                  <Route path="/note/:id" element={<View />} />
                   <Route path="/note/add" element={<Add />} />
                   <Route path="/note/edit" element={<Edit />} />
                 </Route>

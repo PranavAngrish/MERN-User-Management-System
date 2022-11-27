@@ -1,18 +1,58 @@
 import { useEffect } from 'react'
+import { ROLES } from '../config/roles'
 import { GoSearch } from "react-icons/go"
 import { BiArrowBack } from 'react-icons/bi'
 import { BsPlusLg } from 'react-icons/bs'
 import { Link, useNavigate } from "react-router-dom"
 import { usePathContext } from '../context/path'
+import { useUserContext } from '../hooks/useUserContext'
+import { useAuthContext } from '../hooks/useAuthContext'
+import { useNoteContext } from '../../context/note'
+import useAxiosPrivate from "../hooks/useAxiosPrivate"
 import Details from '../components/notes/Index'
-import Add from '../components/notes/Add'
 
 const Note = () => {
-  const { setTitle } = usePathContext()
   const navigate = useNavigate()
+  const { setTitle } = usePathContext()
+  const { auth } = useAuthContext()
+  const { targetUser } = useUserContext()
+  const { notes, dispatch } = useNoteContext()
+  const axiosPrivate = useAxiosPrivate()
 
   useEffect(() => {
+    let isMounted = true
+    const abortController = new AbortController()
     setTitle("Note Management")
+
+    const getNoteList = async () => {
+      try {
+        let response
+        if(targetUser?.userId && (auth.email !== targetUser.userEmail) && (auth.roles == ROLES.Admin)){
+          // Admin view
+          response = await axiosPrivate.post('/api/notes/admin', {
+            id: targetUser.userId,
+            signal: abortController.signal
+          })
+        }else{
+          response = await axiosPrivate.get('/api/notes', {
+            signal: abortController.signal
+          })
+        }
+        isMounted && dispatch({type: 'SET_NOTE', payload: response.data})
+      } catch (err) {
+        dispatch({type: 'SET_NOTE', payload: []})
+        // console.log(err)
+      }
+    }
+
+    if(auth){
+      getNoteList()
+    }
+
+    return () => {
+      isMounted = false
+      abortController.abort()
+    }
   },[])
   
   return (
@@ -27,7 +67,11 @@ const Note = () => {
         <button className="btn btn-outline-primary" type="button"><GoSearch/></button>
       </div>
 
-      <Details/>
+      <div className="row">
+        {notes && notes.map(note => (
+          <Details note={note} key={note._id} />
+        ))}
+      </div>
     </>
   )
 }
