@@ -1,10 +1,10 @@
 import { useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { ROLES } from '../../config/roles'
 import { Alert, Button, Col, Form, Row, Stack } from "react-bootstrap"
 import { useAuthContext } from '../../hooks/useAuthContext'
 import { useUserContext } from '../../hooks/useUserContext'
 import { useNoteContext } from '../../context/note'
-import { Link } from 'react-router-dom'
-import { ROLES } from '../../config/roles'
 import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 
 const Edit = ({ note }) => {
