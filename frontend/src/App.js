@@ -46,7 +46,7 @@ function App() {
                   <Route path="/note" element={<Note />} />
                   <Route path="/task" element={<Task />} />
                   <Route path="/note" element={<Note />} />
-                  <Route path="/note/:id" element={<View />} />
+                  <Route path="/note/view/:id" element={<View />} />
                   <Route path="/note/add" element={<Add />} />
                   <Route path="/note/edit" element={<Edit />} />
                 </Route>

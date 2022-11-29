@@ -1,17 +1,19 @@
 import { useEffect } from 'react'
-import { Link, useNavigate } from "react-router-dom"
+import { ROLES } from '../../config/roles'
+import { Link, useNavigate, useParams } from "react-router-dom"
 import { Button, Col, Row, Stack } from "react-bootstrap"
-import { usePathContext } from '../context/path'
-import { useUserContext } from '../hooks/useUserContext'
-import { useAuthContext } from '../hooks/useAuthContext'
+import { usePathContext } from '../../context/path'
+import { useUserContext } from '../../hooks/useUserContext'
+import { useAuthContext } from '../../hooks/useAuthContext'
 import { useNoteContext } from '../../context/note'
-import useAxiosPrivate from "../hooks/useAxiosPrivate"
+import useAxiosPrivate from "../../hooks/useAxiosPrivate"
 import ReactMarkdown from "react-markdown"
 
 const View = () => {
   const navigate = useNavigate()
-  const { setTitle } = usePathContext()
+  const { id } = useParams()
   const { auth } = useAuthContext()
+  const { setTitle } = usePathContext()
   const { targetUser } = useUserContext()
   const { notes, dispatch } = useNoteContext()
   const axiosPrivate = useAxiosPrivate()
@@ -20,6 +22,7 @@ const View = () => {
     let isMounted = true
     const abortController = new AbortController()
     setTitle("Note Management")
+    if(!id) navigate('/not-found')
 
     const getNoteList = async () => {
       try {
@@ -31,10 +34,11 @@ const View = () => {
             signal: abortController.signal
           })
         }else{
-          response = await axiosPrivate.get('/api/notes', {
+          response = await axiosPrivate.get(`/api/notes/${id}`, {
             signal: abortController.signal
           })
         }
+        console.log(response.data)
         isMounted && dispatch({type: 'SET_NOTE', payload: response.data})
       } catch (err) {
         dispatch({type: 'SET_NOTE', payload: []})
@@ -54,21 +58,24 @@ const View = () => {
 
   return (
     <>
-      <Row className="align-items-center mb-4">
-        <Col><h1>{note.title}</h1></Col>
-        <Col xs="auto">
-          <Stack gap={2} direction="horizontal">
-            <Link to="/note/edit">
-              <Button variant="primary">Edit</Button>
-            </Link>
-            <Button variant="outline-danger">Delete</Button>
-            <Link to="/note">
-              <Button variant="outline-secondary">Back</Button>
-            </Link>
-          </Stack>
-        </Col>
-      </Row>
-      <ReactMarkdown>{note.body}</ReactMarkdown>
+      {notes && (
+        <>
+          <Row className="align-items-center mb-4">
+            <Col><h1>{notes.title}</h1></Col>
+            <Col xs="auto">
+              <Stack gap={2} direction="horizontal">
+                <Link to="/note/edit">
+                  <Button variant="primary">Edit</Button>
+                </Link>
+                <Button variant="outline-danger">Delete</Button>
+                <Button variant="outline-secondary" onClick={() => navigate('/note', {replace: true})}>Back</Button>
+              </Stack>
+            </Col>
+          </Row>
+          
+          <ReactMarkdown>{notes.text}</ReactMarkdown>
+        </>
+      )}
     </>
   )
 }

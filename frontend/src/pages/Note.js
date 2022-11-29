@@ -7,7 +7,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { usePathContext } from '../context/path'
 import { useUserContext } from '../hooks/useUserContext'
 import { useAuthContext } from '../hooks/useAuthContext'
-import { useNoteContext } from '../../context/note'
+import { useNoteContext } from '../context/note'
 import useAxiosPrivate from "../hooks/useAxiosPrivate"
 import Details from '../components/notes/Index'
 
@@ -58,7 +58,7 @@ const Note = () => {
   return (
     <>
       <div className="d-flex justify-content-between">
-        <button className="btn btn-outline-primary mb-2" onClick={() => navigate('/note', {replace: true})}><BiArrowBack /></button>
+        <button className="btn btn-outline-primary mb-2" onClick={() => navigate('/', {replace: true})}><BiArrowBack /></button>
         <button className="btn btn-outline-primary mb-2" onClick={() => navigate('/note/add')}><BsPlusLg /></button>
       </div>
 

@@ -33,7 +33,7 @@ const Add = () => {
         note.id = targetUser.userId
       }
 
-      const response = await axiosPrivate.post('/api/note', note)
+      const response = await axiosPrivate.post('/api/notes', note)
       setError(null)
       dispatch({type: 'CREATE_NOTE', payload: response.data})
       navigate('/note')
