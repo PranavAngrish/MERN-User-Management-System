@@ -48,7 +48,7 @@ function App() {
                   <Route path="/note" element={<Note />} />
                   <Route path="/note/view/:id" element={<View />} />
                   <Route path="/note/add" element={<Add />} />
-                  <Route path="/note/edit" element={<Edit />} />
+                  <Route path="/note/edit/:id" element={<Edit />} />
                 </Route>
 
                 <Route element={<RequireRoles Roles={[ROLES.Root, ROLES.Admin]} />}>
