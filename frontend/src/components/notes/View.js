@@ -1,16 +1,14 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { ROLES } from '../../config/roles'
 import { BiArrowBack } from 'react-icons/bi'
-import { BsPencilSquare, BsFillTrashFill } from 'react-icons/bs'
-import { useNavigate, useParams } from "react-router-dom"
+import { Link, useNavigate, useParams } from "react-router-dom"
 import { Button, Col, Row, Stack } from "react-bootstrap"
+import { BsPencilSquare, BsFillTrashFill } from 'react-icons/bs'
 import { usePathContext } from '../../context/path'
-import { useNoteContext } from '../../context/note'
 import { useUserContext } from '../../hooks/useUserContext'
 import { useAuthContext } from '../../hooks/useAuthContext'
 import useAxiosPrivate from "../../hooks/useAxiosPrivate"
 import ReactMarkdown from "react-markdown"
-import axios from '../api/axios' 
 
 const View = () => {
   const navigate = useNavigate()
@@ -18,7 +16,7 @@ const View = () => {
   const { auth } = useAuthContext()
   const { setTitle } = usePathContext()
   const { targetUser } = useUserContext()
-  const { notes, dispatch } = useNoteContext()
+  const [ note, setNote ] = useState()
   const axiosPrivate = useAxiosPrivate()
 
   useEffect(() => {
@@ -41,9 +39,8 @@ const View = () => {
             signal: abortController.signal
           })
         }
-        isMounted && dispatch({type: 'SET_NOTE', payload: response.data})
+        isMounted && setNote(response.data)
       } catch (err) {
-        dispatch({type: 'SET_NOTE', payload: []})
         // console.log(err)
       }
     }
@@ -60,8 +57,8 @@ const View = () => {
 
   const deleteNote = async () => {
     try {
-      const response = await axios.delete(`/api/notes/${id}`)
-      dispatch({ type: 'DELETE_NOTE', payload: response.data })
+      await axiosPrivate.delete(`/api/notes/${id}`)
+      navigate('/note', {replace: true})
     } catch (error) {
       // console.log(error)
     }
@@ -69,20 +66,24 @@ const View = () => {
 
   return (
     <>
-      {notes && (
+      {note && (
         <>
           <Row className="align-items-center mb-4">
-            <Col><h1>{notes.title}</h1></Col>
+            <Col><h1>{note.title}</h1></Col>
             <Col xs="auto">
               <Stack gap={2} direction="horizontal">
-                <Button variant="primary" onClick={() => navigate(`/note/edit${id}`, {replace: true})}><BsPencilSquare /></Button>
+                <Link to={`/note/edit/${id}`}>
+                  <Button variant="primary" onClick={() => navigate(`/note/edit/${id}`, {replace: true})}><BsPencilSquare /></Button>
+                </Link>
                 <Button variant="outline-danger" onClick={deleteNote}><BsFillTrashFill /></Button>
-                <Button variant="outline-secondary" onClick={() => navigate('/note', {replace: true})}><BiArrowBack /></Button>
+                <Link to="/note">
+                  <Button variant="outline-secondary"><BiArrowBack /></Button>
+                </Link>
               </Stack>
             </Col>
           </Row>
           
-          <ReactMarkdown>{notes.text}</ReactMarkdown>
+          <ReactMarkdown>{note.text}</ReactMarkdown>
         </>
       )}
     </>

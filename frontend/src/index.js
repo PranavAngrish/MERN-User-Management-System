@@ -8,7 +8,6 @@ import { AuthContextProvider } from './context/auth'
 import { UserContextProvider } from './context/user'
 import { TasksContextProvider } from './context/task'
 import { SleepsContextProvider } from './context/sleep'
-import { NotesContextProvider } from './context/note'
 import { disableReactDevTools } from '@fvilers/disable-react-devtools'
 
 if (process.env.NODE_ENV === 'production') disableReactDevTools()
@@ -21,9 +20,7 @@ root.render(
         <UserContextProvider>
           <TasksContextProvider>
             <SleepsContextProvider>
-              <NotesContextProvider>
-                <App />
-              </NotesContextProvider>
+              <App />
             </SleepsContextProvider>
           </TasksContextProvider>
         </UserContextProvider>

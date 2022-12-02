@@ -4,7 +4,6 @@ import { ROLES } from '../../config/roles'
 import { Alert, Button, Col, Form, Row, Stack } from "react-bootstrap"
 import { useAuthContext } from '../../hooks/useAuthContext'
 import { useUserContext } from '../../hooks/useUserContext'
-import { useNoteContext } from '../../context/note'
 import { usePathContext } from '../../context/path'
 import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 
@@ -14,7 +13,6 @@ const Edit = () => {
   const { id } = useParams()
   const { auth } = useAuthContext()
   const { targetUser } =  useUserContext()
-  const { dispatch } = useNoteContext()
   const { setTitle } = usePathContext()
   const [ error, setError ] = useState(null)
   const [ note, setNote ] = useState(null)
@@ -43,7 +41,6 @@ const Edit = () => {
         }
         isMounted && setNote(response.data)
       } catch (err) {
-        dispatch({type: 'SET_NOTE', payload: []})
         // console.log(err)
       }
     }
@@ -74,9 +71,8 @@ const Edit = () => {
         updateNote.id = targetUser.userId
       }
 
-      const response = await axiosPrivate.patch(`/api/notes/${note._id}`, updateNote)
+      await axiosPrivate.patch(`/api/notes/${note._id}`, updateNote)
       setError(null)
-      dispatch({type: 'UPDATE_NOTE', payload: response.data})
       navigate(`/note/view/${note._id}`)
     } catch (error) {
       // console.log(error)

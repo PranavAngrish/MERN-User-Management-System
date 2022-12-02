@@ -1,22 +1,20 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { ROLES } from '../config/roles'
 import { GoSearch } from "react-icons/go"
 import { BiArrowBack } from 'react-icons/bi'
 import { BsPlusLg } from 'react-icons/bs'
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { usePathContext } from '../context/path'
 import { useUserContext } from '../hooks/useUserContext'
 import { useAuthContext } from '../hooks/useAuthContext'
-import { useNoteContext } from '../context/note'
 import useAxiosPrivate from "../hooks/useAxiosPrivate"
 import Details from '../components/notes/Index'
 
 const Note = () => {
-  const navigate = useNavigate()
   const { setTitle } = usePathContext()
   const { auth } = useAuthContext()
   const { targetUser } = useUserContext()
-  const { notes, dispatch } = useNoteContext()
+  const [ notes, setNotes ] = useState()
   const axiosPrivate = useAxiosPrivate()
 
   useEffect(() => {
@@ -38,9 +36,9 @@ const Note = () => {
             signal: abortController.signal
           })
         }
-        isMounted && dispatch({type: 'SET_NOTE', payload: response.data})
+        isMounted && setNotes(response.data)
       } catch (err) {
-        dispatch({type: 'SET_NOTE', payload: []})
+        setNotes()
         // console.log(err)
       }
     }
@@ -58,8 +56,12 @@ const Note = () => {
   return (
     <>
       <div className="d-flex justify-content-between">
-        <button className="btn btn-outline-primary mb-2" onClick={() => navigate('/', {replace: true})}><BiArrowBack /></button>
-        <button className="btn btn-outline-primary mb-2" onClick={() => navigate('/note/add')}><BsPlusLg /></button>
+        <Link to="/">
+          <button className="btn btn-outline-primary mb-2"><BiArrowBack /></button>
+        </Link>
+        <Link to="/note/add">
+          <button className="btn btn-outline-primary mb-2"><BsPlusLg /></button>
+        </Link>
       </div>
 
       <div className="input-group mt-2 mb-3">
