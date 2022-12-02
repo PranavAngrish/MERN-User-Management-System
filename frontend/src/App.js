@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { useAuthContext } from './hooks/useAuthContext'
+import { useAuthContext } from './context/auth'
 import { usePathContext } from './context/path'
 import { ROLES } from './config/roles'
 import PersistLogin from './components/PersistLogin'

@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { useAuthContext } from '../../hooks/useAuthContext'
+import { useAuthContext } from '../../context/auth'
 import { MdSpaceDashboard, MdOutlineVerifiedUser } from 'react-icons/md'
 import { AiOutlineReload } from 'react-icons/ai'
 import { VscError } from 'react-icons/vsc'

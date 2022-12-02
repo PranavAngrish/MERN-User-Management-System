@@ -3,8 +3,8 @@ import { ROLES } from '../../config/roles'
 import { BsPencilSquare } from 'react-icons/bs'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { Alert, Button, Form, Modal } from 'react-bootstrap'
-import { useUserContext } from '../../hooks/useUserContext'
-import { useAuthContext } from '../../hooks/useAuthContext'
+import { useUserContext } from '../../context/user'
+import { useAuthContext } from '../../context/auth'
 import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 const validator = require('validator')
 

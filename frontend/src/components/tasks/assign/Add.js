@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { BsPlusLg } from 'react-icons/bs'
 import { BiArrowBack } from 'react-icons/bi'
 import { Modal, Button } from 'react-bootstrap'
-import { useTasksContext } from '../../../hooks/useTasksContext'
+import { useTasksContext } from '../../../context/task'
 import useAxiosPrivate from '../../../hooks/useAxiosPrivate'
 
 const Add = ({ task_id }) => {

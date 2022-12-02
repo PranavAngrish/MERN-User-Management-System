@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { Modal } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
-import { useUserContext } from '../../hooks/useUserContext'
+import { useUserContext } from '../../context/user'
 
 const View = ({user}) => {
   const [show, setShow] = useState(false)

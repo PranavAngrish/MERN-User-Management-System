@@ -1,4 +1,4 @@
-import { useAuthContext } from '../hooks/useAuthContext'
+import { useAuthContext } from '../context/auth'
 import { BsFillPersonFill } from "react-icons/bs"
 import { FaAddressCard } from "react-icons/fa"
 import { OverlayTrigger, Tooltip} from "react-bootstrap"

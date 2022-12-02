@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Outlet } from "react-router-dom" 
-import { useAuthContext } from '../hooks/useAuthContext'
+import { useAuthContext } from '../context/auth'
 import useRefreshToken from '../hooks/useRefreshToken' 
 import usePersist from '../hooks/usePersist'
 import Loading from './Loading'

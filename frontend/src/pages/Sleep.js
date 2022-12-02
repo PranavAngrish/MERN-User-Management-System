@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
 import { ROLES } from '../config/roles'
 import { usePathContext } from '../context/path'
-import { useUserContext } from '../hooks/useUserContext'
-import { useAuthContext } from '../hooks/useAuthContext'
-import { useSleepsContext } from '../hooks/useSleepsContext'
+import { useUserContext } from '../context/user'
+import { useAuthContext } from '../context/auth'
+import { useSleepsContext } from '../context/sleep'
 import { BsFillPersonFill } from "react-icons/bs"
 import { FaAddressCard } from "react-icons/fa"
 import useAxiosPrivate from "../hooks/useAxiosPrivate"

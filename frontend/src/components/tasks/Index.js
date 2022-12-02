@@ -7,7 +7,7 @@ import { MdAdminPanelSettings } from "react-icons/md"
 import { SiStatuspal } from "react-icons/si"
 import { Link } from 'react-router-dom'
 import { ROLES } from '../../config/roles'
-import { useAuthContext } from '../../hooks/useAuthContext'
+import { useAuthContext } from '../../context/auth'
 import formatDistanceToNow from 'date-fns/formatDistanceToNow'
 import Delete from './Delete'
 import Edit from './Edit'

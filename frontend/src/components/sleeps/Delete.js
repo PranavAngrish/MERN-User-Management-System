@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { BsFillTrashFill } from 'react-icons/bs'
 import { Modal } from 'react-bootstrap'
-import { useSleepsContext } from '../../hooks/useSleepsContext'
-import { useAuthContext } from '../../hooks/useAuthContext'
+import { useSleepsContext } from '../../context/sleep'
+import { useAuthContext } from '../../context/auth'
 import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 
 const Delete = ({sleep}) => {

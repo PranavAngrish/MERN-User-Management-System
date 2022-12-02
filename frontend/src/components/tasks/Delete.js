@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { Modal, Button } from 'react-bootstrap'
 import { BsFillTrashFill } from 'react-icons/bs'
 import { GoAlert } from 'react-icons/go'
-import { useTasksContext } from '../../hooks/useTasksContext'
-import { useAuthContext } from '../../hooks/useAuthContext'
+import { useTasksContext } from '../../context/task'
+import { useAuthContext } from '../../context/auth'
 import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 
 const Delete = ({ task }) => {

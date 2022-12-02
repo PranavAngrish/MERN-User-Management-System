@@ -1,6 +1,6 @@
 import { useLogout } from '../hooks/useLogout'
 import { usePathContext } from '../context/path'
-import { useAuthContext } from '../hooks/useAuthContext'
+import { useAuthContext } from '../context/auth'
 import { Nav, Navbar, Button } from "react-bootstrap"
 import { FaHome } from "react-icons/fa"
 import { Link } from "react-router-dom"

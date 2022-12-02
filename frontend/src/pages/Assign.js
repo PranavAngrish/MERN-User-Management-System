@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
 import { ROLES } from '../config/roles'
 import { usePathContext } from '../context/path'
-import { useAuthContext } from '../hooks/useAuthContext'
-import { useTasksContext } from '../hooks/useTasksContext'
+import { useAuthContext } from '../context/auth'
+import { useTasksContext } from '../context/task'
 import { FaTasks } from 'react-icons/fa'
 import { MdAdminPanelSettings } from "react-icons/md"
 import { useLocation } from 'react-router-dom'

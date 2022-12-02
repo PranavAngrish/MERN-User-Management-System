@@ -1,4 +1,4 @@
-import { createContext, useReducer, useState } from 'react'
+import { createContext, useReducer, useState, useContext } from 'react'
 
 export const UserContext = createContext() 
 
@@ -21,4 +21,10 @@ export const UserContextProvider = ({children}) => {
     const [state, dispatch] = useReducer(userReducer, { users: null })
     const [targetUser, setTargetUser] = useState()
     return (<UserContext.Provider value={{ ...state, dispatch, targetUser, setTargetUser}}>{ children }</UserContext.Provider>)
+}
+
+export const useUserContext = () => {
+    const context = useContext(UserContext)
+    if(!context) throw Error('useUserContext must be used inside an AuthContextProvider')
+    return context
 }

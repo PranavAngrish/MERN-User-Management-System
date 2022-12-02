@@ -2,8 +2,8 @@ import { useRef, useState } from 'react'
 import { ROLES } from '../../config/roles'
 import { BsPencilSquare } from 'react-icons/bs'
 import { Alert, Button, Form, Modal } from 'react-bootstrap'
-import { useTasksContext } from '../../hooks/useTasksContext'
-import { useAuthContext } from '../../hooks/useAuthContext'
+import { useTasksContext } from '../../context/task'
+import { useAuthContext } from '../../context/auth'
 import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 const validator = require('validator')
 

@@ -5,8 +5,8 @@ import { Link, useNavigate, useParams } from "react-router-dom"
 import { Button, Col, Row, Stack } from "react-bootstrap"
 import { BsPencilSquare, BsFillTrashFill } from 'react-icons/bs'
 import { usePathContext } from '../../context/path'
-import { useUserContext } from '../../hooks/useUserContext'
-import { useAuthContext } from '../../hooks/useAuthContext'
+import { useUserContext } from '../../context/user'
+import { useAuthContext } from '../../context/auth'
 import useAxiosPrivate from "../../hooks/useAxiosPrivate"
 import ReactMarkdown from "react-markdown"
 

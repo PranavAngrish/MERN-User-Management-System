@@ -1,4 +1,4 @@
-import { useTasksContext } from '../../../hooks/useTasksContext'
+import { useTasksContext } from '../../../context/task'
 import Delete from './Delete'
 
 const Index = () => {

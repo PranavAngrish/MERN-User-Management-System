@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
-import { useAuthContext } from '../hooks/useAuthContext'
-import { useTasksContext } from '../hooks/useTasksContext'
+import { useAuthContext } from '../context/auth'
+import { useTasksContext } from '../context/task'
 import { usePathContext } from '../context/path'
 import { ROLES } from '../config/roles'
 import useAxiosPrivate from '../hooks/useAxiosPrivate'

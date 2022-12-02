@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { ROLES } from '../../config/roles'
-import { useSleepsContext } from '../../hooks/useSleepsContext'
-import { useAuthContext } from '../../hooks/useAuthContext'
-import { useUserContext } from '../../hooks/useUserContext'
+import { useSleepsContext } from '../../context/sleep'
+import { useAuthContext } from '../../context/auth'
+import { useUserContext } from '../../context/user'
 import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 const moment = require('moment')
 

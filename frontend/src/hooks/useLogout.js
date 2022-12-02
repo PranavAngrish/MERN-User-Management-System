@@ -1,6 +1,6 @@
-import { useAuthContext } from './useAuthContext'
-import { useSleepsContext } from './useSleepsContext'
-import { useUserContext } from './useUserContext'
+import { useAuthContext } from '../context/auth'
+import { useSleepsContext } from '../context/sleep'
+import { useUserContext } from '../context/user'
 import usePersist from './usePersist'
 import axios from '../api/axios' 
 

@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ROLES } from '../config/roles'
 import { GoSearch } from "react-icons/go"
-import { useAuthContext } from '../hooks/useAuthContext'
-import { useUserContext } from '../hooks/useUserContext'
+import { useAuthContext } from '../context/auth'
+import { useUserContext } from '../context/user'
 import { usePathContext } from '../context/path'
 import useAxiosPrivate from '../hooks/useAxiosPrivate'
 import Details from '../components/users/Index'

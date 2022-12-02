@@ -5,8 +5,8 @@ import { BiArrowBack } from 'react-icons/bi'
 import { BsPlusLg } from 'react-icons/bs'
 import { Link } from "react-router-dom"
 import { usePathContext } from '../context/path'
-import { useUserContext } from '../hooks/useUserContext'
-import { useAuthContext } from '../hooks/useAuthContext'
+import { useUserContext } from '../context/user'
+import { useAuthContext } from '../context/auth'
 import useAxiosPrivate from "../hooks/useAxiosPrivate"
 import Details from '../components/notes/Index'
 

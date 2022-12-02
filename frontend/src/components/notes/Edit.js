@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ROLES } from '../../config/roles'
 import { Alert, Button, Col, Form, Row, Stack } from "react-bootstrap"
-import { useAuthContext } from '../../hooks/useAuthContext'
-import { useUserContext } from '../../hooks/useUserContext'
+import { useAuthContext } from '../../context/auth'
+import { useUserContext } from '../../context/user'
 import { usePathContext } from '../../context/path'
 import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 
