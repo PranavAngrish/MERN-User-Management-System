@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ROLES } from '../config/roles'
 import { GoSearch } from "react-icons/go"
 import { BiArrowBack } from 'react-icons/bi'
@@ -15,6 +15,7 @@ const Note = () => {
   const { auth } = useAuthContext()
   const { targetUser } = useUserContext()
   const [ notes, setNotes ] = useState()
+  const [ query, setQuery ] = useState("")
   const axiosPrivate = useAxiosPrivate()
 
   useEffect(() => {
@@ -52,6 +53,12 @@ const Note = () => {
       abortController.abort()
     }
   },[])
+
+  const filteredNote = useMemo(() => {
+    return notes?.filter(note => {
+      return note.title.toLowerCase().includes(query.toLowerCase())
+    })
+  }, [notes, query])
   
   return (
     <>
@@ -65,14 +72,13 @@ const Note = () => {
       </div>
 
       <div className="input-group mt-2 mb-3">
-        <input type="search" className="form-control" placeholder="Search..."/>
+        <input type="search" className="form-control" placeholder="Search..." value={query} onChange={e => setQuery(e.target.value)}/>
         <button className="btn btn-outline-primary" type="button"><GoSearch/></button>
       </div>
 
       <div className="row">
-        {notes && notes.map(note => (
-          <Details note={note} key={note._id} />
-        ))}
+        {notes && <Details filteredNote={filteredNote}/>}
+        {!filteredNote?.length && <div>No matching results found...</div>}
       </div>
     </>
   )
