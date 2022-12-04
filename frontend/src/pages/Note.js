@@ -18,7 +18,9 @@ const Note = () => {
   const { targetUser } = useUserContext()
   const [ notes, setNotes ] = useState()
   const [ query, setQuery ] = useState("")
+  const { notFound, setNotFound } = useState(false)
   const axiosPrivate = useAxiosPrivate()
+  const admin = (auth.roles == ROLES.Admin) || (auth.roles == ROLES.Root)
 
   useEffect(() => {
     let isMounted = true
@@ -28,7 +30,7 @@ const Note = () => {
     const getNoteList = async () => {
       try {
         let response
-        if(targetUser?.userId && (auth.email !== targetUser.userEmail) && (auth.roles == ROLES.Admin)){
+        if(targetUser?.userId && (auth.email !== targetUser.userEmail) && admin){
           // Admin view
           response = await axiosPrivate.post('/api/notes/admin', {
             id: targetUser.userId,
@@ -42,6 +44,7 @@ const Note = () => {
         isMounted && setNotes(response.data)
       } catch (err) {
         setNotes()
+        setNotFound(true)
         // console.log(err)
       }
     }
@@ -85,6 +88,10 @@ const Note = () => {
         {notes && <Details filteredNote={filteredNote}/>}
         {!filteredNote?.length && <div>No matching results found...</div>}
       </div>
+
+      {notFound && (
+        <div>No Record Found...</div>
+      )}
     </>
   )
 }

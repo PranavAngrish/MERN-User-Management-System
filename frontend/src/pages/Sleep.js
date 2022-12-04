@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { ROLES } from '../config/roles'
 import { usePathContext } from '../context/path'
 import { useUserContext } from '../context/user'
@@ -15,7 +15,9 @@ const Sleep = () => {
   const { targetUser } = useUserContext()
   const { sleeps, dispatch } = useSleepsContext()
   const { setTitle } = usePathContext()
+  const { notFound, setNotFound } = useState(false)
   const axiosPrivate = useAxiosPrivate()
+  const admin = (auth.roles == ROLES.Admin) || (auth.roles == ROLES.Root)
 
   useEffect(() => {
     let isMounted = true
@@ -25,7 +27,7 @@ const Sleep = () => {
     const getSleeps = async () => {
       try {
         let response
-        if(targetUser?.userId && (auth.email !== targetUser.userEmail) && (auth.roles == ROLES.Admin)){
+        if(targetUser?.userId && (auth.email !== targetUser.userEmail) && admin){
           // Admin view
           response = await axiosPrivate.post('/api/sleeps/admin', {
             id: targetUser.userId,
@@ -39,6 +41,7 @@ const Sleep = () => {
         isMounted && dispatch({type: 'SET_SLEEPS', payload: response.data})
       } catch (err) {
         dispatch({type: 'SET_SLEEPS', payload: []})
+        setNotFound(true)
         // console.log(err)
       }
     }
@@ -67,6 +70,9 @@ const Sleep = () => {
         </div>
         <SleepForm />
       </div>
+      {notFound && (
+        <div>No Record Found...</div>
+      )}
     </>
   )
 }
