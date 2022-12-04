@@ -4,6 +4,7 @@ import { GoSearch } from "react-icons/go"
 import { BiArrowBack } from 'react-icons/bi'
 import { BsPlusLg } from 'react-icons/bs'
 import { Link } from "react-router-dom"
+import { useNavigate } from 'react-router-dom'
 import { usePathContext } from '../context/path'
 import { useUserContext } from '../context/user'
 import { useAuthContext } from '../context/auth'
@@ -11,6 +12,7 @@ import useAxiosPrivate from "../hooks/useAxiosPrivate"
 import Details from '../components/notes/Index'
 
 const Note = () => {
+  const navigate = useNavigate()
   const { setTitle } = usePathContext()
   const { auth } = useAuthContext()
   const { targetUser } = useUserContext()
@@ -59,13 +61,16 @@ const Note = () => {
       return note.title.toLowerCase().includes(query.toLowerCase())
     })
   }, [notes, query])
+
+  const handleBack = () => {
+    setTitle("Welcome")
+    navigate("/")
+  }
   
   return (
     <>
       <div className="d-flex justify-content-between">
-        <Link to="/">
-          <button className="btn btn-outline-primary mb-2"><BiArrowBack /></button>
-        </Link>
+        <button className="btn btn-outline-primary mb-2" onClick={handleBack}><BiArrowBack /></button>
         <Link to="/note/add">
           <button className="btn btn-outline-primary mb-2"><BsPlusLg /></button>
         </Link>

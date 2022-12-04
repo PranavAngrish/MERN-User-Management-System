@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import { BsPlusLg } from 'react-icons/bs'
 import { BiArrowBack } from 'react-icons/bi'
 import { Modal, Button } from 'react-bootstrap'
+import { usePathContext } from '../../../context/path'
 import { useTasksContext } from '../../../context/task'
 import useAxiosPrivate from '../../../hooks/useAxiosPrivate'
 
 const Add = ({ task_id }) => {
   const navigate = useNavigate()
   const axiosPrivate = useAxiosPrivate()
+  const { setTitle } = usePathContext()
   const { setAssignedUser } =  useTasksContext()
   const [notAssignedUser, setNotAssignedUser] = useState([])
   const [show, setShow] = useState(false)
@@ -51,10 +53,15 @@ const Add = ({ task_id }) => {
     }
   }
 
+  const handleBack = () => {
+    setTitle("Task Management")
+    navigate("/task")
+  }
+
   return (
     <>
       <div className="d-flex justify-content-between mb-2">
-        <button className="btn btn-outline-primary mb-2" onClick={() => navigate('/task', {replace: true})}><BiArrowBack /></button>
+        <button className="btn btn-outline-primary mb-2" onClick={handleBack}><BiArrowBack /></button>
         <button className="btn btn-outline-primary mb-2" onClick={handleClick}><BsPlusLg /></button>
       </div>
 

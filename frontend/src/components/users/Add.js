@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Alert, Button, Form, Modal } from 'react-bootstrap'
+import { usePathContext } from '../../context/path'
 import { useUserContext } from '../../context/user'
 import { useAuthContext } from '../../context/auth'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
@@ -11,6 +12,7 @@ import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 const Add = () => {
   const navigate = useNavigate()
   const axiosPrivate = useAxiosPrivate()
+  const { setTitle } = usePathContext()
   const { dispatch } =  useUserContext()
   const { auth } = useAuthContext()
   const [error, setError] = useState(null)
@@ -53,10 +55,15 @@ const Add = () => {
     }
   }
 
+  const handleBack = () => {
+    setTitle("Welcome")
+    navigate("/")
+  }
+
   return (
     <>
       <div className="d-flex justify-content-between">
-        <button className="btn btn-outline-primary mb-2" onClick={() => navigate('/', {replace: true})}><BiArrowBack /></button>
+        <button className="btn btn-outline-primary mb-2" onClick={handleBack}><BiArrowBack /></button>
         <button className="btn btn-outline-primary mb-2" onClick={() => setShow(!show)}><BsPlusLg /></button>
       </div>
 

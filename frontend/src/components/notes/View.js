@@ -64,6 +64,11 @@ const View = () => {
     }
   }
 
+  const handleBack = () => {
+    setTitle("Note Management")
+    navigate("/note")
+  }
+
   return (
     <>
       {note && (
@@ -76,9 +81,7 @@ const View = () => {
                   <Button variant="primary" onClick={() => navigate(`/note/edit/${id}`, {replace: true})}><BsPencilSquare /></Button>
                 </Link>
                 <Button variant="outline-danger" onClick={deleteNote}><BsFillTrashFill /></Button>
-                <Link to="/note">
-                  <Button variant="outline-secondary"><BiArrowBack /></Button>
-                </Link>
+                <Button variant="outline-secondary" onClick={handleBack}><BiArrowBack /></Button>
               </Stack>
             </Col>
           </Row>

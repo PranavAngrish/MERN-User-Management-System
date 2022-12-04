@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Alert, Button, Form, Modal } from 'react-bootstrap'
+import { usePathContext } from '../../context/path'
 import { useTasksContext } from '../../context/task'
 import { useAuthContext } from '../../context/auth'
 import { BiArrowBack } from 'react-icons/bi'
@@ -10,6 +11,7 @@ import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 const Add = () => {
   const navigate = useNavigate()
   const axiosPrivate = useAxiosPrivate()
+  const { setTitle } = usePathContext()
   const { dispatch } =  useTasksContext()
   const { auth } = useAuthContext()
   const [error, setError] = useState(null)
@@ -37,10 +39,15 @@ const Add = () => {
     }
   }
 
+  const handleBack = () => {
+    setTitle("Welcome")
+    navigate("/")
+  }
+
   return (
     <>
       <div className="d-flex justify-content-between">
-        <button className="btn btn-outline-primary mb-2" onClick={() => navigate('/', {replace: true})}><BiArrowBack /></button>
+        <button className="btn btn-outline-primary mb-2" onClick={handleBack}><BiArrowBack /></button>
         <button className="btn btn-outline-primary mb-2" onClick={() => setShow(!show)}><BsPlusLg /></button>
       </div>
 

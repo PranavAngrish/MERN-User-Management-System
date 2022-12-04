@@ -42,13 +42,12 @@ function App() {
 
               <Route element={<RequireAuth />}>
                 <Route element={<RequireRoles Roles={[...Object.values(ROLES)]} />}>
-                  <Route path="/sleep" element={<Sleep />} />
-                  <Route path="/note" element={<Note />} />
                   <Route path="/task" element={<Task />} />
                   <Route path="/note" element={<Note />} />
                   <Route path="/note/view/:id" element={<View />} />
                   <Route path="/note/add" element={<Add />} />
                   <Route path="/note/edit/:id" element={<Edit />} />
+                  <Route path="/sleep" element={<Sleep />} />
                 </Route>
 
                 <Route element={<RequireRoles Roles={[ROLES.Root, ROLES.Admin]} />}>
