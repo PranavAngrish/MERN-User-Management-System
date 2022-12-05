@@ -15,7 +15,7 @@ const Sleep = () => {
   const { targetUser } = useUserContext()
   const { sleeps, dispatch } = useSleepsContext()
   const { setTitle } = usePathContext()
-  const { notFound, setNotFound } = useState(false)
+  const [ notFound, setNotFound ]  = useState(false)
   const axiosPrivate = useAxiosPrivate()
   const admin = (auth.roles == ROLES.Admin) || (auth.roles == ROLES.Root)
 
@@ -54,7 +54,7 @@ const Sleep = () => {
       isMounted = false
       abortController.abort()
     }
-  }, [axiosPrivate, dispatch, auth])
+  }, [])
 
   return (
     <>
@@ -67,12 +67,10 @@ const Sleep = () => {
           {sleeps && sleeps.map(sleep => (
             <Details sleep={sleep} key={sleep._id} />
           ))}
+          {notFound && !sleeps?.length && <div>No Record Found...</div>}
         </div>
         <SleepForm />
       </div>
-      {notFound && (
-        <div>No Record Found...</div>
-      )}
     </>
   )
 }

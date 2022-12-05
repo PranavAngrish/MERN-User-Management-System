@@ -18,7 +18,7 @@ const Note = () => {
   const { targetUser } = useUserContext()
   const [ notes, setNotes ] = useState()
   const [ query, setQuery ] = useState("")
-  const { notFound, setNotFound } = useState(false)
+  const [ notFound, setNotFound ] = useState(false)
   const axiosPrivate = useAxiosPrivate()
   const admin = (auth.roles == ROLES.Admin) || (auth.roles == ROLES.Root)
 
@@ -83,15 +83,16 @@ const Note = () => {
         <input type="search" className="form-control" placeholder="Search..." value={query} onChange={e => setQuery(e.target.value)}/>
         <button className="btn btn-outline-primary" type="button"><GoSearch/></button>
       </div>
+      
+      {notFound && !notes?.length && (
+        <div>No Record Found...</div>
+      )}
 
       <div className="row">
         {notes && <Details filteredNote={filteredNote}/>}
-        {!filteredNote?.length && <div>No matching results found...</div>}
+        {!filteredNote?.length && query && <div>No matching results found...</div>}
       </div>
 
-      {notFound && (
-        <div>No Record Found...</div>
-      )}
     </>
   )
 }

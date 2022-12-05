@@ -78,7 +78,8 @@ const User = () => {
           )}
         </>
       )}
-      {!filteredNames?.length && <div>No matching results found...</div>}
+      
+      {!filteredNames?.length && query && <div>No matching results found...</div>}
     </>
   )
 }

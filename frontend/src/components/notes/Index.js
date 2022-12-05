@@ -1,18 +1,19 @@
-import { useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 
 const Index = ({ filteredNote }) => {
-  const navigate = useNavigate()
 
   return (
     <>
       {filteredNote.map((note, index) => (
-        <div className="col-lg-3" onClick={() => navigate(`/note/view/${note._id}`, {replace: true})} key={index}>
-          <div className="card my-2">
-            <div className="card-body">
-              <h5 className="card-title">{note.title}</h5>
+        <Link to={`/note/view/${note._id}`} key={index} className="text-decoration-none text-muted">
+          <div className="col-lg-3">
+            <div className="card my-2">
+              <div className="card-body">
+                <h5 className="card-title">{note.title}</h5>
+              </div>
             </div>
           </div>
-        </div>
+        </Link>
       ))}
     </>
   )
