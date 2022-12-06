@@ -3,6 +3,8 @@ import { ROLES } from '../config/roles'
 import { GoSearch } from "react-icons/go"
 import { BiArrowBack } from 'react-icons/bi'
 import { BsPlusLg } from 'react-icons/bs'
+import { FaAddressCard } from "react-icons/fa"
+import { BsFillPersonFill } from "react-icons/bs"
 import { Link } from "react-router-dom"
 import { useNavigate } from 'react-router-dom'
 import { usePathContext } from '../context/path'
@@ -72,6 +74,11 @@ const Note = () => {
   
   return (
     <>
+      {targetUser?.userName && notes && (<div className="bg-primary bg-opacity-25 rounded pt-2 mb-3">
+        <span className="mx-3 d-inline-flex align-items-center"><FaAddressCard className="fs-4"/>&ensp;{targetUser?.userName}</span>
+        <span className="d-inline-flex align-items-center"><BsFillPersonFill className="fs-4"/>&ensp;{targetUser?.userRoles}</span>
+      </div>)}
+
       <div className="d-flex justify-content-between">
         <button className="btn btn-outline-primary mb-2" onClick={handleBack}><BiArrowBack /></button>
         <Link to="/note/add">
@@ -92,7 +99,6 @@ const Note = () => {
         {notes && <Details filteredNote={filteredNote}/>}
         {!filteredNote?.length && query && <div>No matching results found...</div>}
       </div>
-
     </>
   )
 }
