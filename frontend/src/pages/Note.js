@@ -24,6 +24,13 @@ const Note = () => {
   const axiosPrivate = useAxiosPrivate()
   const admin = (auth.roles == ROLES.Admin) || (auth.roles == ROLES.Root)
 
+  const statusBar = {
+    Root: "bg-danger",
+    Admin: "bg-warning",
+    User: "bg-primary"
+  }
+  const color = statusBar[targetUser?.userRoles]
+
   useEffect(() => {
     let isMounted = true
     const abortController = new AbortController()
@@ -74,7 +81,7 @@ const Note = () => {
   
   return (
     <>
-      {targetUser?.userName && notes && (<div className="bg-primary bg-opacity-25 rounded pt-2 mb-3">
+      {targetUser?.userName && notes && (<div className={`${color} bg-opacity-25 rounded pt-2 mb-3`}>
         <span className="mx-3 d-inline-flex align-items-center"><FaAddressCard className="fs-4"/>&ensp;{targetUser?.userName}</span>
         <span className="d-inline-flex align-items-center"><BsFillPersonFill className="fs-4"/>&ensp;{targetUser?.userRoles}</span>
       </div>)}
@@ -91,14 +98,12 @@ const Note = () => {
         <button className="btn btn-outline-primary" type="button"><GoSearch/></button>
       </div>
       
-      {notFound && !notes?.length && (
-        <div>No Record Found...</div>
-      )}
-
       <div className="row">
         {notes && <Details filteredNote={filteredNote}/>}
         {!filteredNote?.length && query && <div>No matching results found...</div>}
       </div>
+
+      {notFound && !query && !notes?.length && (<div>No Record Found...</div>)}
     </>
   )
 }
