@@ -13,6 +13,7 @@ const User = () => {
   const { setTitle } = usePathContext()
   const { users, dispatch } = useUserContext()
   const [ query, setQuery ] = useState("")
+  const [ notFound, setNotFound ] = useState(false)
   const axiosPrivate = useAxiosPrivate()
   const roles = (auth.roles == ROLES.Admin) || (auth.roles == ROLES.Root)
   const admin =  auth && roles
@@ -30,6 +31,7 @@ const User = () => {
         isMounted && dispatch({type: 'SET_USER', payload: response.data})
       } catch (err) {
         // console.log(err)
+        setNotFound(true)
       }
     }
 
@@ -78,8 +80,10 @@ const User = () => {
           )}
         </>
       )}
-      
+
       {!filteredNames?.length && query && <div>No matching results found...</div>}
+
+      {notFound && !query && !users?.length && (<div>No Record Found...</div>)}
     </>
   )
 }
