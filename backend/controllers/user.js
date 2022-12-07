@@ -10,8 +10,11 @@ exports.getAll = async (req, res) => {
     if(req.roles == "Root"){
         users = await User.find().select('-password').lean()
     }else{
-        users = await User.find({$and: [{'roles': {$ne: ROLES_LIST.Root}},{'roles': {$ne: ROLES_LIST.Admin}}]}).select('-password').lean()
+        const adminItSelf = await User.findById(req.user._id).lean().exec()
+        users = await User.find({$and: [{'roles': {$ne: ROLES_LIST.Root}}, {'roles': {$ne: ROLES_LIST.Admin}}]}).select('-password').lean()
+        users.unshift(adminItSelf)
     }
+    
     if (!users?.length) return res.status(400).json({ error: 'No users found' })
     res.status(200).json(users)
 }
