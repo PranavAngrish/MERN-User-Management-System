@@ -2,6 +2,8 @@
 
 ---
 
+##### Authentication & Authorization
+
 - Provide signup option.
 - Provide login option.
 - Provide logout option.
@@ -14,6 +16,8 @@
 
 ---
 
+##### User Management
+
 - Root user has maximum privileges.
 - Only Root user and Admins can access User Settings.
 - Admin cannot delete or change each other.
@@ -25,13 +29,24 @@
 
 ---
 
+##### Task Management
+
 - Task are assigned to specific user.
+- User can only view their assigned task.
 - Root user and Admin can view, edit, and delete all Task.
 - Task can only be deleted by the admin or Root user who created the task.
 - Task status are either PENDING, EXPIRED or COMPLETED.
-- User can only view their assigned task.
+- Show who created the task, when it was created, and when it was edited.
+- Admin and root users can see who the tasks have been assigned to via the list.
 
 ---
+
+##### Note Management
+
+- Markdown support
+- Users can view, edit, and delete their own note.
+- Root user and Admin have permission to view, edit, and delete user notes if needed.
+- Provides search features for titles searching, to view the contents of notes.
 
 In fact, I don't know what kind of website this is. I just use it purely to learn about Authentication and Authorization. Just think it's a user management system.
 Features will continuously update...
