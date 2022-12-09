@@ -2,9 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { ROLES } from '../config/roles'
 import { GoSearch } from "react-icons/go"
 import { BiArrowBack } from 'react-icons/bi'
-import { BsPlusLg } from 'react-icons/bs'
-import { FaAddressCard } from "react-icons/fa"
-import { BsFillPersonFill } from "react-icons/bs"
+import { FaAddressCard, FaTags } from "react-icons/fa"
+import { BsFillPersonFill, BsPlusLg, BsPencilSquare } from "react-icons/bs"
 import { Link } from "react-router-dom"
 import { useNavigate } from 'react-router-dom'
 import { usePathContext } from '../context/path'
@@ -12,6 +11,7 @@ import { useUserContext } from '../context/user'
 import { useAuthContext } from '../context/auth'
 import useAxiosPrivate from "../hooks/useAxiosPrivate"
 import Details from '../components/notes/Index'
+import Edit from '../components/notes/tag/Edit'
 
 const Note = () => {
   const navigate = useNavigate()
@@ -88,9 +88,12 @@ const Note = () => {
 
       <div className="d-flex justify-content-between">
         <button className="btn btn-outline-primary mb-2" onClick={handleBack}><BiArrowBack /></button>
-        <Link to="/note/add">
-          <button className="btn btn-outline-primary mb-2"><BsPlusLg /></button>
-        </Link>
+        <div>
+          <Link to="/note/add">
+            <button className="btn btn-outline-primary mb-2"><BsPlusLg /></button>
+          </Link>
+          <Edit />
+        </div>
       </div>
 
       <div className="input-group mt-2 mb-3">
