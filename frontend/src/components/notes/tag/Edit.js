@@ -1,11 +1,11 @@
 import { useRef, useState } from 'react'
-import { ROLES } from '../../config/roles'
+import { ROLES } from '../../../config/roles'
 import { FaTags } from 'react-icons/fa'
 import { BsPencilSquare, BsFillTrashFill } from 'react-icons/bs'
 import { Alert, Button, Form, Modal } from 'react-bootstrap'
-import { useUserContext } from '../../context/user'
-import { useAuthContext } from '../../context/auth'
-import useAxiosPrivate from '../../hooks/useAxiosPrivate'
+import { useUserContext } from '../../../context/user'
+import { useAuthContext } from '../../../context/auth'
+import useAxiosPrivate from '../../../hooks/useAxiosPrivate'
 const validator = require('validator')
 
 const Edit = ({user}) => {
@@ -62,7 +62,7 @@ const Edit = ({user}) => {
     
   return (
     <>
-      <button className="btn btn-outline-primary mb-2" onClick={() => setShow(!show)}><BsPencilSquare /><FaTags /></button>
+      <button className="btn btn-outline-primary mb-2" onClick={() => setShow(!show)}><BsPencilSquare />&ensp;<FaTags /></button>
       
       <Modal show={show} onHide={() => {setShow(!show);setError(null)}} centered>
         <Modal.Header closeButton>
@@ -70,10 +70,10 @@ const Edit = ({user}) => {
         </Modal.Header> 
         <Modal.Body>
           <Form.Group className="mb-3">
-            <Form.Label>Password: </Form.Label>
+            <Form.Label>Tags: </Form.Label>
             <div className="d-flex">
-              <Form.Control type="text" ref={tagRef} />
-              <Button variant="default" className="mb-2" onClick={handleDelete}><BsFillTrashFill /></Button>
+              <Form.Control type="text" ref={tagRef} />&ensp;
+              <Button variant="danger" onClick={handleDelete}><BsFillTrashFill /></Button>
             </div>
           </Form.Group>
           {error && (<Alert variant={'danger'}>{error}</Alert>)}

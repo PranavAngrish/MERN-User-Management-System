@@ -91,7 +91,7 @@ const Note = () => {
         <div>
           <Link to="/note/add">
             <button className="btn btn-outline-primary mb-2"><BsPlusLg /></button>
-          </Link>
+          </Link>&ensp;
           <Edit />
         </div>
       </div>
