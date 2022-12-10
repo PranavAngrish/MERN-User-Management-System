@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Alert, Button, Col, Form, Row, Stack } from "react-bootstrap"
 import { useAuthContext } from '../../context/auth'
 import { useUserContext } from '../../context/user'
+import CreatableReactSelect from "react-select/creatable"
 import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 
 const Add = () => {
@@ -13,6 +14,7 @@ const Add = () => {
   const { targetUser } =  useUserContext()
   const [ error, setError ] = useState(null)
   const titleRef = useRef('')
+  const tagRef = useRef('')
   const textRef = useRef('')
 
   const handleSubmit = async (e) => {
@@ -51,6 +53,12 @@ const Add = () => {
               <Form.Group controlId="title">
                 <Form.Label>Title</Form.Label>
                 <Form.Control ref={titleRef} />
+              </Form.Group>
+            </Col>
+            <Col>
+              <Form.Group controlId="tag">
+                <Form.Label>Tags</Form.Label>
+                <CreatableReactSelect isMulti ref={textRef}/>
               </Form.Group>
             </Col>
           </Row>
