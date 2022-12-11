@@ -13,8 +13,8 @@ const Add = () => {
   const { auth } = useAuthContext()
   const { targetUser } =  useUserContext()
   const [ error, setError ] = useState(null)
+  const [ tag, setTag ] = useState([])
   const titleRef = useRef('')
-  const tagRef = useRef('')
   const textRef = useRef('')
 
   const handleSubmit = async (e) => {
@@ -27,7 +27,7 @@ const Add = () => {
     
     try {
       const rughtToAdd = auth.roles == ROLES.Admin || auth.roles == ROLES.Root
-      const note = {title: titleRef.current.value, text: textRef.current.value}
+      const note = {title: titleRef.current.value, text: textRef.current.value, tag: tag}
 
       if(targetUser?.userId && (auth.email !== targetUser?.userEmail) && (rughtToAdd)){
         note.id = targetUser.userId
@@ -58,7 +58,12 @@ const Add = () => {
             <Col>
               <Form.Group controlId="tag">
                 <Form.Label>Tags</Form.Label>
-                <CreatableReactSelect isMulti ref={textRef}/>
+                <CreatableReactSelect 
+                  isMulti 
+                  onChange={setTag}
+                  placeholder="Add Tag..."
+                  noOptionsMessage={() => "Nothing added!"}
+                />
               </Form.Group>
             </Col>
           </Row>

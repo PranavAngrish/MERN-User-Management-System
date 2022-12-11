@@ -37,7 +37,7 @@ exports.getById = async (req, res) => {
 }
 
 exports.create = async (req, res) => {
-  const { title, text } = req.body
+  const { title, text, tag } = req.body
 
   try {
     const isTitleEmpty = validator.isEmpty(title ?? "", { ignore_whitespace:true })
@@ -54,7 +54,7 @@ exports.create = async (req, res) => {
       idToCreate = targetUserId
     }
 
-    const notes = await Note.create({ title, text, user_id: idToCreate })
+    const notes = await Note.create({ title, text, user_id: idToCreate, tag })
     res.status(201).json(notes)
   } catch (error) {
     res.status(400).json({ error: error.message })
