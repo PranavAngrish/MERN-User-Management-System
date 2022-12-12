@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom"
+import { Badge, Stack } from "react-bootstrap"
+
 
 const Index = ({ filteredNote }) => {
 
@@ -10,6 +12,11 @@ const Index = ({ filteredNote }) => {
               <div className="card my-2">
                 <div className="card-body">
                   <h5 className="card-title">{note.title}</h5>
+                    <Stack gap={1} direction="horizontal" className="flex-wrap">
+                      {note.tag.map((tags, index) => (
+                        <Badge className="text-truncate" key={index}>{tags}</Badge>
+                      ))}
+                    </Stack>
                 </div>
               </div>
             </Link>
