@@ -87,7 +87,7 @@ const View = () => {
             <Col xs="auto">
               <Stack gap={2} direction="horizontal">
                 <Link to={`/note/edit/${id}`}>
-                  <Button variant="primary" onClick={() => navigate(`/note/edit/${id}`, {replace: true})}><BsPencilSquare /></Button>
+                  <Button variant="outline-primary" onClick={() => navigate(`/note/edit/${id}`, {replace: true})}><BsPencilSquare /></Button>
                 </Link>
                 <Button variant="outline-danger" onClick={deleteNote}><BsFillTrashFill /></Button>
                 <Button variant="outline-secondary" onClick={handleBack}><BiArrowBack /></Button>

@@ -27,10 +27,10 @@ const Add = () => {
     
     try {
       const tags = tag.map(t => t.value)
-      const rughtToAdd = auth.roles == ROLES.Admin || auth.roles == ROLES.Root
+      const rightToAdd = auth.roles == ROLES.Admin || auth.roles == ROLES.Root
       const note = {title: titleRef.current.value, text: textRef.current.value, tag: tags}
 
-      if(targetUser?.userId && (auth.email !== targetUser?.userEmail) && (rughtToAdd)){
+      if(targetUser?.userId && (auth.email !== targetUser?.userEmail) && (rightToAdd)){
         note.id = targetUser.userId
       }
 

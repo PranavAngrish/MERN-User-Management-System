@@ -6,6 +6,7 @@ import { useAuthContext } from '../../context/auth'
 import { useUserContext } from '../../context/user'
 import { usePathContext } from '../../context/path'
 import useAxiosPrivate from '../../hooks/useAxiosPrivate'
+import CreatableReactSelect from "react-select/creatable"
 
 const Edit = () => {
   const navigate = useNavigate()
@@ -16,9 +17,12 @@ const Edit = () => {
   const { setTitle } = usePathContext()
   const [ error, setError ] = useState(null)
   const [ note, setNote ] = useState(null)
+  const [ tag, setTag ] = useState([])
   const titleRef = useRef('')
   const textRef = useRef('')
 
+  const tagOption = note?.tag.map(t => ({ value: t, label: t }))
+  
   useEffect(() => {
     let isMounted = true
     const abortController = new AbortController()
@@ -64,10 +68,11 @@ const Edit = () => {
     }
     
     try {
-      const rughtToAdd = auth.roles == ROLES.Admin || auth.roles == ROLES.Root
-      const updateNote = {title: titleRef.current.value, text: textRef.current.value}
+      const tags = tag.map(t => t.value)
+      const rightToEdit = auth.roles == ROLES.Admin || auth.roles == ROLES.Root
+      const updateNote = {title: titleRef.current.value, text: textRef.current.value, tag: tags}
 
-      if(targetUser?.userId && (auth.email !== targetUser?.userEmail) && (rughtToAdd)){
+      if(targetUser?.userId && (auth.email !== targetUser?.userEmail) && (rightToEdit)){
         updateNote.id = targetUser.userId
       }
 
@@ -93,6 +98,19 @@ const Edit = () => {
                   <Form.Group controlId="title">
                     <Form.Label>Title</Form.Label>
                     <Form.Control defaultValue={note.title} ref={titleRef}  />
+                  </Form.Group>
+                </Col>
+                <Col>
+                {console.log(note.tag)}
+                  <Form.Group controlId="tag">
+                    <Form.Label>Tags</Form.Label>
+                    <CreatableReactSelect 
+                      options={tagOption}
+                      isMulti 
+                      onChange={setTag}
+                      placeholder="Edit Tag..."
+                      // noOptionsMessage={() => "Nothing added!"}
+                    />
                   </Form.Group>
                 </Col>
               </Row>
