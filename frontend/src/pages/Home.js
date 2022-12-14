@@ -32,36 +32,28 @@ const Home = () => {
                 {accessRight && (<div className="col-lg-3">
                     <div className="card my-2">
                         <div className="card-body">
-                            <h5 className="card-title">User Management</h5>
-                            <p className="card-text">With supporting text below as a natural lead-in to additional content.</p>
-                            <Link to="/user" onClick={() => handleClick("/user")}><button className="btn btn-primary"><FaUserFriends/></button></Link>
+                            <Link to="/user" onClick={() => handleClick("/user")}><button className="btn btn-outline-primary"><FaUserFriends/>&ensp;User Management</button></Link>
                         </div>
                     </div>
                 </div>)}
                 <div className="col-lg-3">
                     <div className="card my-2">
                         <div className="card-body">
-                            <h5 className="card-title">{accessRight ? "Task Management" : "Tasks"}</h5>
-                            <p className="card-text">With supporting text below as a natural lead-in to additional content.</p>
-                            <Link to="/task" onClick={() => handleClick("/task")}><button className="btn btn-primary"><FaTasks/></button></Link>
+                            <Link to="/task" onClick={() => handleClick("/task")}><button className="btn btn-outline-primary"><FaTasks/>&ensp;{accessRight ? "Task Management" : "Tasks"}</button></Link>
                         </div>
                     </div>
                 </div>
                 <div className="col-lg-3">
                     <div className="card my-2">
                         <div className="card-body">
-                            <h5 className="card-title">Note</h5>
-                            <p className="card-text">With supporting text below as a natural lead-in to additional content.</p>
-                            <Link to="/note" onClick={() => handleClick("/note")}><button className="btn btn-primary"><FaStickyNote/></button></Link>
+                            <Link to="/note" onClick={() => handleClick("/note")}><button className="btn btn-outline-primary"><FaStickyNote/>&ensp;Note</button></Link>
                         </div>
                     </div>
                 </div>
                 <div className="col-lg-3">
                     <div className="card my-2">
                         <div className="card-body">
-                            <h5 className="card-title">Record Sleep Hour</h5>
-                            <p className="card-text">With supporting text below as a natural lead-in to additional content.</p>
-                            <Link to="/sleep" onClick={() => handleClick("/sleep")}><button className="btn btn-primary"><GiNightSleep/></button></Link>
+                            <Link to="/sleep" onClick={() => handleClick("/sleep")}><button className="btn btn-outline-primary"><GiNightSleep/>&ensp;Record Sleep Hour</button></Link>
                         </div>
                     </div>
                 </div>

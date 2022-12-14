@@ -11,7 +11,7 @@ import { useUserContext } from '../context/user'
 import { useAuthContext } from '../context/auth'
 import useAxiosPrivate from "../hooks/useAxiosPrivate"
 import Details from '../components/notes/Index'
-import Edit from '../components/notes/tag/Edit'
+// import Edit from '../components/notes/tag/Edit'
 
 const Note = () => {
   const navigate = useNavigate()
@@ -88,12 +88,8 @@ const Note = () => {
 
       <div className="d-flex justify-content-between">
         <button className="btn btn-outline-primary mb-2" onClick={handleBack}><BiArrowBack /></button>
-        <div>
-          <Link to="/note/add">
-            <button className="btn btn-outline-primary mb-2"><BsPlusLg /></button>
-          </Link>&ensp;
-          <Edit />
-        </div>
+        <Link to="/note/add"><button className="btn btn-outline-primary mb-2"><BsPlusLg /></button></Link>
+        {/* <Edit /> */}
       </div>
 
       <div className="input-group mt-2 mb-3">

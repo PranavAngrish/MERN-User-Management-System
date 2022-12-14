@@ -105,8 +105,8 @@ const Edit = () => {
                   <Form.Group controlId="tag">
                     <Form.Label>Tags</Form.Label>
                     <CreatableReactSelect 
-                      options={tagOption}
-                      isMulti 
+                      defaultValue={tagOption}
+                      isMulti
                       onChange={setTag}
                       placeholder="Edit Tag..."
                       // noOptionsMessage={() => "Nothing added!"}
