@@ -29,6 +29,7 @@ const Note = () => {
     Admin: "bg-warning",
     User: "bg-primary"
   }
+  
   const color = statusBar[targetUser?.userRoles]
 
   useEffect(() => {

@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react'
 import { ROLES } from '../../config/roles'
+import { FaAddressCard } from 'react-icons/fa'
+import { BsFillPersonFill } from 'react-icons/bs'
 import { Link, useNavigate } from 'react-router-dom'
 import { Alert, Button, Col, Form, Row, Stack } from "react-bootstrap"
 import { useAuthContext } from '../../context/auth'
@@ -16,6 +18,14 @@ const Add = () => {
   const [ tag, setTag ] = useState([])
   const titleRef = useRef('')
   const textRef = useRef('')
+
+  const statusBar = {
+    Root: "bg-danger",
+    Admin: "bg-warning",
+    User: "bg-primary"
+  }
+
+  const color = statusBar[targetUser?.userRoles]
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -45,6 +55,11 @@ const Add = () => {
   
   return (
     <>
+      {targetUser?.userName && (<div className={`${color} bg-opacity-25 rounded pt-2 mb-3`}>
+        <span className="mx-3 d-inline-flex align-items-center"><FaAddressCard className="fs-4"/>&ensp;{targetUser?.userName}</span>
+        <span className="d-inline-flex align-items-center"><BsFillPersonFill className="fs-4"/>&ensp;{targetUser?.userRoles}</span>
+      </div>)}
+
       <h1 className="my-3">New Note</h1>
 
       <Form onSubmit={handleSubmit}>

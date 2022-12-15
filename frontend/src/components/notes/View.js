@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { ROLES } from '../../config/roles'
-import { BiArrowBack } from 'react-icons/bi'
 import { Link, useNavigate, useParams } from "react-router-dom"
 import { Badge, Button, Col, Row, Stack } from "react-bootstrap"
-import { BsPencilSquare, BsFillTrashFill } from 'react-icons/bs'
+import { BiArrowBack } from 'react-icons/bi'
+import { FaAddressCard } from 'react-icons/fa'
+import { BsPencilSquare, BsFillTrashFill, BsFillPersonFill } from 'react-icons/bs'
 import { usePathContext } from '../../context/path'
 import { useUserContext } from '../../context/user'
 import { useAuthContext } from '../../context/auth'
@@ -18,6 +19,14 @@ const View = () => {
   const { targetUser } = useUserContext()
   const [ notes, setNote ] = useState()
   const axiosPrivate = useAxiosPrivate()
+
+  const statusBar = {
+    Root: "bg-danger",
+    Admin: "bg-warning",
+    User: "bg-primary"
+  }
+  
+  const color = statusBar[targetUser?.userRoles]
 
   useEffect(() => {
     let isMounted = true
@@ -71,6 +80,11 @@ const View = () => {
 
   return (
     <>
+      {targetUser?.userName && notes && (<div className={`${color} bg-opacity-25 rounded pt-2 mb-3`}>
+        <span className="mx-3 d-inline-flex align-items-center"><FaAddressCard className="fs-4"/>&ensp;{targetUser?.userName}</span>
+        <span className="d-inline-flex align-items-center"><BsFillPersonFill className="fs-4"/>&ensp;{targetUser?.userRoles}</span>
+      </div>)}
+
       {notes && (
         <>
           <Row className="align-items-center mb-4">

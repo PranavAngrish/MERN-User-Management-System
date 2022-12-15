@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { ROLES } from '../../config/roles'
 import { Alert, Button, Col, Form, Row, Stack } from "react-bootstrap"
+import { ROLES } from '../../config/roles'
+import { FaAddressCard } from 'react-icons/fa'
+import { BsFillPersonFill } from 'react-icons/bs'
 import { useAuthContext } from '../../context/auth'
 import { useUserContext } from '../../context/user'
 import { usePathContext } from '../../context/path'
@@ -18,10 +20,19 @@ const Edit = () => {
   const [ error, setError ] = useState(null)
   const [ note, setNote ] = useState(null)
   const [ tag, setTag ] = useState([])
+  const [ tagOption, setTagOption] = useState([])
   const titleRef = useRef('')
   const textRef = useRef('')
 
-  const tagOption = note?.tag.map(t => ({ value: t, label: t }))
+  // const tagOption = note?.tag.map(t => ({ value: t, label: t }))
+
+  const statusBar = {
+    Root: "bg-danger",
+    Admin: "bg-warning",
+    User: "bg-primary"
+  }
+  
+  const color = statusBar[targetUser?.userRoles]
   
   useEffect(() => {
     let isMounted = true
@@ -44,6 +55,7 @@ const Edit = () => {
           })
         }
         isMounted && setNote(response.data)
+        setTagOption(response.data.tag.map(t => ({ value: t, label: t })))
       } catch (err) {
         // console.log(err)
       }
@@ -87,6 +99,11 @@ const Edit = () => {
 
   return (
     <>
+      {targetUser?.userName && note && (<div className={`${color} bg-opacity-25 rounded pt-2 mb-3`}>
+        <span className="mx-3 d-inline-flex align-items-center"><FaAddressCard className="fs-4"/>&ensp;{targetUser?.userName}</span>
+        <span className="d-inline-flex align-items-center"><BsFillPersonFill className="fs-4"/>&ensp;{targetUser?.userRoles}</span>
+      </div>)}
+
       {note && (
         <>
           <h1 className="my-3">Edit Note</h1>
@@ -101,7 +118,6 @@ const Edit = () => {
                   </Form.Group>
                 </Col>
                 <Col>
-                {console.log(note.tag)}
                   <Form.Group controlId="tag">
                     <Form.Label>Tags</Form.Label>
                     <CreatableReactSelect 
