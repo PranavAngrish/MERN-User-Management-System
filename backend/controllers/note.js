@@ -27,13 +27,14 @@ exports.adminGetAll = async (req, res) => {
 
 exports.getById = async (req, res) => {
   const { id } = req.params
+  const user_id = req.user._id
 
   if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).json({error: 'No such note id found'})
+  
+  const note = await Note.find({'user_id': user_id, '_id': id}).lean().exec()
+  if (!note[0]) return res.status(404).json({error: 'No such note record found'})
 
-  const note = await Note.findById(id).lean().exec()
-  if (!note) return res.status(404).json({error: 'No such note record found'})
-
-  res.status(200).json(note)
+  res.status(200).json(note[0])
 }
 
 exports.create = async (req, res) => {

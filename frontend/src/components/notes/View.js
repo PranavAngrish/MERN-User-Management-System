@@ -17,7 +17,7 @@ const View = () => {
   const { auth } = useAuthContext()
   const { setTitle } = usePathContext()
   const { targetUser } = useUserContext()
-  const [ notes, setNote ] = useState()
+  const [ notes, setNotes ] = useState()
   const axiosPrivate = useAxiosPrivate()
 
   const statusBar = {
@@ -36,19 +36,10 @@ const View = () => {
 
     const getNoteList = async () => {
       try {
-        let response
-        if(targetUser?.userId && (auth.email !== targetUser.userEmail) && (auth.roles == ROLES.Admin)){
-          // Admin view
-          response = await axiosPrivate.post('/api/notes/admin', {
-            id: targetUser.userId,
-            signal: abortController.signal
-          })
-        }else{
-          response = await axiosPrivate.get(`/api/notes/${id}`, {
-            signal: abortController.signal
-          })
-        }
-        isMounted && setNote(response.data)
+        const response = await axiosPrivate.get(`/api/notes/${id}`, {
+          signal: abortController.signal
+        })
+        isMounted && setNotes(response.data)
       } catch (err) {
         // console.log(err)
       }
@@ -85,14 +76,14 @@ const View = () => {
         <span className="d-inline-flex align-items-center"><BsFillPersonFill className="fs-4"/>&ensp;{targetUser?.userRoles}</span>
       </div>)}
 
-      {notes && (
+      {/* {notes && ( */}
         <>
           <Row className="align-items-center mb-4">
             <Col>
-              <h1>{notes.title}</h1>
-              {!notes.length && (
+              <h1>{notes?.title}</h1>
+              {!notes?.length && (
                 <Stack gap={1} direction="horizontal" className="flex-wrap">
-                  {notes.tag.map((tags, index) => (
+                  {notes?.tag.map((tags, index) => (
                     <Badge className="text-truncate" key={index}>{tags}</Badge>
                   ))}
                 </Stack>
@@ -109,9 +100,9 @@ const View = () => {
             </Col>
           </Row>
           
-          <ReactMarkdown>{notes.text}</ReactMarkdown>
+          <ReactMarkdown>{notes?.text}</ReactMarkdown>
         </>
-      )}
+      {/* )} */}
     </>
   )
 }
