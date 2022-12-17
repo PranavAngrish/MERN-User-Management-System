@@ -18,13 +18,11 @@ const Edit = () => {
   const { targetUser } =  useUserContext()
   const { setTitle } = usePathContext()
   const [ error, setError ] = useState(null)
-  const [ note, setNote ] = useState(null)
+  const [ note, setNote ] = useState()
   const [ tag, setTag ] = useState([])
   const [ tagOption, setTagOption] = useState([])
   const titleRef = useRef('')
   const textRef = useRef('')
-
-  // const tagOption = note?.tag.map(t => ({ value: t, label: t }))
 
   const statusBar = {
     Root: "bg-danger",
@@ -43,7 +41,8 @@ const Edit = () => {
     const getNoteList = async () => {
       try {
         let response
-        if(targetUser?.userId && (auth.email !== targetUser.userEmail) && (auth.roles == ROLES.Admin)){
+        const admin = (auth.roles == ROLES.Admin) || (auth.roles == ROLES.Root)
+        if(targetUser?.userId && (auth.email !== targetUser.userEmail) && admin){
           // Admin view
           response = await axiosPrivate.post('/api/notes/admin', {
             id: targetUser.userId,

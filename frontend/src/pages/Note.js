@@ -22,7 +22,6 @@ const Note = () => {
   const [ query, setQuery ] = useState("")
   const [ notFound, setNotFound ] = useState(false)
   const axiosPrivate = useAxiosPrivate()
-  const admin = (auth.roles == ROLES.Admin) || (auth.roles == ROLES.Root)
 
   const statusBar = {
     Root: "bg-danger",
@@ -40,6 +39,7 @@ const Note = () => {
     const getNoteList = async () => {
       try {
         let response
+        const admin = (auth.roles == ROLES.Admin) || (auth.roles == ROLES.Root)
         if(targetUser?.userId && (auth.email !== targetUser.userEmail) && admin){
           // Admin view
           response = await axiosPrivate.post('/api/notes/admin', {
