@@ -37,6 +37,17 @@ exports.getById = async (req, res) => {
   res.status(200).json(note[0])
 }
 
+exports.adminGetById = async (req, res) => {
+  const note_id = req.body.id
+
+  if (!mongoose.Types.ObjectId.isValid(note_id)) return res.status(404).json({error: 'No such note id found'})
+  
+  const note = await Note.findById(note_id).lean().exec()
+  if (!note) return res.status(404).json({error: 'No such note record found'})
+
+  res.status(200).json(note)
+}
+
 exports.create = async (req, res) => {
   const { title, text, tag } = req.body
 

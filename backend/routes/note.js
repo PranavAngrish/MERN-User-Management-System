@@ -16,7 +16,9 @@ router.route('/:id')
     .patch(notesController.update)
     .delete(notesController.delete)
 
-router.route('/admin')
+router.route('/admin-all')
     .post(requireRoles([ROLES_LIST.Root, ROLES_LIST.Admin]), notesController.adminGetAll)
+router.route('/admin-byid')
+    .post(requireRoles([ROLES_LIST.Root, ROLES_LIST.Admin]), notesController.adminGetById)
 
 module.exports = router

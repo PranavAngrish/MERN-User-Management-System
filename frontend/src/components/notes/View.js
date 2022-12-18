@@ -36,12 +36,25 @@ const View = () => {
 
     const getNoteList = async () => {
       try {
-        const response = await axiosPrivate.get(`/api/notes/${id}`, {
-          signal: abortController.signal
-        })
+        let response
+        const admin = (auth.roles == ROLES.Admin) || (auth.roles == ROLES.Root)
+        if(targetUser?.userId && (auth.email !== targetUser.userEmail) && admin){
+          // Admin view
+          response = await axiosPrivate.post('/api/notes/admin-byid', {
+            id: id,
+            signal: abortController.signal
+          })
+        }else{
+          response = await axiosPrivate.get(`/api/notes/${id}`, {
+            signal: abortController.signal
+          })
+        }
         isMounted && setNotes(response.data)
       } catch (err) {
         // console.log(err)
+        if(err.response?.status === 404) {
+          navigate('/note')
+        }
       }
     }
 
