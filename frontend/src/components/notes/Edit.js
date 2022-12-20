@@ -44,8 +44,8 @@ const Edit = () => {
         const admin = (auth.roles == ROLES.Admin) || (auth.roles == ROLES.Root)
         if(targetUser?.userId && (auth.email !== targetUser.userEmail) && admin){
           // Admin view
-          response = await axiosPrivate.post('/api/notes/admin', {
-            id: targetUser.userId,
+          response = await axiosPrivate.post('/api/notes/admin-byid', {
+            id: id,
             signal: abortController.signal
           })
         }else{

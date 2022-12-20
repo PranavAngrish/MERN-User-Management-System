@@ -23,7 +23,7 @@ const View = ({user}) => {
           <Modal.Title>View Record</Modal.Title>
         </Modal.Header> 
         <Modal.Body>
-          <Link to="/note" onClick={handleClick}><button className="btn btn-outline-primary mb-2"><FaStickyNote/>&ensp;Note Management</button></Link><br/>
+          <Link to="/note" onClick={handleClick}><button className="btn btn-outline-primary mb-3"><FaStickyNote/>&ensp;Note Management</button></Link><br/>
           <Link to="/sleep" onClick={handleClick}><button className="btn btn-outline-primary"><GiNightSleep/>&ensp;Sleep Hours Management</button></Link>
         </Modal.Body>
       </Modal>

@@ -1,14 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ROLES } from '../config/roles'
+import { Col, Row, Stack } from "react-bootstrap"
 import { GoSearch } from "react-icons/go"
 import { BiArrowBack } from 'react-icons/bi'
 import { FaAddressCard, FaTags } from "react-icons/fa"
 import { BsFillPersonFill, BsPlusLg, BsPencilSquare } from "react-icons/bs"
 import { Link } from "react-router-dom"
+import { ROLES } from '../config/roles'
 import { useNavigate } from 'react-router-dom'
 import { usePathContext } from '../context/path'
 import { useUserContext } from '../context/user'
 import { useAuthContext } from '../context/auth'
+import CreatableReactSelect from "react-select/creatable"
 import useAxiosPrivate from "../hooks/useAxiosPrivate"
 import Details from '../components/notes/Index'
 // import Edit from '../components/notes/tag/Edit'
@@ -18,6 +20,7 @@ const Note = () => {
   const { setTitle } = usePathContext()
   const { auth } = useAuthContext()
   const { targetUser } = useUserContext()
+  const [ tag, setTag ] = useState([])
   const [ notes, setNotes ] = useState()
   const [ query, setQuery ] = useState("")
   const [ notFound, setNotFound ] = useState(false)
@@ -93,10 +96,30 @@ const Note = () => {
         {/* <Edit /> */}
       </div>
 
-      <div className="input-group mt-2 mb-3">
+      {/* <div className="input-group mt-2 mb-3">
         <input type="search" className="form-control" placeholder="Search..." value={query} onChange={e => setQuery(e.target.value)}/>
         <button className="btn btn-outline-primary" type="button"><GoSearch/></button>
-      </div>
+      </div> */}
+
+      <Stack className="mt-2 mb-3">
+        <Row>
+          <Col>
+            <div className="input-group">
+              <input type="search" className="form-control" placeholder="Search with Title..." value={query} onChange={e => setQuery(e.target.value)}/>
+              <button className="btn btn-outline-primary" type="button"><GoSearch/></button>
+            </div>
+          </Col>
+          <Col>
+            <CreatableReactSelect 
+              // defaultValue={tagOption}
+              isMulti
+              onChange={setTag}
+              placeholder="Search with Tag..."
+              // noOptionsMessage={() => "Nothing added!"}
+            />
+          </Col>
+        </Row>
+      </Stack>
       
       <div className="row">
         {notes && <Details filteredNote={filteredNote}/>}
