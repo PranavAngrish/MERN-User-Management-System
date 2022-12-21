@@ -20,9 +20,9 @@ const Note = () => {
   const { setTitle } = usePathContext()
   const { auth } = useAuthContext()
   const { targetUser } = useUserContext()
-  const [ tag, setTag ] = useState([])
   const [ notes, setNotes ] = useState()
-  const [ query, setQuery ] = useState("")
+  const [ tag, setTag ] = useState([])
+  const [ titles, setTitles ] = useState("")
   const [ notFound, setNotFound ] = useState(false)
   const axiosPrivate = useAxiosPrivate()
 
@@ -74,9 +74,13 @@ const Note = () => {
 
   const filteredNote = useMemo(() => {
     return notes?.filter(note => {
-      return note.title.toLowerCase().includes(query.toLowerCase())
+      const tags = tag?.map(t => t.value)
+      return (
+        (titles === "" || note.title.toLowerCase().includes(titles.toLowerCase())) &&
+        (tag.length === 0 || note.tag.includes(tags[0]))
+      )
     })
-  }, [notes, query])
+  }, [notes, titles, tag])
 
   const handleBack = () => {
     setTitle("Welcome")
@@ -96,26 +100,21 @@ const Note = () => {
         {/* <Edit /> */}
       </div>
 
-      {/* <div className="input-group mt-2 mb-3">
-        <input type="search" className="form-control" placeholder="Search..." value={query} onChange={e => setQuery(e.target.value)}/>
-        <button className="btn btn-outline-primary" type="button"><GoSearch/></button>
-      </div> */}
-
       <Stack className="mt-2 mb-3">
         <Row>
           <Col>
             <div className="input-group">
-              <input type="search" className="form-control" placeholder="Search with Title..." value={query} onChange={e => setQuery(e.target.value)}/>
+              <input type="search" className="form-control" placeholder="Search By Title..." value={titles} onChange={e => setTitles(e.target.value)}/>
               <button className="btn btn-outline-primary" type="button"><GoSearch/></button>
             </div>
           </Col>
           <Col>
-            <CreatableReactSelect 
+            <CreatableReactSelect  
               // defaultValue={tagOption}
               isMulti
+              value={tag}
               onChange={setTag}
-              placeholder="Search with Tag..."
-              // noOptionsMessage={() => "Nothing added!"}
+              placeholder="Search By Tag..."
             />
           </Col>
         </Row>
@@ -123,10 +122,10 @@ const Note = () => {
       
       <div className="row">
         {notes && <Details filteredNote={filteredNote}/>}
-        {!filteredNote?.length && query && <div>No matching results found...</div>}
+        {!filteredNote?.length && (titles || tag.length !== 0) && <div>No matching results found...</div>}
       </div>
 
-      {notFound && !query && !notes?.length && (<div>No Record Found...</div>)}
+      {notFound && !titles && !tag.length && !notes?.length && (<div>No Record Found...</div>)}
     </>
   )
 }
