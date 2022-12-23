@@ -47,10 +47,7 @@ const Assgin = () => {
   },[])
   
   const filteredLists = useMemo(() => {
-    console.log(assignedUser.assignedTo)
-    return assignedUser?.assignedTo.filter(user => {
-      return user.name.toLowerCase() === query.toLowerCase()
-    })
+    return assignedUser.assignedTo?.filter(t => t.name.toLowerCase().includes(query.toLowerCase()))
   }, [assignedUser, query])
 
   return (
@@ -78,8 +75,7 @@ const Assgin = () => {
                 </tr>
               </thead>
               <tbody>
-                {/* <Details filteredLists={filteredLists}/> */}
-                <Details />
+                <Details filteredLists={filteredLists}/>
               </tbody>
             </table>
           )}
