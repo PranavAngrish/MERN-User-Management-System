@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { ROLES } from '../config/roles'
 import { usePathContext } from '../context/path'
 import { useAuthContext } from '../context/auth'
@@ -45,19 +45,26 @@ const Assgin = () => {
       abortController.abort()
     }
   },[])
+  
+  const filteredLists = useMemo(() => {
+    console.log(assignedUser.assignedTo)
+    return assignedUser?.assignedTo.filter(user => {
+      return user.name.toLowerCase() === query.toLowerCase()
+    })
+  }, [assignedUser, query])
 
   return (
     <>
       {admin && (
       <>
-        <Add task_id={id}/>
-
-        <div className="bg-success bg-opacity-25 rounded pt-2">
+        <div className="bg-success bg-opacity-25 rounded pt-2 mb-3">
           <span className="mx-3 d-inline-flex align-items-center"><FaTasks className="fs-4"/>&ensp;{title}</span>
           <span className="d-inline-flex align-items-center"><MdAdminPanelSettings className="fs-4"/>&ensp;{createdBy.name}</span>
         </div>
+        
+        <Add task_id={id}/>
 
-        <div className="input-group my-3">
+        <div className="input-group my-2">
           <input type="search" className="form-control" placeholder="Search..." value={query} onChange={e => setQuery(e.target.value)}/>
           <button className="btn btn-outline-primary" type="button"><GoSearch/></button>
         </div>
@@ -71,7 +78,8 @@ const Assgin = () => {
                 </tr>
               </thead>
               <tbody>
-                <Details/>
+                {/* <Details filteredLists={filteredLists}/> */}
+                <Details />
               </tbody>
             </table>
           )}

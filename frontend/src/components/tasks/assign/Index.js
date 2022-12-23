@@ -1,12 +1,12 @@
 import { useTasksContext } from '../../../context/task'
 import Delete from './Delete'
 
-const Index = () => {
+const Index = ({ filteredLists }) => {
   const { assignedUser } =  useTasksContext()
 
   return (
     <>
-      {assignedUser.assignedTo.map(user => (
+      {filteredLists.assignedTo.map(user => (
         <tr key={user._id}>
           <td>{user.name}</td>
           <td><Delete user={user}/></td>
