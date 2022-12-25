@@ -10,7 +10,11 @@
 - Provide persist login option for 7 days.
 - Require users to login at least once a week for security.
 - Automatically log out after 15 minutes if the persistent login option is unchecked.
+- Detect abusive traffic or bot with reCAPTCHA v3.
+- Verify email is a one-time email or a fake email.
 - Activate account after email verification.
+- Use bcrypt to encrypt and protect user account passwords.
+- Securely transmitting information between parties with JWT.
 - Roles can be User or Admin.
 - Display current user and assigned role with status bar.
 
@@ -24,7 +28,7 @@
 - Root user and Admins able to create new users.
 - Root user and Admins can change user's name, email, password, and roles.
 - Provides a feature for searching user names to find out users details.
-- Provide a permission feature that restricts user access as soon as possible if needed.
+- Provide a permission feature that restricts user access as soon as possible if needed (Deactivate Account).
 - Provide a way to remove user access (Delete Account).
 
 ---

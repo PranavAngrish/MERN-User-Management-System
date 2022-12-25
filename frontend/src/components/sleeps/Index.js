@@ -19,7 +19,7 @@ const durationCoverter = (totalMinutes) => {
     <div className="card mb-3">
         <div className="card-body d-flex justify-content-between">
             <div>
-                <div className="d-inline-flex align-items-center fs-4 text-primary "><BsCalendarWeek/>&nbsp;{moment(sleep.sleep.split('T').shift()).format('DD-MM-YYYY')}</div>
+                <div className="d-inline-flex align-items-center fs-4 text-primary "><BsCalendarWeek/>&nbsp;{moment(sleep.sleep.split('T').shift()).format('DD-MM-YYYY dddd')}</div>
                 <p>
                     <strong className="fs-6 text-muted">Sleep Time:</strong>&ensp;{sleepTime}<br/>
                     <strong className="fs-6 text-muted">Wake Time:</strong>&ensp;{wakeTime}<br/>
