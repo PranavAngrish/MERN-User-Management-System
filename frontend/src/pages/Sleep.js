@@ -7,20 +7,18 @@ import { useAuthContext } from '../context/auth'
 import { useSleepsContext } from '../context/sleep'
 import { BsFillPersonFill } from "react-icons/bs"
 import { FaAddressCard } from "react-icons/fa"
-import { BiArrowBack } from 'react-icons/bi'
-import { BsPlusLg } from 'react-icons/bs'
 import useAxiosPrivate from "../hooks/useAxiosPrivate"
 import Details from '../components/sleeps/Index'
 import SleepForm from '../components/sleeps/Add'
+import Navbar from '../components/sleeps/Navbar'
 
 const Sleep = () => {
   const navigate = useNavigate()
   const { auth } = useAuthContext()
+  const { setTitle } = usePathContext()
   const { targetUser } = useUserContext()
   const { sleeps, dispatch } = useSleepsContext()
-  const { setTitle } = usePathContext()
   const [ notFound, setNotFound ]  = useState(false)
-  const [show, setShow] = useState(false)
   const axiosPrivate = useAxiosPrivate()
   const admin = (auth.roles == ROLES.Admin) || (auth.roles == ROLES.Root)
 
@@ -68,10 +66,7 @@ const Sleep = () => {
 
   return (
     <>
-      <div className="d-flex justify-content-between">
-        <button className="btn btn-outline-primary mb-2" onClick={handleBack}><BiArrowBack /></button>
-        <button className="btn btn-outline-primary mb-2" onClick={() => setShow(!show)}><BsPlusLg /></button>
-      </div>
+      <Navbar/>
 
      {targetUser?.userName && sleeps && (<div className="bg-primary bg-opacity-25 rounded pt-2">
         <span className="mx-3 d-inline-flex align-items-center"><FaAddressCard className="fs-4"/>&ensp;{targetUser?.userName}</span>
