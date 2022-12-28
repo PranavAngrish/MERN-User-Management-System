@@ -9,7 +9,7 @@ const moment = require('moment')
 const Add = () => {
   const axiosPrivate = useAxiosPrivate()
   const { auth } = useAuthContext()
-  const { targetUser } =  useUserContext()
+  const { targetUser } = useUserContext()
   const { dispatch } = useSleepsContext()
   const [ error, setError ] = useState(null)
   const sleepRef = useRef('')
