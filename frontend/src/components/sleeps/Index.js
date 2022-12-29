@@ -16,6 +16,7 @@ const durationCoverter = (totalMinutes) => {
 }
 
   return (
+    <div className="col-md-4">
     <div className="card mb-3">
         <div className="card-body d-flex justify-content-between">
             <div>
@@ -32,6 +33,7 @@ const durationCoverter = (totalMinutes) => {
                 <Delete sleep={sleep}/>
             </div>
         </div>
+    </div>
     </div>
   )
 }

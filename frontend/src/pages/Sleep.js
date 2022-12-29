@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { ROLES } from '../config/roles'
-import { useNavigate } from 'react-router-dom'
 import { usePathContext } from '../context/path'
 import { useUserContext } from '../context/user'
 import { useAuthContext } from '../context/auth'
@@ -13,7 +12,6 @@ import SleepForm from '../components/sleeps/Add'
 import Navbar from '../components/sleeps/Navbar'
 
 const Sleep = () => {
-  const navigate = useNavigate()
   const { auth } = useAuthContext()
   const { setTitle } = usePathContext()
   const { targetUser } = useUserContext()
@@ -59,11 +57,6 @@ const Sleep = () => {
     }
   }, [])
 
-  const handleBack = () => {
-    setTitle("Welcome")
-    navigate("/")
-  }
-
   return (
     <>
       <Navbar/>
@@ -72,14 +65,11 @@ const Sleep = () => {
         <span className="mx-3 d-inline-flex align-items-center"><FaAddressCard className="fs-4"/>&ensp;{targetUser?.userName}</span>
         <span className="d-inline-flex align-items-center"><BsFillPersonFill className="fs-4"/>&ensp;{targetUser?.userRoles}</span>
       </div>)}
-      <div className="sleeps mt-3">
-        <div>
-          {sleeps && sleeps.map(sleep => (
-            <Details sleep={sleep} key={sleep._id} />
-          ))}
-          {notFound && !sleeps?.length && <div>No Record Found...</div>}
-        </div>
-        {/* <SleepForm /> */}
+      <div className="row mt-3">
+        {sleeps && sleeps.map(sleep => (
+          <Details sleep={sleep} key={sleep._id} />
+        ))}
+        {notFound && !sleeps?.length && <div>No Record Found...</div>}
       </div>
     </>
   )
