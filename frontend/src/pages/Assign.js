@@ -67,7 +67,7 @@ const Assgin = () => {
         </div>
 
           {(assignedUser?.assignedTo?.length > 0) && (
-            <table className="table mt-3">
+            <table className="table table-hover mt-3">
               <thead className="table-light">
                 <tr>
                   <th scope="col">No.</th>

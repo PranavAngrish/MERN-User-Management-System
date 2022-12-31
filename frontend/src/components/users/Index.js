@@ -8,6 +8,7 @@ const Index = ({ filteredNames }) => {
     <>
       {filteredNames.map((user, index)=> (
         <tr key={index}>
+          <td>{index + 1}</td>
           <td>{user.name}</td>
           <td>{user.email}</td>
           <td>{user.roles}</td>

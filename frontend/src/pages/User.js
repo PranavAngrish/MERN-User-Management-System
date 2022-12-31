@@ -63,9 +63,10 @@ const User = () => {
           </div>
 
           {users && (
-            <table className="table mt-2">
+            <table className="table table-hover mt-2">
               <thead className="table-light">
                 <tr>
+                  <th scope="col">No.</th>
                   <th scope="col">Name</th>
                   <th scope="col">Email</th>
                   <th scope="col">Roles</th>
