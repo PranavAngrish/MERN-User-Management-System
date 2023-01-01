@@ -8,10 +8,10 @@ const bcrypt = require('bcrypt')
 exports.getAll = async (req, res) => {
     let users
     if(req.roles == "Root"){
-        users = await User.find().select('-password').lean()
+        users = await User.find().select('-password').sort({name: 1}).lean()
     }else{
         const adminItSelf = await User.findById(req.user._id).lean().exec()
-        users = await User.find({$and: [{'roles': {$ne: ROLES_LIST.Root}}, {'roles': {$ne: ROLES_LIST.Admin}}]}).select('-password').lean()
+        users = await User.find({$and: [{'roles': {$ne: ROLES_LIST.Root}}, {'roles': {$ne: ROLES_LIST.Admin}}]}).select('-password').sort({name: 1}).lean()
         users.unshift(adminItSelf)
     }
     

@@ -69,7 +69,7 @@ const Add = () => {
 
       <Modal show={show} onHide={() => {setShow(!show);setError(null)}} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Edit User Record</Modal.Title>
+          <Modal.Title>New User</Modal.Title>
         </Modal.Header> 
         <Modal.Body>
           <Form.Group className="mb-3">
