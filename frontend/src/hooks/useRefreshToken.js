@@ -8,9 +8,7 @@ const useRefreshToken = () => {
 
     const refresh = async () => {
         try {
-            const response = await axios.post('/api/auth/refresh', {
-                withCredentials: true
-            }) 
+            const response = await axios.post('/api/auth/refresh') 
             dispatch({type: 'LOGIN', payload: response.data})
             return response.data.accessToken
         } catch (error) {
