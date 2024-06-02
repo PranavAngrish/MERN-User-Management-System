@@ -5,7 +5,7 @@ import { MdSpaceDashboard, MdOutlineVerifiedUser } from 'react-icons/md'
 import { AiOutlineReload } from 'react-icons/ai'
 import { VscError } from 'react-icons/vsc'
 import Loading from '../../components/Loading'
-import axios from '../../api/axios' 
+import axiosPublic from '../../api/axios' 
 
 const Activate = () => {
   const navigate = useNavigate()
@@ -27,7 +27,7 @@ const Activate = () => {
       setIsLoading(true)
 
       try {
-        const response = await axios.post('/api/auth/activate', { 
+        const response = await axiosPublic.post('/api/auth/activate', { 
           activation_token,
           signal: abortController.signal
         })
@@ -36,19 +36,17 @@ const Activate = () => {
         setActivate(true)
       } catch (error) {
         setIsLoading(false)
-        if(error.response.data.error === "Forbidden token expired"){ 
-          setExpire(true) 
-        }else if(error.response.data.error === "Email already in use"){
-          setInUse(true)
-        }else{
-          navigate('/not-found')
+        const errorHandlers = {
+          "Forbidden token expired": () => setExpire(true),
+          "Email already in use": () => setInUse(true),
         }
+      
+        const errorHandler = errorHandlers[error.response.data.error] || (() => navigate('/not-found'));
+        errorHandler()
       }
     }
-    
-    if (executeOnce.current === true || process.env.NODE_ENV !== 'development') {
-      activateAccount()
-    }
+
+    (executeOnce.current === true || process.env.NODE_ENV !== 'development') && activateAccount()
 
     return () => { 
       isMounted = false 
