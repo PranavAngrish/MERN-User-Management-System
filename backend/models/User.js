@@ -20,6 +20,11 @@ const userSchema = new mongoose.Schema({
     type: [String],
     default: ["User"]
   },
+  otpRequests: { 
+    type: Number, 
+    default: 0 
+  },
+  otpRequestDate: Date,
   active: {
     type: Boolean,
     default: true
@@ -28,7 +33,7 @@ const userSchema = new mongoose.Schema({
     type: [mongoose.Schema.Types.ObjectId],
     ref: 'Task'
   }
-})
+}, { timestamps: true })
 
 userSchema.statics.signup = async function(name, email, password) {
   const isNameEmpty = validator.isEmpty(name ?? '', { ignore_whitespace:true })

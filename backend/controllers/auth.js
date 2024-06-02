@@ -3,7 +3,9 @@ const jwt = require('jsonwebtoken')
 const axios = require('axios')
 const bcrypt = require('bcrypt')
 const validator = require('validator')
-const sendMail= require('../config/sendMail')
+const activateMail= require('../config/activateMail')
+const resetPassword= require('../config/resetPassword')
+const redisClient = require('../config/redisConn')
 const url = require('../config/url')
 
 const createAccessToken = (_id) => jwt.sign({_id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
@@ -44,14 +46,13 @@ exports.signup = async (req, res) => {
     const exists = await User.findOne({ email }).lean().exec()
     if (exists) throw Error('Email already in use')
   
-    const salt = await bcrypt.genSalt(10)
-    const hash = await bcrypt.hash(password, salt)
+    const hashedPassword = await bcrypt.hash(password, 10)
 
-    const newUser = { name, email, password: hash }
+    const newUser = { name, email, password: hashedPassword }
     const activation_token = jwt.sign(newUser, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
     
     const activateUrl = `${url}/activate/${activation_token}`
-    sendMail.sendEmailRegister(email, activateUrl, "Verify your email")
+    activateMail.activateMailAccount(email, activateUrl, "Verify your email")
 
     res.status(200).json({ mailSent: true })
   } catch (error) {
@@ -116,4 +117,97 @@ exports.logout = async (req, res) => {
   if (!token) return res.sendStatus(204)
   res.clearCookie('jwt', { httpOnly: true, sameSite: 'Lax', secure: true })
   res.status(200).json({ error: 'Logout successful '})
+}
+
+const generateOTPToken = (email) => {
+  const otp = Math.floor(100000 + Math.random() * 900000).toString()
+  const payload = { email, otp }
+  const token = jwt.sign(payload, process.env.OTP_TOKEN_SECRET, { expiresIn: '5m' })
+  return { otp, token }
+}
+
+exports.recoverEmail = async (req, res) => {
+  try {
+    const { email } = req.body
+    
+    const isEmailEmpty = validator.isEmpty(email, { ignore_whitespace:true })
+  
+    if (isEmailEmpty) throw Error('Email Address Require')
+    if (!validator.isEmail(email)) throw Error('Email not valid')
+  
+    const emailExist = await User.findOne({ email: email}).exec()
+    if (!emailExist) throw Error('Email Address Not Found')
+  
+    // if(!emailExist.active) throw Error('Your account has been blocked')
+
+    const now = new Date()
+    if (emailExist.otpRequests > 3 && emailExist.otpRequestDate && now - emailExist.otpRequestDate < 24 * 60 * 60 * 1000) {
+      return res.status(429).json({ error: 'Too many OTP requests. Please try again tomorrow.' })
+    }
+
+    if (now - emailExist.otpRequestDate >= 24 * 60 * 60 * 1000) {
+      emailExist.otpRequests = 0
+    }
+  
+    const { otp, token } = generateOTPToken(email)
+
+    emailExist.otpRequests += 1
+    emailExist.otpRequestDate = new Date()
+    await emailExist.save()
+
+    await redisClient.set(email, token, { EX: 300 })
+
+    resetPassword.receiveOTP(email, otp)
+    // console.log(`Generated OTP for ${req.ip}: ${otp}`);
+
+    res.status(200).json({ email, mailVerify: true })
+  } catch (error) {
+    res.status(400).json({ error: error.message })
+  }
+}
+
+exports.verifyOTP = async (req, res) => {
+  const { email, otp } = req.body
+
+  try {
+    const otpToken = await redisClient.get(email)
+    if (!otpToken) return res.status(400).json({ error: 'Invalid or expired OTP' })
+
+    jwt.verify(otpToken, process.env.OTP_TOKEN_SECRET, async (err, decoded) => {
+      if (err || decoded.otp !== otp) return res.status(400).json({ error: 'Invalid or expired OTP' })
+
+      await redisClient.del(email)
+
+      res.status(200).json({ optVerified: true })
+    })
+  } catch (error) {
+    console.error('Error verifying OTP:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+}
+
+exports.restPassword = async (req, res) => {
+  try {
+    const { email, password } = req.body
+    console.log(password, typeof password)
+    const isEmailEmpty = validator.isEmpty(email, { ignore_whitespace:true })
+    const isPasswordEmpty = validator.isEmpty(password ?? '', { ignore_whitespace:true })
+
+    if (isEmailEmpty) throw Error('Email Address Require')
+    if (!validator.isEmail(email)) throw Error('Email not valid')
+
+    if (isPasswordEmpty) throw Error('Password Require')
+    if (!validator.isStrongPassword(password)) throw Error('Password not strong enough')
+  
+    const emailExist = await User.findOne({ email: email }).lean()
+    if (!emailExist) throw Error('Email Address Not Found')
+  
+    const hashedPassword = await bcrypt.hash(password, 10)
+
+    await User.updateOne({ email }, { password: hashedPassword })
+
+    res.status(200).json({ passwordUpdated: true })
+  } catch (error) {
+    res.status(400).json({ error: error.message })
+  }
 }
