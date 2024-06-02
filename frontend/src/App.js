@@ -8,6 +8,7 @@ import RequireRoles from './components/RequireRoles'
 import Recaptcha from './pages/Recaptcha'
 import Signup from './pages/Signup'
 import Activate from './pages/auth/Activate'
+import VerifyEmail from './pages/auth/recover-password/VerifyEmail'
 import Navbar from './components/Navbar'
 import Status from './components/Status'
 import Add from './components/notes/Add'
@@ -34,6 +35,7 @@ function App() {
         <div className="container mt-3">
           <Routes>
             <Route path="/activate/:activation_token" element={<Activate />} />
+            <Route path="/recover-password" element={<VerifyEmail />} />
 
             <Route element={<PersistLogin />}>
               <Route path="/" element={<Home />}/>
