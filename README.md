@@ -53,6 +53,3 @@
 - Root user and Admin have permission to view, edit, and delete user notes if needed.
 - Provides search features for titles/tags searching, to view the contents of notes.
 - Tags are provided for tagging notes.
-
-In fact, I don't know what kind of website this is. I just use it purely to learn about Authentication and Authorization. Just think it's a user management system.
-Features will continuously update...
