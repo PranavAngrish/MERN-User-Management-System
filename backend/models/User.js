@@ -13,13 +13,21 @@ const userSchema = new mongoose.Schema({
     unique: true
   },
   password: {
-    type: String,
-    required: true
+    hashed: {
+      type: String,
+      required: true
+    },
+    errorCount: { 
+      type: Number, 
+      default: 0 
+    },
+    errorDate: Date,
   },
   roles: {
     type: [String],
     default: ["User"]
   },
+
   otpRequests: { 
     type: Number, 
     default: 0 
@@ -45,7 +53,9 @@ userSchema.statics.signup = async function(name, email, password) {
   const exists = await this.findOne({ email }).lean().exec()
   if (exists) throw Error('Email already in use')
 
-  const user = await this.create({ name: name.trim(), email: email.trim(), password})
+  const newUser = {name: name.trim(), email: email.trim(), password: { hashed: password }}
+
+  const user = await this.create(newUser)
   if(!user) throw Error('Invalid user data received')
 
   return user
@@ -56,13 +66,32 @@ userSchema.statics.login = async function(email, password) {
   const isPasswordEmpty = validator.isEmpty(password, { ignore_whitespace:true })
   if (isEmailEmpty || isPasswordEmpty) throw Error('All fields must be filled')
 
-  const user = await this.findOne({ email: email.trim() }).lean()
+  const user = await this.findOne({ email: email.trim() }).exec()
   if (!user) throw Error('Incorrect Email')
 
-  const match = await bcrypt.compare(password, user.password)
-  if (!match) throw Error('Incorrect Password')
+  const match = await bcrypt.compare(password, user.password.hashed)
+  
+  if (!match) {
+    const now = new Date()
+    const day = 24 * 60 * 60 * 1000
 
-  if(!user.active) throw Error('Your account has not been activated')
+    if (user.password.errorCount >= 3 && user.password.errorDate && (now - user.password.errorDate) < day) {
+      await this.updateOne({ email }, {$set: { 'active': false }})
+      throw Error("You've tried to login too many times with an incorrect account password, this account has been temporarily blocked for security reasons. Please reach out to our Technical Support team for further assistance.")
+    }
+
+    if ((now - user.password.errorDate) >= day) {
+      await this.updateOne({ email }, {$set: { 'password.errorCount': 0}})
+    }
+    
+    if(!user.active) throw Error('Your account has been temporarily blocked. Please reach out to our Technical Support team for further assistance.')
+    
+    user.password.errorCount += 1
+    user.password.errorDate = new Date()
+    await user.save()
+
+    throw Error('Incorrect Password')
+  }
 
   return user
 }
