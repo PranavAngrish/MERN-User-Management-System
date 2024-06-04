@@ -37,7 +37,7 @@ const Delete = ({user}) => {
       
       <Modal show={show} onHide={() => {setShow(!show);setError(null)}} centered>
         <Modal.Header closeButton>
-          {!error && (<Modal.Title className="d-inline-flex align-items-center"><GoAlert/>&nbsp;Warning</Modal.Title>)}
+          {!error && (<Modal.Title className="d-inline-flex align-items-center"><GoAlert className="text-danger"/>&nbsp;Warning</Modal.Title>)}
           {error && (<Modal.Title>Error</Modal.Title>)}
         </Modal.Header> 
         <Modal.Body>

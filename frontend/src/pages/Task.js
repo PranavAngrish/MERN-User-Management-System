@@ -1,4 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { BiArrowBack } from 'react-icons/bi'
 import { useAuthContext } from '../context/auth'
 import { useTasksContext } from '../context/task'
 import { usePathContext } from '../context/path'
@@ -8,11 +10,19 @@ import Details from '../components/tasks/Index'
 import Add from '../components/tasks/Add'
 
 const Task = () => {
+  const navigate = useNavigate()
   const { auth } = useAuthContext()
   const { setTitle } = usePathContext()
   const { tasks, dispatch } =  useTasksContext()
+  const [ error, setError ] = useState(null)
   const axiosPrivate = useAxiosPrivate()
-  const admin = (auth.roles == ROLES.Admin) || (auth.roles == ROLES.Root)
+  const roleToSrting = auth.roles.toString()
+  const admin = (roleToSrting === ROLES.Admin) || (roleToSrting === ROLES.Root)
+
+  const handleBack = () => {
+    setTitle("Welcome")
+    navigate("/")
+  }
 
   useEffect(() => {
     setTitle("Task Management")
@@ -25,7 +35,10 @@ const Task = () => {
           signal: abortController.signal
         })
         isMounted && dispatch({type: 'SET_TASKS', payload: response.data})
+        setError(null)
       } catch (err) {
+        console.log(err)
+        setError(err.response.data.error)
         // console.log(err)
       }
     }
@@ -45,7 +58,13 @@ const Task = () => {
       {auth && (
         <>
           {admin && <Add />}
+          {roleToSrting === ROLES.User && (
+            <div className="d-flex justify-content-between">
+              <button className="btn btn-outline-primary mb-2" onClick={handleBack}><BiArrowBack /></button>
+            </div>
+          )}
           {tasks && <Details tasks={tasks}/>}
+          {error && <div className="error">{error}</div>}
         </>
       )}
     </>

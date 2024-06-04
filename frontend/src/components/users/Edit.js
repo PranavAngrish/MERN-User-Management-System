@@ -24,13 +24,9 @@ const Edit = ({user}) => {
 
   const handleShowPassword =  (e) => {
     e.preventDefault()
-    if(passwordRef.current.type === "password") {
-      passwordRef.current.type = "text"
-      setChangeIcon(true)
-    }else{
-      passwordRef.current.type = "password"
-      setChangeIcon(false)
-    }
+    const isPassword = passwordRef.current.type === "password"
+    passwordRef.current.type = isPassword ? "text" : "password"
+    setChangeIcon(isPassword)
   }
 
   const handleUpdate = async () => {

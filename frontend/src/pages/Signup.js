@@ -21,13 +21,9 @@ const Signup = () => {
 
   const handleShowPassword =  (e) => {
     e.preventDefault()
-    if(passwordRef.current.type === "password") {
-      passwordRef.current.type = "text"
-      setChangeIcon(true)
-    }else{
-      passwordRef.current.type = "password"
-      setChangeIcon(false)
-    }
+    const isPassword = passwordRef.current.type === "password"
+    passwordRef.current.type = isPassword ? "text" : "password"
+    setChangeIcon(isPassword)
   }
 
   return (
@@ -45,14 +41,14 @@ const Signup = () => {
                 <input className="inputs" type="password" ref={passwordRef} autoComplete="off"/>
                 <button className="btn mb-2" onClick={handleShowPassword}>{changeIcon ? <FaEyeSlash/> : <FaEye/>}</button>
               </div>
-            <div className="signup-prompt">Already have an account ? <Link to="/login">Login</Link></div>
-            <button className="w-100 mt-2" disabled={isLoading}>Sign Up</button>
-            <div className="form-check mt-3">
+            <div className="form-check">
               <label htmlFor="persist" className="form-check-label">
                 <input id="persist" className="form-check-input" type="checkbox" onChange={() => {setPersist(prev => !prev)}} checked={persist}/>
                 Keep me logged in
               </label>
             </div>
+            <button className="w-100 mt-3" disabled={isLoading}>Sign Up</button>
+            <div className="signup-prompt mt-3">Already have an account ? <Link to="/login">Login</Link></div>
             {error && 
               (<div className="error">{error}
                 {error==="Password not strong enough" && 
@@ -72,7 +68,7 @@ const Signup = () => {
             </div>
             <ul>
               <li>Choosing <strong>"Keep me logged in"</strong> reduces the number of the times you're asked Login on this device.</li>
-              <li>To keep your account secure, use this option only on <strong>trusted devices</strong>.</li>
+              <li>To keep your account secure, use this option only on <strong>Trusted Devices</strong>.</li>
             </ul>
           </div>)}
         </>

@@ -11,6 +11,7 @@ const Activate = () => {
   const navigate = useNavigate()
   const { dispatch } = useAuthContext()
   const { activation_token } = useParams()
+  const [ email, setEmail ] = useState(null)
   const [ activate, setActivate ] = useState(false)
   const [ expire, setExpire ] = useState(false)
   const [ inUse, setInUse ] = useState(false)
@@ -31,6 +32,7 @@ const Activate = () => {
           activation_token,
           signal: abortController.signal
         })
+        setEmail(response.data.email)
         isMounted && dispatch({type: 'LOGIN', payload: response.data})
         setIsLoading(false)
         setActivate(true)
@@ -58,7 +60,6 @@ const Activate = () => {
   return (
     <>
       {isLoading && (<Loading />)}
-
       {expire && (<div className="expire center shadow">
         <div className="icon">
           <VscError className="fa"/>
@@ -75,7 +76,7 @@ const Activate = () => {
           <VscError className="fa"/>
         </div>
         <div className="fs-3 fw-semibold">Email already in use</div>
-        <div className="description">This email is already in use, please choose another email.</div>
+        <div className="description">{email} already in use, please choose another email.</div>
         <div className="dismiss-btn mt-3">
           <Link to="/signup"><button><AiOutlineReload />&ensp;Try Again</button></Link>
         </div>

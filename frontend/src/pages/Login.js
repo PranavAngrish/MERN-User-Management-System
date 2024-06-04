@@ -19,34 +19,35 @@ const Login = () => {
 
   const handleShowPassword =  (e) => {
     e.preventDefault()
-    if(passwordRef.current.type === "password") {
-      passwordRef.current.type = "text"
-      setChangeIcon(true)
-    }else{
-      passwordRef.current.type = "password"
-      setChangeIcon(false)
-    }
+    const isPassword = passwordRef.current.type === "password"
+    passwordRef.current.type = isPassword ? "text" : "password"
+    setChangeIcon(isPassword)
   }
 
   return (
     <>
       <form className="login" onSubmit={handleSubmit}>
         <h3 className="text-center mb-4">Log In</h3>
-        <label>Email address:</label>
+        <label>Email Address:</label>
         <input className="inputs" type="email" ref={emailRef}/>
         <label>Password:</label>
         <div className="d-flex">
           <input className="inputs" type="password" ref={passwordRef} autoComplete="on"/>
           <button className="btn mb-2" onClick={handleShowPassword}>{changeIcon ? <FaEyeSlash/> : <FaEye/>}</button>
         </div>
-        <div className="signup-prompt">Create an account ? <Link to="/signup">Signup</Link></div>
-        <button className="w-100 mt-2" disabled={isLoading}>Log In</button>
-        <div className="form-check mt-3">
-          <label htmlFor="persist" className="form-check-label">
-            <input id="persist" className="form-check-input" type="checkbox" onChange={() => {setPersist(prev => !prev)}} checked={persist}/>
-            Keep me logged in
-          </label>
+
+        <div className="d-flex justify-content-between">
+          <div className="form-check">
+            <label htmlFor="persist" className="form-check-label">
+              <input id="persist" className="form-check-input" type="checkbox" onChange={() => {setPersist(prev => !prev)}} checked={persist}/>
+              Keep me logged in
+            </label>
+            </div>
+          <label className="form-check-label"><Link to="/recover-password">Forgot Password ?</Link></label>
         </div>
+
+        <button className="w-100 mt-3" disabled={isLoading}>Log In</button>
+        <div className="signup-prompt mt-3">Create an account ? <Link to="/signup">Signup</Link></div>
         {error && <div className="error">{error}</div>}
       </form>
       {persist && (<div className="alert alert-info" role="alert" style={{maxWidth: "400px", margin: "0 auto"}}>
@@ -55,7 +56,7 @@ const Login = () => {
         </div>
         <ul>
           <li>Choosing <strong>"Keep me logged in"</strong> reduces the number of the times you're asked Login on this device.</li>
-          <li>To keep your account secure, use this option only on <strong>trusted devices</strong>.</li>
+          <li>To keep your account secure, use this option only on <strong>Trusted Devices</strong>.</li>
         </ul>
       </div>)}
     </>

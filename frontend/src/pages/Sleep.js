@@ -16,7 +16,7 @@ const Sleep = () => {
   const { setTitle } = usePathContext()
   const { targetUser } = useUserContext()
   const { sleeps, dispatch } = useSleepsContext()
-  const [ notFound, setNotFound ]  = useState(false)
+  const [ error, setError ] = useState(null)
   const axiosPrivate = useAxiosPrivate()
   const admin = (auth.roles == ROLES.Admin) || (auth.roles == ROLES.Root)
 
@@ -40,9 +40,10 @@ const Sleep = () => {
           })
         }
         isMounted && dispatch({type: 'SET_SLEEPS', payload: response.data})
+        setError(null)
       } catch (err) {
         dispatch({type: 'SET_SLEEPS', payload: []})
-        setNotFound(true)
+        setError(err.response.data.error)
         // console.log(err)
       }
     }
@@ -69,7 +70,7 @@ const Sleep = () => {
         {sleeps && sleeps.map(sleep => (
           <Details sleep={sleep} key={sleep._id} />
         ))}
-        {notFound && !sleeps?.length && <div>No Record Found...</div>}
+        {error && <div className="error">{error}</div>}
       </div>
     </>
   )

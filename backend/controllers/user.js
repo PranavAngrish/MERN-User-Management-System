@@ -35,19 +35,14 @@ exports.create = async (req, res) => {
     const duplicateEmail = await User.findOne({ email }).collation({ locale: 'en', strength: 2 }).lean().exec()
     if(duplicateEmail) return res.status(409).json({error: "Email already in use"})
 
-    const salt = await bcrypt.genSalt(10)
-    const hash = await bcrypt.hash(password, salt)
+    const hashedPassword  = await bcrypt.hash(password, 10)
 
     if(roles == ROLES_LIST.Admin) return res.status(400).json({error: 'Not authorized to create admin'})
 
-    const createUser = { name: name.trim(), email: email.trim(), password: hash, roles: roles ?? [ROLES_LIST.User], active: active ?? true}
+    const createUser = { name: name.trim(), email: email.trim(), password: hashedPassword, roles: roles ?? [ROLES_LIST.User], active: active ?? true}
     const user = await User.create(createUser)
 
-    if (user) {
-        res.status(201).json({name: user.name, email, roles: user.roles, active: user.active})
-    } else {
-        res.status(400).json({ error: 'Invalid user data received' })
-    }
+    user ?  res.status(201).json({name: user.name, email, roles: user.roles, active: user.active}) : res.status(400).json({ error: 'Invalid user data received' })
 }
 
 exports.update = async (req, res) => {
@@ -69,9 +64,8 @@ exports.update = async (req, res) => {
 
     if(req.body.password){
         if(!validator.isStrongPassword(req.body.password)) return res.status(400).json({ error: 'Password not strong enough' })
-        const salt = await bcrypt.genSalt(10)
-        const hash = await bcrypt.hash(req.body.password, salt)
-        req.body.password = hash
+        const hashedPassword = await bcrypt.hash(req.body.password, 10)
+        req.body.password = hashedPassword 
     }
 
     if(roles){if (!Array.isArray(roles) || !roles.length) return res.status(400).json({ error: 'Invalid roles data type received' })}
