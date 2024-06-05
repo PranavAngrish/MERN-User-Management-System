@@ -39,7 +39,7 @@ exports.create = async (req, res) => {
 
     if(roles == ROLES_LIST.Admin) return res.status(400).json({error: 'Not authorized to create admin'})
 
-    const createUser = { name: name.trim(), email: email.trim(), password: hashedPassword, roles: roles ?? [ROLES_LIST.User], active: active ?? true}
+    const createUser = { name: name.trim(), email: email.trim(), password: { hashed: hashedPassword }, roles: roles ?? [ROLES_LIST.User], active: active ?? true}
     const user = await User.create(createUser)
 
     user ?  res.status(201).json({name: user.name, email, roles: user.roles, active: user.active}) : res.status(400).json({ error: 'Invalid user data received' })
@@ -65,11 +65,14 @@ exports.update = async (req, res) => {
     if(req.body.password){
         if(!validator.isStrongPassword(req.body.password)) return res.status(400).json({ error: 'Password not strong enough' })
         const hashedPassword = await bcrypt.hash(req.body.password, 10)
-        req.body.password = hashedPassword 
+        req.body.password = { hashed: hashedPassword } 
     }
 
     if(roles){if (!Array.isArray(roles) || !roles.length) return res.status(400).json({ error: 'Invalid roles data type received' })}
-    if(active){if(typeof active !== 'boolean') return res.status(400).json({ error: 'Invalid active data type received' })}
+    if(active){
+        if(typeof active !== 'boolean') return res.status(400).json({ error: 'Invalid active data type received' })
+        req.body = {...req.body, password: { errorCount: 0 }, otp: { requests: 0, errorCount: 0 }}
+    }
 
     const rootUser = await User.findById(id).lean().exec()
     if(rootUser.roles == "Root") return res.status(400).json({error: 'Not authorized to edit this user'})
@@ -79,7 +82,7 @@ exports.update = async (req, res) => {
     if (!user) return res.status(400).json({error: 'Something went wrong, during update'})
 
     // res.status(200).json(`${updatedUser.name} details updated`)
-    const users = await User.find().select('-password').lean()
+    const users = await User.find().select('-password -otp').lean().exec()
     res.status(200).json(users)
 }
 

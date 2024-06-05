@@ -27,12 +27,18 @@ const userSchema = new mongoose.Schema({
     type: [String],
     default: ["User"]
   },
-
-  otpRequests: { 
-    type: Number, 
-    default: 0 
+  otp: {
+    requests: { 
+      type: Number, 
+      default: 0 
+    },
+    requestDate: Date,
+    errorCount: { 
+      type: Number, 
+      default: 0 
+    },
+    errorDate: Date,
   },
-  otpRequestDate: Date,
   active: {
     type: Boolean,
     default: true
@@ -68,7 +74,9 @@ userSchema.statics.login = async function(email, password) {
 
   const user = await this.findOne({ email: email.trim() }).exec()
   if (!user) throw Error('Incorrect Email')
-
+    
+  if(!user.active) throw Error('Your account has been temporarily blocked. Please reach out to our Technical Support team for further assistance.')
+  
   const match = await bcrypt.compare(password, user.password.hashed)
   
   if (!match) {

@@ -28,7 +28,7 @@ exports.login = async (req, res) => {
     })
 
     if (reCaptchaRe.data.success && reCaptchaRe.data.score > 0.5) {
-      const user = await User.login(email, password, res)
+      const user = await User.login(email, password)
       const accessToken = createAccessToken(user._id)
       const refreshToken = createRefreshToken(user._id)
 
@@ -110,13 +110,13 @@ exports.refresh = (req, res) => {
       const foundUser = await User.findOne({ _id: decoded._id }).lean().exec()
       if (!foundUser) return res.status(401).json({ error: 'Unauthorized user not found' })
 
-      if(foundUser.active){
-        const accessToken = createAccessToken(foundUser._id)
-        res.status(200).json({ name: foundUser.name, email: foundUser.email, roles: foundUser.roles, accessToken })
-      }else{
+      if(!foundUser.active){
         res.clearCookie('jwt', { httpOnly: true, sameSite: 'Lax', secure: true })
-        res.status(400).json({ error: 'Your account has been blocked' })
+        return res.status(400).json({ error: 'Your account has been blocked' })
       }
+
+      const accessToken = createAccessToken(foundUser._id)
+      res.status(200).json({ name: foundUser.name, email: foundUser.email, roles: foundUser.roles, accessToken })
     }
   )
 }
