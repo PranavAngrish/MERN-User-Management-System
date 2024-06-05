@@ -14,10 +14,13 @@ const VerifyOTP = ({ email, setOTPVerify }) => {
     try {
       const otp = otpRefs.current.map(ref => ref.current.value).join('')
       const response = await axiosPublic.post('/api/auth/verify-OTP', { email, otp })
-      setOTPVerify(response.data.optVerified)
-      // navigate('/not-found')
+      setOTPVerify(response.data.otpVerified)
+      setError(null)
     } catch (error) {
       setError(error.response.data.error)
+      if(!error.response.data.otpVerifie){
+        setTimeout(() => navigate('/not-found'), 7000)
+      }
     }
   }
 

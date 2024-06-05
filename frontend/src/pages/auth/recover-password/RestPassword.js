@@ -24,14 +24,15 @@ const RestPassword = ({ email }) => {
     try {
       const passwordMatch = passwordRef.current.value === confirmPasswordRef.current.value
       if(!passwordMatch) throw Error("Passwords don't match")
-      const response = await axiosPublic.post('/api/auth/rest-password', {email, password: passwordRef.current.value})
-      if(response.data.passwordUpdated) {
-        setError(null)
-        navigate('/login')
-      }
-    } catch (error) {
-      console.log(error)
+      await axiosPublic.post('/api/auth/rest-password', {email, password: passwordRef.current.value})
+      setError(null)
+      navigate('/login')
+     }catch (error) {
+      // console.log(error)
       setError(error.response?.data.error ? error.response.data.error : error.message)
+      if(!error.response.data.passwordUpdated){
+        setTimeout(() => navigate('/not-found'), 6000)
+      }
     }
   }
 

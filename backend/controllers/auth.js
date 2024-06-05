@@ -11,6 +11,15 @@ const url = require('../config/url')
 const createAccessToken = (_id) => jwt.sign({_id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
 const createRefreshToken = (_id) => jwt.sign({_id}, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
 
+const generateOTPToken = (email) => {
+  const otp = Math.floor(100000 + Math.random() * 900000).toString()
+  const payload = { email, otp }
+  const token = jwt.sign(payload, process.env.OTP_TOKEN_SECRET, { expiresIn: '5m' })
+  return { otp, token }
+}
+
+const verificationStatus = {}
+
 exports.login = async (req, res) => {
   try {
     const { email, password, token } = req.body
@@ -19,7 +28,7 @@ exports.login = async (req, res) => {
     })
 
     if (reCaptchaRe.data.success && reCaptchaRe.data.score > 0.5) {
-      const user = await User.login(email, password)
+      const user = await User.login(email, password, res)
       const accessToken = createAccessToken(user._id)
       const refreshToken = createRefreshToken(user._id)
 
@@ -119,18 +128,14 @@ exports.logout = async (req, res) => {
   res.status(200).json({ error: 'Logout successful '})
 }
 
-const generateOTPToken = (email) => {
-  const otp = Math.floor(100000 + Math.random() * 900000).toString()
-  const payload = { email, otp }
-  const token = jwt.sign(payload, process.env.OTP_TOKEN_SECRET, { expiresIn: '5m' })
-  return { otp, token }
-}
-
-exports.recoverEmail = async (req, res) => {
+exports.verifyEmail = async (req, res) => {
   try {
     const { email } = req.body
-    
-    const isEmailEmpty = validator.isEmpty(email, { ignore_whitespace:true })
+    let isEmailVerified = false
+
+    verificationStatus[email] = { emailVerified: isEmailVerified }
+
+    const isEmailEmpty = validator.isEmpty(email ?? '', { ignore_whitespace:true })
   
     if (isEmailEmpty) throw Error('Email Address Require')
     if (!validator.isEmail(email)) throw Error('Email not valid')
@@ -138,21 +143,23 @@ exports.recoverEmail = async (req, res) => {
     const emailExist = await User.findOne({ email: email}).exec()
     if (!emailExist) throw Error('Email Address Not Found')
   
-    // if(!emailExist.active) throw Error('Your account has been blocked')
+    if(!emailExist.active) return res.status(403).json({ error: 'Your account has been temporarily blocked. Please reach out to our Technical Support team for further assistance.', emailVerified: isEmailVerified })
 
     const now = new Date()
-    if (emailExist.otpRequests > 3 && emailExist.otpRequestDate && now - emailExist.otpRequestDate < 24 * 60 * 60 * 1000) {
-      return res.status(429).json({ error: 'Too many OTP requests. Please try again tomorrow.' })
+    const day = 24 * 60 * 60 * 1000
+
+    if (emailExist.otp.requests >= 3 && emailExist.otp.requestDate && (now - emailExist.otp.requestDate) < day) {
+      return res.status(429).json({ error: 'Too many OTP requests. Please try again tomorrow.', emailVerified: isEmailVerified })
     }
 
-    if (now - emailExist.otpRequestDate >= 24 * 60 * 60 * 1000) {
-      emailExist.otpRequests = 0
+    if ((now - emailExist.otp.requestDate) >= day) {
+      await User.updateOne({ email }, {$set: { 'otp.requests': 0}})
     }
   
     const { otp, token } = generateOTPToken(email)
 
-    emailExist.otpRequests += 1
-    emailExist.otpRequestDate = new Date()
+    emailExist.otp.requests += 1
+    emailExist.otp.requestDate = new Date()
     await emailExist.save()
 
     await redisClient.set(email, token, { EX: 300 })
@@ -160,54 +167,86 @@ exports.recoverEmail = async (req, res) => {
     resetPassword.receiveOTP(email, otp)
     // console.log(`Generated OTP for ${req.ip}: ${otp}`);
 
-    res.status(200).json({ email, mailVerify: true })
+    isEmailVerified = true
+    verificationStatus[email].emailVerified = isEmailVerified
+    res.status(200).json({ email, emailVerified: isEmailVerified })
   } catch (error) {
     res.status(400).json({ error: error.message })
   }
 }
 
 exports.verifyOTP = async (req, res) => {
-  const { email, otp } = req.body
-
   try {
-    const otpToken = await redisClient.get(email)
-    if (!otpToken) return res.status(400).json({ error: 'Invalid or expired OTP' })
+    const { otp } = req.body
+    const email = req.email
+    let isOtpVerified = false
 
+    verificationStatus[email].otpVerified = isOtpVerified
+    const otpToken = await redisClient.get(email)
+    const isOtpEmpty = validator.isEmpty(otp ?? '', { ignore_whitespace:true })
+
+    if (!otpToken || isOtpEmpty || otp.length < 6) return res.status(400).json({ error: 'Invalid OTP' })
+
+    const emailExist = await User.findOne({ email: email}).exec()
+    if(!emailExist || !emailExist.active) return res.status(403).json({ error: 'Your account has been blocked. Access has been prohibited for security reasons.', otpVerified: isOtpVerified })
+    
     jwt.verify(otpToken, process.env.OTP_TOKEN_SECRET, async (err, decoded) => {
-      if (err || decoded.otp !== otp) return res.status(400).json({ error: 'Invalid or expired OTP' })
+      if (err || decoded.otp !== otp){
+        const now = new Date()
+        const day = 24 * 60 * 60 * 1000
+    
+        if (emailExist.otp.errorCount >= 3 && emailExist.otp.errorDate && (now - emailExist.otp.errorDate) < day) {
+          await User.updateOne({ email }, {$set: { 'active': false }})
+          return res.status(429).json({ error: "You've tried too many times with an incorrect OTP, this account has been temporarily blocked for security reasons. Please reach out to our Technical Support team for further assistance.", otpVerified: isOtpVerified })
+        }
+    
+        if ((now - emailExist.otp.errorDate) >= day) {
+          await User.updateOne({ email }, {$set: { 'otp.errorCount': 0}})
+        }
+        
+        if(!emailExist.active) return res.status(403).json({ error: 'Your account has been temporarily blocked. Please reach out to our Technical Support team for further assistance.', otpVerified: isOtpVerified })
+        
+        emailExist.otp.errorCount += 1
+        emailExist.otp.errorDate = new Date()
+        await emailExist.save()
+
+        return res.status(400).json({ error: 'Invalid or expired OTP' })
+      }
 
       await redisClient.del(email)
 
-      res.status(200).json({ optVerified: true })
+      isOtpVerified = true
+      verificationStatus[email].otpVerified = isOtpVerified
+      res.status(200).json({ otpVerified: isOtpVerified })
     })
   } catch (error) {
-    console.error('Error verifying OTP:', error)
     res.status(500).json({ error: 'Internal server error' })
   }
 }
 
 exports.restPassword = async (req, res) => {
   try {
-    const { email, password } = req.body
-    console.log(password, typeof password)
-    const isEmailEmpty = validator.isEmpty(email, { ignore_whitespace:true })
-    const isPasswordEmpty = validator.isEmpty(password ?? '', { ignore_whitespace:true })
+    const { password } = req.body
+    const email = req.email
+    let isPasswordUpdated = false
 
-    if (isEmailEmpty) throw Error('Email Address Require')
-    if (!validator.isEmail(email)) throw Error('Email not valid')
+    const isPasswordEmpty = validator.isEmpty(password ?? '', { ignore_whitespace:true })
 
     if (isPasswordEmpty) throw Error('Password Require')
     if (!validator.isStrongPassword(password)) throw Error('Password not strong enough')
   
     const emailExist = await User.findOne({ email: email }).lean()
-    if (!emailExist) throw Error('Email Address Not Found')
+    if(!emailExist || !emailExist.active) return res.status(403).json({ error: 'Your account has been blocked. Access has been prohibited for security reasons.', passwordUpdated: isPasswordUpdated })
   
     const hashedPassword = await bcrypt.hash(password, 10)
+    await User.updateOne({ email }, { $set: { 'password.hashed': hashedPassword } })
 
-    await User.updateOne({ email }, { password: hashedPassword })
-
-    res.status(200).json({ passwordUpdated: true })
+    delete verificationStatus[email]
+    isPasswordUpdated = true
+    res.status(200).json({ passwordUpdated: isPasswordUpdated })
   } catch (error) {
     res.status(400).json({ error: error.message })
   }
 }
+
+exports.verificationStatus = verificationStatus

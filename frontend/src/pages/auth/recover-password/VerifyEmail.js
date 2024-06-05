@@ -9,7 +9,7 @@ const VerifyEmail = () => {
   const emailRef = useRef('')
   const navigate = useNavigate()
   const [ email, setEmail ] = useState(null)
-  const [ mailVerify, setMailVerify] = useState(false)
+  const [ emailVerified, setEmailVerified] = useState(false)
   const [ otpVerify, setOTPVerify ] = useState(false)
   const [ error, setError ] = useState(null)
 
@@ -18,7 +18,7 @@ const VerifyEmail = () => {
 
     try {
       const response = await axiosPublic.post('/api/auth/verify-email', {email: emailRef.current.value.trim()})
-      setMailVerify(response.data.mailVerify)
+      setEmailVerified(response.data.emailVerified)
       setEmail(response.data.email)
       // navigate('/not-found')
     } catch (error) {
@@ -28,7 +28,7 @@ const VerifyEmail = () => {
 
   return (
     <>
-      {!mailVerify && (<div className="otp-container">
+      {!emailVerified && (<div className="otp-container">
           <div className="row justify-content-center">
             <div className="col text-center">
               <div className="otp-box">
@@ -46,9 +46,9 @@ const VerifyEmail = () => {
           </div>
         </div>)}
 
-      {mailVerify && !otpVerify && <VerifyOTP setOTPVerify={setOTPVerify} email={email}/>}
+      {emailVerified && !otpVerify && <VerifyOTP setOTPVerify={setOTPVerify} email={email}/>}
 
-      {mailVerify && otpVerify && <RestPassword email={email}/>}
+      {emailVerified && otpVerify && <RestPassword email={email}/>}
     </>
   )
 }
