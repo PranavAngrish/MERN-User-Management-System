@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useAuthContext } from '../context/auth'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import axios from '../api/axios' 
+import jwt_decode from 'jwt-decode'
 
 export const useLogin = () => {
   const { executeRecaptcha } = useGoogleReCaptcha()
@@ -9,7 +10,7 @@ export const useLogin = () => {
   const [error, setError] = useState(null)
   const [isLoading, setIsLoading] = useState(null)
 
-  const login = async (email, password) => {
+  const login = async (email, password, persist) => {
     if (!executeRecaptcha) {
       setError('Execute recaptcha not yet available')
       return
@@ -20,8 +21,9 @@ export const useLogin = () => {
     setError(null)
 
     try {
-      const response = await axios.post('/api/auth/login', { email, password, token})
-      dispatch({type: 'LOGIN', payload: response.data})
+      const response = await axios.post('/api/auth/login', { email, password, persist, token})
+      const decoded = jwt_decode(response.data)
+      dispatch({type: 'LOGIN', payload: {...decoded.userInfo, accessToken: response.data}})
       setIsLoading(false)
     } catch (error) {
       setIsLoading(false)

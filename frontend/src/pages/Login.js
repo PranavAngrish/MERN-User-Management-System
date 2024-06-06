@@ -14,7 +14,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    await login(emailRef.current.value.trim(), passwordRef.current.value.trim())
+    await login(emailRef.current.value.trim(), passwordRef.current.value.trim(), persist)
   }
 
   const handleShowPassword =  (e) => {

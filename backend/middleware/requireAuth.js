@@ -15,7 +15,8 @@ const requireAuth = async (req, res, next) => {
       if (err?.name == "TokenExpiredError") return res.status(403).json({ error: 'Forbidden token expired'})
       if (err) return res.status(403).json({ error: 'Forbidden'})
 
-      const checkActive = await User.findOne({ _id: decoded._id }).select('_id active roles').lean().exec()
+      const checkActive = await User.findOne({ _id: decoded.userInfo._id }).select('_id active roles').lean().exec()
+      if (!checkActive) return res.status(401).json({ error: 'Unauthorized user not found' })
       
       if(checkActive.active){
         req.user = checkActive._id

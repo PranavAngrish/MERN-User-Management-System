@@ -8,7 +8,7 @@ const resetPassword= require('../config/resetPassword')
 const redisClient = require('../config/redisConn')
 const url = require('../config/url')
 
-const createAccessToken = (_id) => jwt.sign({_id}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
+const createAccessToken = (userInfo) => jwt.sign(userInfo, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
 const createRefreshToken = (_id) => jwt.sign({_id}, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
 
 const generateOTPToken = (email) => {
@@ -22,21 +22,22 @@ const verificationStatus = {}
 
 exports.login = async (req, res) => {
   try {
-    const { email, password, token } = req.body
+    const { email, password, persist, token } = req.body
     const reCaptchaRe = await axios.post(`https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${token}`, {
       headers: {"Content-Type": "application/x-www-form-urlencoded"}
     })
 
-    if (reCaptchaRe.data.success && reCaptchaRe.data.score > 0.5) {
-      const user = await User.login(email, password)
-      const accessToken = createAccessToken(user._id)
+    if(!reCaptchaRe.data.success && !(reCaptchaRe.data.score > 0.5)) throw Error('Google ReCaptcha Validation Failure')
+   
+    const user = await User.login(email, password)
+    const accessToken = createAccessToken({userInfo: {_id: user._id, name: user.name, email, roles: user.roles}})
+    
+    if(persist){
       const refreshToken = createRefreshToken(user._id)
-
       res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
-      res.status(200).json({name: user.name, email, roles: user.roles, accessToken})
-    } else {
-      throw Error('Google ReCaptcha Validation Failure')
     }
+
+    res.status(200).json(accessToken)
   } catch (error) {
     res.status(400).json({error: error.message})
   }
@@ -44,7 +45,7 @@ exports.login = async (req, res) => {
 
 exports.signup = async (req, res) => {
   try {
-    const { name, email, password } = req.body
+    const { name, email, password, persist } = req.body
     const isNameEmpty = validator.isEmpty(name ?? '', { ignore_whitespace:true })
     const isEmailEmpty = validator.isEmpty(email ?? '', { ignore_whitespace:true })
     const isPasswordEmpty = validator.isEmpty(password ?? '', { ignore_whitespace:true })
@@ -57,7 +58,7 @@ exports.signup = async (req, res) => {
   
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    const newUser = { name, email, password: hashedPassword }
+    const newUser = { name, email, password: hashedPassword, persist }
     const activation_token = jwt.sign(newUser, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
     
     const activateUrl = `${url}/activate/${activation_token}`
@@ -80,11 +81,14 @@ exports.activate = async (req, res) => {
 
         try {
           const user = await User.signup(decoded.name, decoded.email, decoded.password)
-          const accessToken = createAccessToken(user._id)
-          const refreshToken = createRefreshToken(user._id)
+          const accessToken = createAccessToken({ userInfo: {_id: user._id, name: user.name, email, roles: user.roles} })
 
-          res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
-          res.status(200).json({name: user.name, email: user.email, roles: user.roles, accessToken})
+          if(persist){
+            const refreshToken = createRefreshToken(user._id)
+            res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
+          }
+
+          res.status(200).json(accessToken)
         } catch (error) {
           res.status(400).json({error: error.message})
         }
