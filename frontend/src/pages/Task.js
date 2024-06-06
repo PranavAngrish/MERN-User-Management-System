@@ -37,8 +37,7 @@ const Task = () => {
         isMounted && dispatch({type: 'SET_TASKS', payload: response.data})
         setError(null)
       } catch (err) {
-        console.log(err)
-        setError(err.response.data.error)
+        setError(err.response?.data.error)
         // console.log(err)
       }
     }

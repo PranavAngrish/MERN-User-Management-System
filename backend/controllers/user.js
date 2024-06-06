@@ -56,6 +56,8 @@ exports.update = async (req, res) => {
     const checkUser = await User.findById(id).exec()
     if (!checkUser) return res.status(400).json({ error: 'User not found' })
 
+    const updateFields = { ...req.body }
+
     if(email){
         if(!validator.isEmail(email)) return res.status(400).json({ error: 'Email not valid'})
         const duplicateEmail = await User.findOne({ email:email }).collation({ locale: 'en', strength: 2 }).lean().exec()
@@ -65,20 +67,21 @@ exports.update = async (req, res) => {
     if(req.body.password){
         if(!validator.isStrongPassword(req.body.password)) return res.status(400).json({ error: 'Password not strong enough' })
         const hashedPassword = await bcrypt.hash(req.body.password, 10)
-        req.body.password = { hashed: hashedPassword } 
+        updateFields.password = { hashed: hashedPassword, errorCount: 0}
     }
 
     if(roles){if (!Array.isArray(roles) || !roles.length) return res.status(400).json({ error: 'Invalid roles data type received' })}
     if(active){
         if(typeof active !== 'boolean') return res.status(400).json({ error: 'Invalid active data type received' })
-        req.body = {...req.body, password: { errorCount: 0 }, otp: { requests: 0, errorCount: 0 }}
+        console.log(checkUser)
+        Object.assign(updateFields, { password: { hashed: checkUser.password.hashed, errorCount: 0 }, otp: { requests: 0, errorCount: 0 }})
     }
 
     const rootUser = await User.findById(id).lean().exec()
     if(rootUser.roles == "Root") return res.status(400).json({error: 'Not authorized to edit this user'})
     if(req.roles == ROLES_LIST.Admin && rootUser.roles == ROLES_LIST.Admin) return res.status(400).json({error: 'Not authorized to edit this user'})
 
-    const user = await User.findOneAndUpdate({_id: id}, {...req.body}).lean().exec()
+    const user = await User.findOneAndUpdate({ _id: id }, { $set: updateFields }).lean().exec()
     if (!user) return res.status(400).json({error: 'Something went wrong, during update'})
 
     // res.status(200).json(`${updatedUser.name} details updated`)

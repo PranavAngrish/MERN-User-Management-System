@@ -43,7 +43,7 @@ const Sleep = () => {
         setError(null)
       } catch (err) {
         dispatch({type: 'SET_SLEEPS', payload: []})
-        setError(err.response.data.error)
+        setError(err.response?.data.error)
         // console.log(err)
       }
     }
