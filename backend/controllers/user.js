@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
-const User = require('../models/User')
-const Note = require('../models/Note')
 const validator = require('validator')
+const Note = require('../models/Note')
+const User = require('../models/user/User')
 const ROLES_LIST = require('../config/rolesList')
 const bcrypt = require('bcrypt')
 
@@ -46,47 +46,57 @@ exports.create = async (req, res) => {
 }
 
 exports.update = async (req, res) => {
-    const { id, name, email, roles, active } = req.body
-
-    const isIdEmpty = validator.isEmpty(id ?? "", { ignore_whitespace:true })
-    const isNameEmpty = validator.isEmpty(name ?? "", { ignore_whitespace:true })
-    if (isIdEmpty) return res.status(400).json({error: 'User id required'})
-    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({error: 'No such user id found'})
+    try {
+        const { id, name, email, roles, active } = req.body
     
-    const checkUser = await User.findById(id).exec()
-    if (!checkUser) return res.status(400).json({ error: 'User not found' })
+        const isIdEmpty = validator.isEmpty(id ?? "", { ignore_whitespace:true })
+        const isNameEmpty = validator.isEmpty(name ?? "", { ignore_whitespace:true })
+        if (isIdEmpty) return res.status(400).json({error: 'User id required'})
+        if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({error: 'No such user id found'})
+        
+        const checkUser = await User.findById(id).exec()
+        if (!checkUser) return res.status(400).json({ error: 'User not found' })
+    
+        const updateFields = {}
+    
+        if(isNameEmpty) { updateFields.name = name }
+    
+        if(email){
+            if(!validator.isEmail(email)) return res.status(400).json({ error: 'Email not valid'})
+            const duplicateEmail = await User.findOne({ email:email }).collation({ locale: 'en', strength: 2 }).lean().exec()
+            if (duplicateEmail && duplicateEmail?._id.toString() !== id) return res.status(409).json({ error: 'Email already in use' })
+            updateFields.email = email
+        }
+    
+        if(req.body.password){
+            if(!validator.isStrongPassword(req.body.password)) return res.status(400).json({ error: 'Password not strong enough' })
+            const hashedPassword = await bcrypt.hash(req.body.password, 10)
+            updateFields.password = { hashed: hashedPassword, errorCount: 0}
+        }
+    
+        if(roles){
+            if (!Array.isArray(roles) || !roles.length) return res.status(400).json({ error: 'Invalid roles data type received' })
+            updateFields.roles = roles
+        }
+    
+        if(active){
+            if(typeof active !== 'boolean') return res.status(400).json({ error: 'Invalid active data type received' })
+            console.log(checkUser)
+            Object.assign(updateFields, { active: active, password: { hashed: checkUser.password.hashed, errorCount: 0 }, otp: { requests: 0, errorCount: 0 }})
+        }
+    
+        const rootUser = await User.findById(id).lean().exec()
+        if(rootUser.roles == "Root") return res.status(400).json({error: 'Not authorized to edit this user'})
+        if(req.roles == ROLES_LIST.Admin && rootUser.roles == ROLES_LIST.Admin) return res.status(400).json({error: 'Not authorized to edit this user'})
 
-    const updateFields = { ...req.body }
-
-    if(email){
-        if(!validator.isEmail(email)) return res.status(400).json({ error: 'Email not valid'})
-        const duplicateEmail = await User.findOne({ email:email }).collation({ locale: 'en', strength: 2 }).lean().exec()
-        if (duplicateEmail && duplicateEmail?._id.toString() !== id) return res.status(409).json({ error: 'Email already in use' })
+        const updatedUser = await User.findByIdAndUpdate(id, { $set: updateFields }, { new: true, runValidators: true }).lean().exec()
+        if (!updatedUser) return res.status(404).send({ message: 'User not found, something went wrong, during update' })
+    
+        const users = await User.find().select('-password -otp').lean().exec()
+        res.status(200).json(users)
+    } catch (error) {
+         res.status(400).json({error: error.message})
     }
-
-    if(req.body.password){
-        if(!validator.isStrongPassword(req.body.password)) return res.status(400).json({ error: 'Password not strong enough' })
-        const hashedPassword = await bcrypt.hash(req.body.password, 10)
-        updateFields.password = { hashed: hashedPassword, errorCount: 0}
-    }
-
-    if(roles){if (!Array.isArray(roles) || !roles.length) return res.status(400).json({ error: 'Invalid roles data type received' })}
-    if(active){
-        if(typeof active !== 'boolean') return res.status(400).json({ error: 'Invalid active data type received' })
-        console.log(checkUser)
-        Object.assign(updateFields, { password: { hashed: checkUser.password.hashed, errorCount: 0 }, otp: { requests: 0, errorCount: 0 }})
-    }
-
-    const rootUser = await User.findById(id).lean().exec()
-    if(rootUser.roles == "Root") return res.status(400).json({error: 'Not authorized to edit this user'})
-    if(req.roles == ROLES_LIST.Admin && rootUser.roles == ROLES_LIST.Admin) return res.status(400).json({error: 'Not authorized to edit this user'})
-
-    const user = await User.findOneAndUpdate({ _id: id }, { $set: updateFields }).lean().exec()
-    if (!user) return res.status(400).json({error: 'Something went wrong, during update'})
-
-    // res.status(200).json(`${updatedUser.name} details updated`)
-    const users = await User.find().select('-password -otp').lean().exec()
-    res.status(200).json(users)
 }
 
 exports.delete = async (req, res) => {

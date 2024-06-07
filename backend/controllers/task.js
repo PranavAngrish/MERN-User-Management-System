@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
-const Task = require('../models/task')
-const User = require('../models/User')
 const validator = require('validator')
+const Task = require('../models/task')
+const User = require('../models/user/User')
 const ROLES_LIST = require('../config/rolesList')
 
 exports.getAll = async (req, res) => {
