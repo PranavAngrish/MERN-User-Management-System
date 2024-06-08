@@ -4,22 +4,52 @@ import { MdOutlineSecurity } from "react-icons/md"
 import axiosPublic from '../../../api/axios' 
 
 const VerifyOTP = ({ email, setOTPVerify }) => {
-  const otpRefs = useRef([...Array(6)].map(() => React.createRef()))
   const navigate = useNavigate()
+  const inputs = useRef([])
   const [ error, setError ] = useState(null)
+  const [ otp, setOtp ] = useState(Array(6).fill(''))
+
+  const handleChange = (e, index) => {
+    const value = e.target.value
+    if (/^\d$/.test(value)) {
+      const newOtp = [...otp]
+      newOtp[index] = value
+      setOtp(newOtp)
+      
+      if (index < 5) {
+        inputs.current[index + 1].focus()
+      }
+    }
+  }
+
+  const handleKeyDown = (e, index) => {
+    if (e.key === 'Backspace') {
+      const newOtp = [...otp]
+      if (otp[index] === '') {
+        if (index > 0) {
+          inputs.current[index - 1].focus()
+          newOtp[index - 1] = ''
+          setOtp(newOtp)
+        }
+      } else {
+        newOtp[index] = ''
+        setOtp(newOtp)
+      }
+    }
+  }
 
   const  handleSubmit = async (e) => {
     e.preventDefault()
 
     try {
-      const otp = otpRefs.current.map(ref => ref.current.value).join('')
-      const response = await axiosPublic.post('/api/auth/verify-OTP', { email, otp })
+      if(!(/^\d{6}$/.test(otp.join('')))) return setError('Invalid OTP')
+      const response = await axiosPublic.post('/api/auth/verify-OTP', { email, otp: otp.join('') })
       setOTPVerify(response.data.otpVerified)
       setError(null)
     } catch (error) {
       setError(error.response.data.error)
       if(!error.response.data.otpVerifie){
-        setTimeout(() => navigate('/not-found'), 7000)
+        setTimeout(() => navigate('/not-found'), 10000)
       }
     }
   }
@@ -34,7 +64,17 @@ const VerifyOTP = ({ email, setOTPVerify }) => {
             <div className="description">A 6-digit OTP (One-Time Password) has been sent to {email}. Kindly check your email and enter the OTP code below.</div>
             <form onSubmit={handleSubmit}>
               <div className="otp-inputs gap-2 my-4">
-                {[...Array(6)].map((_, index) => (<input className="otp-input" key={index} type="tel" min="0" maxLength="1" ref={otpRefs.current[index]}/>))}
+                {otp.map((data, index) => (
+                  <input 
+                    className="otp-input"
+                    key={index} 
+                    type="text" 
+                    maxLength="1" 
+                    value={data} 
+                    onChange={(e) => handleChange(e, index)}
+                    onKeyDown={(e) => handleKeyDown(e, index)}
+                    ref={(el) => (inputs.current[index] = el)} />
+                ))}
               </div>
               <button type="submit" className="otp-button btn btn-primary mb-1">Verify OTP</button>
             </form>

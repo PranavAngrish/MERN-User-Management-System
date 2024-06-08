@@ -31,7 +31,7 @@ const RestPassword = ({ email }) => {
       // console.log(error)
       setError(error.response?.data.error ? error.response.data.error : error.message)
       if(!error.response.data.passwordUpdated){
-        setTimeout(() => navigate('/not-found'), 6000)
+        setTimeout(() => navigate('/not-found'), 10000)
       }
     }
   }
