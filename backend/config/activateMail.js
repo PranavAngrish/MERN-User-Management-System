@@ -4,6 +4,7 @@ const { ADMIN_EMAIL, ADMIN_PASS } = process.env
 const activateMailAccount = (to, url, text) => {
     const smtpTransport = nodemailer.createTransport({
         service: "gmail",
+        secure: true,
         auth: {
             user: ADMIN_EMAIL,
             pass: ADMIN_PASS

@@ -1,6 +1,7 @@
 import axios from '../api/axios' 
 import { useAuthContext } from '../context/auth' 
 import { useLogout } from '../hooks/useLogout'
+import jwt_decode from 'jwt-decode'
 
 const useRefreshToken = () => {
     const { dispatch } = useAuthContext()
@@ -9,8 +10,9 @@ const useRefreshToken = () => {
     const refresh = async () => {
         try {
             const response = await axios.post('/api/auth/refresh') 
-            dispatch({type: 'LOGIN', payload: response.data})
-            return response.data.accessToken
+            const decoded = jwt_decode(response.data)
+            dispatch({type: 'LOGIN', payload: {...decoded.userInfo, accessToken: response.data}})
+            return response.data
         } catch (error) {
             // console.log(error)
             const wrongToken = (error.response.status === 403 && error.response.data.error === "Forbidden")

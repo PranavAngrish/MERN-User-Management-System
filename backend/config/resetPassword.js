@@ -4,6 +4,7 @@ const { ADMIN_EMAIL, ADMIN_PASS } = process.env
 const receiveOTP = (to, otp) => {
     const smtpTransport = nodemailer.createTransport({
         service: "gmail",
+        secure: true,
         auth: {
             user: ADMIN_EMAIL,
             pass: ADMIN_PASS

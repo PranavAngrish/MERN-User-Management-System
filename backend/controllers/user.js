@@ -5,6 +5,8 @@ const User = require('../models/user/User')
 const ROLES_LIST = require('../config/rolesList')
 const bcrypt = require('bcrypt')
 
+const options = { host_whitelist: ['gmail.com', 'yahoo.com', 'outlook.com'] }
+
 exports.getAll = async (req, res) => {
     let users
     if(req.roles == "Root"){
@@ -27,7 +29,7 @@ exports.create = async (req, res) => {
     const isPasswordEmpty = validator.isEmpty(password ?? "", { ignore_whitespace:true })
 
     if (isNameEmpty || isEmailEmpty || isPasswordEmpty) return res.status(400).json({ error: 'All fields must be filled'})
-    if (!validator.isEmail(email)) return res.status(400).json({ error: 'Email not valid'})
+    if (!validator.isEmail(email, options)) return res.status(400).json({ error: 'Email not valid'})
     if (!validator.isStrongPassword(password)) return res.status(400).json({ error: 'Password not strong enough'})
     if(roles){if (!Array.isArray(roles) || !roles.length) return res.status(400).json({ error: 'Invalid roles data type received' })}
     if(active){if(typeof active !== 'boolean') return res.status(400).json({ error: 'Invalid active data type received' })}
@@ -62,7 +64,7 @@ exports.update = async (req, res) => {
         if(isNameEmpty) { updateFields.name = name }
     
         if(email){
-            if(!validator.isEmail(email)) return res.status(400).json({ error: 'Email not valid'})
+            if(!validator.isEmail(email, options)) return res.status(400).json({ error: 'Email not valid'})
             const duplicateEmail = await User.findOne({ email:email }).collation({ locale: 'en', strength: 2 }).lean().exec()
             if (duplicateEmail && duplicateEmail?._id.toString() !== id) return res.status(409).json({ error: 'Email already in use' })
             updateFields.email = email
