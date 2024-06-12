@@ -8,6 +8,8 @@ const resetPassword= require('../config/resetPassword')
 const redisClient = require('../config/redisConn')
 const url = require('../config/url')
 
+const options = { host_whitelist: ['gmail.com', 'yahoo.com', 'outlook.com'] }
+
 const createAccessToken = (userInfo) => jwt.sign(userInfo, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
 const createRefreshToken = (_id) => jwt.sign({_id}, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
 
@@ -43,6 +45,16 @@ exports.login = async (req, res) => {
   }
 }
 
+exports.googleLogin = (req, res) => {
+  if(req.session.persist){
+    const refreshToken = createRefreshToken(req.user._id)
+    res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
+    delete req.session.persist
+  }
+  
+  res.redirect(`${process.env.CLIENT_URL}?token=${req.user.accessToken}`)
+}
+
 exports.signup = async (req, res) => {
   try {
     const { name, email, password, persist } = req.body
@@ -50,7 +62,7 @@ exports.signup = async (req, res) => {
     const isEmailEmpty = validator.isEmpty(email ?? '', { ignore_whitespace:true })
     const isPasswordEmpty = validator.isEmpty(password ?? '', { ignore_whitespace:true })
     if (isNameEmpty || isEmailEmpty || isPasswordEmpty) throw Error('All fields must be filled')
-    if (!validator.isEmail(email)) throw Error('Email not valid')
+    if (!validator.isEmail(email, options)) throw Error('Email not valid')
     if (!validator.isStrongPassword(password)) throw Error('Password not strong enough')
   
     const exists = await User.findOne({ email }).lean().exec()
@@ -116,11 +128,11 @@ exports.refresh = (req, res) => {
 
       if(!foundUser.active){
         res.clearCookie('jwt', { httpOnly: true, sameSite: 'Lax', secure: true })
-        return res.status(400).json({ error: 'Your account has been blocked' })
+        return res.status(403).json({ error: 'Your account has been blocked' })
       }
 
-      const accessToken = createAccessToken(foundUser._id)
-      res.status(200).json({ name: foundUser.name, email: foundUser.email, roles: foundUser.roles, accessToken })
+      const accessToken = createAccessToken({userInfo: {_id: foundUser._id, name: foundUser.name, email: foundUser.email, roles: foundUser.roles}})
+      res.status(200).json(accessToken)
     }
   )
 }
