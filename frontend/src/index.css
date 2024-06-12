@@ -460,3 +460,22 @@ form.login {
   padding: 10px;
   font-size: 16px;
 }
+
+.google-sign-in {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px 15px;
+  margin: auto;
+  margin-bottom: 20px;
+  font-size: 16px;
+  background-color: white;
+  color: #555;
+}
+
+.google-hr {
+  max-width: 400px;
+  margin: auto;
+  margin-bottom: 25px;
+}

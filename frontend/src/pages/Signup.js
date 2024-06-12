@@ -5,6 +5,7 @@ import { BsInfoCircleFill } from 'react-icons/bs'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { TbMailForward } from 'react-icons/tb'
 import usePersist from '../hooks/usePersist'
+import SignInWithGoogleButton from '../components/auth/SignInWithGoogleButton'
 
 const Signup = () => {
   const { signup, error, isLoading, mailSent} = useSignup()
@@ -61,6 +62,9 @@ const Signup = () => {
                   </ul>)}
               </div>)}
           </form>
+
+          <div className="google-hr"><hr/></div>
+          <SignInWithGoogleButton/>
 
           {persist && (<div className="alert alert-info" role="alert" style={{maxWidth: "400px", margin: "0 auto"}}>
             <div className="d-flex align-items-center mx-3">

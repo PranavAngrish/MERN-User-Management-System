@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ROLES } from '../config/roles'
 import { usePathContext } from '../context/path'
@@ -5,12 +6,24 @@ import { useAuthContext } from '../context/auth'
 import { useUserContext } from '../context/user'
 import { FaUserFriends, FaTasks, FaStickyNote, FaUserCog } from 'react-icons/fa'
 import { GiNightSleep } from 'react-icons/gi'
+import jwt_decode from 'jwt-decode'
 
 const Home = () => {
-    const { auth } = useAuthContext()
+    const { auth, dispatch } = useAuthContext()
     const { setLink } = usePathContext()
     const { setTargetUser } = useUserContext()
-    const accessRight = (auth?.roles == ROLES.Admin) || (auth?.roles == ROLES.Root)
+    const roleToSrting = auth?.roles.toString()
+    const accessRight = (roleToSrting === ROLES.Admin) || (roleToSrting === ROLES.Root)
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search)
+        const token = params.get('token')
+        if(token){
+            const decoded = jwt_decode(token)
+            dispatch({type: 'LOGIN', payload: {...decoded.userInfo, accessToken: token}})
+            window.history.replaceState({}, document.title, "/")
+        }
+      }, [])
 
     const handleClick = (title) => {
         setLink(title)

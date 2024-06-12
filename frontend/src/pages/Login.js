@@ -3,12 +3,13 @@ import { useLogin } from '../hooks/useLogin'
 import { Link } from 'react-router-dom'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { BsInfoCircleFill } from 'react-icons/bs'
-import usePersist from '../hooks/usePersist'
+import usePersist from '../hooks/usePersist' 
+import SignInWithGoogleButton from '../components/auth/SignInWithGoogleButton'
 
 const Login = () => {
   const { login, error, isLoading } = useLogin()
   const { persist, setPersist } = usePersist()
-  const [changeIcon, setChangeIcon] = useState(false)
+  const [ changeIcon, setChangeIcon ] = useState(false)
   const emailRef = useRef('')
   const passwordRef = useRef('')
 
@@ -50,6 +51,10 @@ const Login = () => {
         <div className="signup-prompt mt-3">Create an account ? <Link to="/signup">Signup</Link></div>
         {error && <div className="error">{error}</div>}
       </form>
+
+      <div className="google-hr"><hr/></div>
+      <SignInWithGoogleButton/>
+
       {persist && (<div className="alert alert-info" role="alert" style={{maxWidth: "400px", margin: "0 auto"}}>
         <div className="d-flex align-items-center mx-3">
           <BsInfoCircleFill/><div className="mx-2"><strong>Info:</strong></div>

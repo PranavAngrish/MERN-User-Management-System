@@ -1,7 +1,13 @@
 const router = require('express').Router()
+const passport = require('passport')
 const authController = require('../controllers/auth')
 const loginLimiter = require('../middleware/loginLimiter')
 const verifyStatus = require('../middleware/verifyStatus')
+const { handlePersist, handleAuthFailure} = require('../middleware/googleAuth')
+
+// Oauth2.0 Google
+router.get('/google', handlePersist)
+router.get('/google/callback', handleAuthFailure, authController.googleLogin)
 
 router.post('/login', loginLimiter, authController.login)
 router.post('/signup', loginLimiter, authController.signup)

@@ -4,7 +4,14 @@ const passwordSchema = require('./password')
 const bcrypt = require('bcrypt')
 const validator = require('validator')
 
+const options = { host_whitelist: ['gmail.com', 'yahoo.com', 'outlook.com'] }
+
 const userSchema = new mongoose.Schema({
+  googleId: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
   name:{
     type: String,
     required: true,
@@ -35,7 +42,7 @@ userSchema.statics.signup = async function(name, email, password) {
   const isEmailEmpty = validator.isEmpty(email ?? '', { ignore_whitespace:true })
   const isPasswordEmpty = validator.isEmpty(password ?? '', { ignore_whitespace:true })
   if (isNameEmpty || isEmailEmpty || isPasswordEmpty) throw Error('All fields must be filled')
-  if (!validator.isEmail(email)) throw Error('Email not valid')
+  if (!validator.isEmail(email, options)) throw Error('Email not valid')
 
   const exists = await this.findOne({ email }).lean().exec()
   if (exists) throw Error('Email already in use')

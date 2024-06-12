@@ -20,7 +20,8 @@ import Sleep from './pages/Sleep'
 import Task from './pages/Task'
 import User from './pages/User'
 import Assign from './pages/Assign'
-import NotFound from './pages/NotFound'
+import Error from './pages/error/Error'
+import NotFound from './pages/error/NotFound'
 
 function App() {
   const { auth } = useAuthContext()
@@ -59,6 +60,7 @@ function App() {
               </Route>
             </Route>
             
+            <Route path="/error" element={<Error />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
