@@ -52,7 +52,7 @@ exports.googleLogin = (req, res) => {
     delete req.session.persist
   }
   
-  res.redirect(`${process.env.CLIENT_URL}?token=${req.user.accessToken}`)
+  res.redirect(`${url}?token=${req.user.accessToken}`)
 }
 
 exports.signup = async (req, res) => {

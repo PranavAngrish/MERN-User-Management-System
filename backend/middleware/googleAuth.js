@@ -1,4 +1,5 @@
 const passport = require('passport')
+const url = require('../config/url')
 
 const handlePersist = (req, res, next) => {
   req.session.persist = req.query.persist
@@ -10,11 +11,11 @@ const handleAuthFailure = (req, res, next) => {
     if (err || !user) {
       console.log(err)
       const message = info ? info.message : 'Authentication failed'
-      return res.redirect(`${process.env.CLIENT_URL}/error?message=${encodeURIComponent(message)}`)
+      return res.redirect(`${url}/error?message=${encodeURIComponent(message)}`)
     }
 
     req.logIn(user, { session: false }, (err) => {
-      if (err) return res.redirect(`${process.env.CLIENT_URL}/error?message=${encodeURIComponent('Login failed')}`)
+      if (err) return res.redirect(`${url}/error?message=${encodeURIComponent('Login failed')}`)
 
       return next()
     })
