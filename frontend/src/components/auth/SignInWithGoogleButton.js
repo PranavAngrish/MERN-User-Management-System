@@ -2,12 +2,10 @@
 import { useState } from 'react'
 import { FcGoogle } from "react-icons/fc"
 import { Button, Modal } from 'react-bootstrap'
-import usePersist from '../../hooks/usePersist' 
 import PersistLoginAlert from './PersistLoginAlert'
 import PersistLoginCheckbox from './PersistLoginCheckbox'
 
 const SignInWithGoogleButton = ({ persist, setPersist }) => {
-  // const { persist, setPersist } = usePersist()
   const [ show, setShow ] = useState(false)
 
   const handleLogin = () => window.location.href = `${process.env.REACT_APP_SERVER_URL}/api/auth/google?persist=${persist}`
