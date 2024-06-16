@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthContext } from './context/auth'
 import { usePathContext } from './context/path'
@@ -22,10 +23,23 @@ import User from './pages/User'
 import Assign from './pages/Assign'
 import Error from './pages/error/Error'
 import NotFound from './pages/error/NotFound'
+import io from 'socket.io-client'
 
 function App() {
   const { auth } = useAuthContext()
   const { link } = usePathContext()
+  
+  useEffect(() => {
+    if (auth?.accessToken) {
+      const socket = io(process.env.REACT_APP_SOCKET_URL)
+      socket.emit('setUserId', auth._id)
+      socket.emit('online', auth._id)
+
+      return () => {
+        socket.disconnect()
+      }
+    }
+  }, [auth])
 
   return (
     <div className="App">
@@ -69,4 +83,4 @@ function App() {
   )
 }
 
-export default App;
+export default App

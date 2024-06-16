@@ -7,6 +7,7 @@ import { usePathContext } from '../context/path'
 import useAxiosPrivate from '../hooks/useAxiosPrivate'
 import Details from '../components/users/Index'
 import Add from '../components/users/Add'
+import io from 'socket.io-client'
 
 const User = () => {
   const { auth } = useAuthContext()
@@ -17,8 +18,9 @@ const User = () => {
   const axiosPrivate = useAxiosPrivate()
   const roles = (auth.roles == ROLES.Admin) || (auth.roles == ROLES.Root)
   const admin =  auth && roles
-
+  
   useEffect(() => {
+    const socket = io(process.env.REACT_APP_SOCKET_URL)
     setTitle("User Management")
     let isMounted = true
     const abortController = new AbortController()
@@ -39,8 +41,14 @@ const User = () => {
       getAllUser()
     }
 
+    socket.on('adminUpdateUserList', (users) => {
+      console.log(users)
+      dispatch({type: 'SET_USER', payload: users})
+    })
+
     return () => {
       isMounted = false
+      socket.off('adminUpdateUserList')
       abortController.abort()
     }
   },[])
@@ -70,7 +78,9 @@ const User = () => {
                   <th scope="col">Name</th>
                   <th scope="col">Email</th>
                   <th scope="col">Roles</th>
-                  <th scope="col">Active</th>
+                  <th scope="col">Account Status</th>
+                  <th scope="col">Active Status</th>
+                  <th scope="col">Active Date</th>
                   <th scope="col">Action</th>
                 </tr>
               </thead>
