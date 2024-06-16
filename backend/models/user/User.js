@@ -31,6 +31,14 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  isOnline: {
+    type: Boolean,
+    default: false
+  },
+  lastActive: {
+    type: Date,
+    default: Date.now
+  },
   tasks:{
     type: [mongoose.Schema.Types.ObjectId],
     ref: 'Task'
@@ -47,7 +55,7 @@ userSchema.statics.signup = async function(name, email, password) {
   const exists = await this.findOne({ email }).lean().exec()
   if (exists) throw Error('Email already in use')
 
-  const newUser = {name: name.trim(), email: email.trim(), password: { hashed: password }}
+  const newUser = { name: name.trim(), email: email.trim(), password: { hashed: password } }
 
   const user = await this.create(newUser)
   if(!user) throw Error('Invalid user data received')

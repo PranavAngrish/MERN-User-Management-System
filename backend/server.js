@@ -1,21 +1,29 @@
 require('dotenv').config()
 const express = require('express')
+const http = require('http')
+const socketIo = require('socket.io')
 const mongoose = require('mongoose')
 const helmet = require("helmet")
+const cookieParser = require('cookie-parser')
+const session = require('express-session')
+const passport = require('passport')
 const corsMiddleware = require('./config/corsOptions')
 const { logger } = require('./middleware/logger')
 const errorHandler = require('./middleware/errorHandler')
-const cookieParser = require('cookie-parser')
 const connectDB = require('./config/dbConn')
-const session = require('express-session')
-const passport = require('passport')
-require('./config/passportSetup')
+const setupSocket = require('./middleware/onlineStatus')
+const passportSetup = require('./config/passportSetup')
+const url = require('./config/url')
 
 const port = process.env.PORT || 4000
 const app = express()
+const server = http.createServer(app)
+const io = socketIo(server, { cors: { origin: url, methods: ['GET', 'POST' ] } })
 
 connectDB()
-// app.use(logger)
+passportSetup()
+setupSocket(io)
+
 app.use(helmet())
 app.use(corsMiddleware)
 
@@ -41,10 +49,10 @@ app.use('/api/users', require('./routes/user'))
 app.use('/api/tasks', require('./routes/task'))
 app.use('/api/notes', require('./routes/note'))
 app.use('/api/sleeps', require('./routes/sleep'))
+// app.use(logger)
 // app.use(errorHandler)
 
 mongoose.connection.once('open', () => {
   console.log('Databse Connected Successfully!')
-  app.listen(port, () => console.log(`Server running on port ${port}`))
+  server.listen(port, () => console.log(`Server running on port ${port}`))
 })
-
