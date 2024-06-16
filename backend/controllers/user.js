@@ -10,11 +10,19 @@ const options = { host_whitelist: ['gmail.com', 'yahoo.com', 'outlook.com'] }
 exports.getAll = async (req, res) => {
     let users
     if(req.roles == "Root"){
-        users = await User.find().select('-password').sort({name: 1}).lean()
+        users = await User.find().sort({ isOnline: -1, lastActive: -1 }).select('-password').lean()
     }else{
-        const adminItSelf = await User.findById(req.user._id).lean().exec()
-        users = await User.find({$and: [{'roles': {$ne: ROLES_LIST.Root}}, {'roles': {$ne: ROLES_LIST.Admin}}]}).select('-password').sort({name: 1}).lean()
-        users.unshift(adminItSelf)
+        // const adminItSelf = await User.findById(req.user._id).lean().exec()
+        // users = await User.find({$and: [{'roles': {$ne: ROLES_LIST.Root}}, {'roles': {$ne: ROLES_LIST.Admin}}]}).sort({ isOnline: -1, lastActive: 1 }).select('-password').lean()
+        // users.unshift(adminItSelf)
+        const query = {
+            $or: [
+                { roles: ROLES_LIST.User },
+                { _id: req.user._id }
+            ],
+            roles: { $ne: ROLES_LIST.Root }
+        }
+        users = await User.find(query).sort({ isOnline: -1, lastActive: -1 }).select('-password').lean()
     }
     
     if (!users?.length) return res.status(400).json({ error: 'No users found' })
@@ -80,10 +88,8 @@ exports.update = async (req, res) => {
             if (!Array.isArray(roles) || !roles.length) return res.status(400).json({ error: 'Invalid roles data type received' })
             updateFields.roles = roles
         }
-    
-        if(active){
-            if(typeof active !== 'boolean') return res.status(400).json({ error: 'Invalid active data type received' })
-            console.log(checkUser)
+
+        if(typeof active === 'boolean'){
             Object.assign(updateFields, { active: active, password: { hashed: checkUser.password.hashed, errorCount: 0 }, otp: { requests: 0, errorCount: 0 }})
         }
     
@@ -94,7 +100,7 @@ exports.update = async (req, res) => {
         const updatedUser = await User.findByIdAndUpdate(id, { $set: updateFields }, { new: true, runValidators: true }).lean().exec()
         if (!updatedUser) return res.status(404).send({ message: 'User not found, something went wrong, during update' })
     
-        const users = await User.find().select('-password -otp').lean().exec()
+        const users = await User.find().sort({ isOnline: -1, lastActive: -1 }).select('-password -otp').lean().exec()
         res.status(200).json(users)
     } catch (error) {
          res.status(400).json({error: error.message})

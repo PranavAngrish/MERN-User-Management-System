@@ -8,7 +8,6 @@ import { BsFillPersonFill } from "react-icons/bs"
 import { FaAddressCard } from "react-icons/fa"
 import useAxiosPrivate from "../hooks/useAxiosPrivate"
 import Details from '../components/sleeps/Index'
-import SleepForm from '../components/sleeps/Add'
 import Navbar from '../components/sleeps/Navbar'
 
 const Sleep = () => {
@@ -39,6 +38,7 @@ const Sleep = () => {
             signal: abortController.signal
           })
         }
+
         isMounted && dispatch({type: 'SET_SLEEPS', payload: response.data})
         setError(null)
       } catch (err) {
@@ -70,7 +70,7 @@ const Sleep = () => {
         {sleeps && sleeps.map(sleep => (
           <Details sleep={sleep} key={sleep._id} />
         ))}
-        {error && <div className="error">{error}</div>}
+        {error && !sleeps?.length && <div className="error">{error}</div>}
       </div>
     </>
   )

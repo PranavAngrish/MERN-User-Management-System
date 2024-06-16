@@ -4,7 +4,7 @@ const User = require('../models/user/User')
 const requireAuth = async (req, res, next) => {
   const { authorization } = req.headers
 
-  if (!authorization.startsWith('Bearer ')) return res.status(401).json({error: 'Request is not authorized'})
+  if (!authorization || !authorization.startsWith('Bearer ')) return res.status(401).json({error: 'Request is not authorized'})
 
   const token = authorization.split(' ')[1]
 

@@ -63,7 +63,7 @@ const Task = () => {
             </div>
           )}
           {tasks && <Details tasks={tasks}/>}
-          {error && <div className="error">{error}</div>}
+          {error && !tasks?.length && <div className="error">{error}</div>}
         </>
       )}
     </>
