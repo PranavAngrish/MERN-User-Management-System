@@ -42,7 +42,6 @@ const User = () => {
     }
 
     socket.on('adminUpdateUserList', (users) => {
-      console.log(users)
       dispatch({type: 'SET_USER', payload: users})
     })
 
@@ -53,11 +52,7 @@ const User = () => {
     }
   },[])
 
-  const filteredNames = useMemo(() => {
-    return users?.filter(user => {
-      return user.name.toLowerCase().includes(query.toLowerCase())
-    })
-  }, [users, query])
+  const filteredNames = useMemo(() => users?.filter(user => user.name.toLowerCase().includes(query.toLowerCase())), [users, query])
 
   return (
     <>

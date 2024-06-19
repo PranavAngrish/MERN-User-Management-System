@@ -13,6 +13,7 @@ const errorHandler = require('./middleware/errorHandler')
 const connectDB = require('./config/dbConn')
 const setupSocket = require('./middleware/onlineStatus')
 const passportSetup = require('./config/passportSetup')
+const requireAuth = require('./middleware/requireAuth')
 const url = require('./config/url')
 
 const port = process.env.PORT || 4000
@@ -22,7 +23,6 @@ const io = socketIo(server, { cors: { origin: url, methods: ['GET', 'POST' ] } }
 
 connectDB()
 passportSetup()
-setupSocket(io)
 
 app.use(helmet())
 app.use(corsMiddleware)
@@ -45,6 +45,9 @@ app.use(session({
 app.use(passport.initialize())
 
 app.use('/api/auth', require('./routes/auth'))
+
+app.use(requireAuth)
+setupSocket(io)
 app.use('/api/users', require('./routes/user'))
 app.use('/api/tasks', require('./routes/task'))
 app.use('/api/notes', require('./routes/note'))

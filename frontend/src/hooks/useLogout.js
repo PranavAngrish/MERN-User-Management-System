@@ -6,7 +6,7 @@ import axios from '../api/axios'
 import io from 'socket.io-client'
 
 export const useLogout = () => {
-  const { auth, dispatch } = useAuthContext()
+  const { dispatch } = useAuthContext()
   const { dispatch: dispatchSleeps } = useSleepsContext()
   const { dispatch: dispatchUsers } = useUserContext()
   const { setPersist } = usePersist()

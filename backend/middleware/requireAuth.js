@@ -26,7 +26,7 @@ const requireAuth = async (req, res, next) => {
         next()
       } else{
         res.clearCookie('jwt', { httpOnly: true, sameSite: 'Lax', secure: true })
-        res.status(400).json({ error: 'Your account has been blocked' })
+        return res.status(400).json({ error: 'Your account has been blocked' })
       }
   })
 }

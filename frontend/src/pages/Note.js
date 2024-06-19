@@ -72,15 +72,13 @@ const Note = () => {
     }
   },[])
 
-  const filteredNote = useMemo(() => {
-    return notes?.filter(note => {
-      const tags = tag?.map(t => t.value)
-      return (
-        (titles === "" || note.title.toLowerCase().includes(titles.toLowerCase())) &&
-        (tag.length === 0 || note.tag.includes(tags[0]))
-      )
-    })
-  }, [notes, titles, tag])
+  const filteredNote = useMemo(() => notes?.filter(note => {
+    const tags = tag?.map(t => t.value)
+    return (
+      (titles === "" || note.title.toLowerCase().includes(titles.toLowerCase())) &&
+      (tag.length === 0 || note.tag.includes(tags[0]))
+    )
+  }), [notes, titles, tag])
 
   const handleBack = () => {
     setTitle("Welcome")

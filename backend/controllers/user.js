@@ -90,7 +90,7 @@ exports.update = async (req, res) => {
         }
 
         if(typeof active === 'boolean'){
-            Object.assign(updateFields, { active: active, password: { hashed: checkUser.password.hashed, errorCount: 0 }, otp: { requests: 0, errorCount: 0 }})
+            active ? Object.assign(updateFields, { active: true, password: { hashed: checkUser.password.hashed, errorCount: 0 }, otp: { requests: 0, errorCount: 0 }}) : Object.assign(updateFields, { active: false, isOnline: false})
         }
     
         const rootUser = await User.findById(id).lean().exec()

@@ -8,7 +8,7 @@ import { useAuthContext } from '../../context/auth'
 import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 const validator = require('validator')
 
-const Edit = ({user}) => {
+const Edit = ({ user }) => {
   const axiosPrivate = useAxiosPrivate()
   const { dispatch } =  useUserContext()
   const { auth } = useAuthContext()
@@ -92,17 +92,21 @@ const Edit = ({user}) => {
               <Button variant="default" className="mb-2" onClick={handleShowPassword}>{changeIcon ? <FaEyeSlash/> : <FaEye/>}</Button>
             </div>
           </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Label>Roles:</Form.Label>
-            <select className="form-select" aria-label="select roles" ref={rolesRef} defaultValue={user.roles[0]}>
-              <option value="User">User</option>
-              <option value="Admin">Admin</option>
-            </select>
-          </Form.Group>
-          {(user.roles == ROLES.User) && (<Form.Group className="mb-3" controlId="formBasicCheckbox">
-            <Form.Label>Active:</Form.Label>
-            <Form.Check type="switch" ref={activeRef} defaultChecked={active} onClick={() => setActive(!active)}/>
-          </Form.Group>)}
+          {(user.roles == ROLES.User) && (
+            <>
+              <Form.Group className="mb-3">
+                <Form.Label>Roles:</Form.Label>
+                <select className="form-select" aria-label="select roles" ref={rolesRef} defaultValue={user.roles[0]}>
+                  <option value="User">User</option>
+                  <option value="Admin">Admin</option>
+                </select>
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="formBasicCheckbox">
+                <Form.Label>Active:</Form.Label>
+                <Form.Check type="switch" ref={activeRef} defaultChecked={active} onClick={() => setActive(!active)}/>
+              </Form.Group>
+            </>
+          )}
           {error && (<Alert variant={'danger'}>{error}</Alert>)}
         </Modal.Body>
         <Modal.Footer>

@@ -1,10 +1,7 @@
 const router = require('express').Router()
 const tasksController = require('../controllers/task')
-const requireAuth = require('../middleware/requireAuth')
 const requireRoles = require('../middleware/requireRoles')
 const ROLES_LIST = require('../config/rolesList')
-
-router.use(requireAuth)
 
 router.route('/').get(requireRoles([...Object.values(ROLES_LIST)]), tasksController.getAll)
 
