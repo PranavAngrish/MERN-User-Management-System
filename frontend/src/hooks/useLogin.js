@@ -27,7 +27,6 @@ export const useLogin = () => {
       setIsLoading(false)
     } catch (error) {
       setIsLoading(false)
-      dispatch({type: 'LOGIN', payload: []})
       setError(error.response.data.error)
     }
   }

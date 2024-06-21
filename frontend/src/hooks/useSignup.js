@@ -6,12 +6,12 @@ export const useSignup = () => {
   const [ isLoading, setIsLoading ] = useState(null)
   const [ mailSent, setMailSent ] = useState(false)
 
-  const signup = async (name, email, password) => {
+  const signup = async (name, email, password, persist) => {
     setIsLoading(true)
     setError(null)
 
     try {
-      const response = await axios.post('/api/auth/signup', { name, email, password })
+      const response = await axios.post('/api/auth/signup', { name, email, password, persist })
       setMailSent(response.data.mailSent)
       setIsLoading(false)
     } catch (error) {

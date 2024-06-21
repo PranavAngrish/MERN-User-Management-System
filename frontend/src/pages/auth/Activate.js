@@ -6,6 +6,7 @@ import { AiOutlineReload } from 'react-icons/ai'
 import { VscError } from 'react-icons/vsc'
 import Loading from '../../components/Loading'
 import axiosPublic from '../../api/axios' 
+import jwt_decode from 'jwt-decode'
 
 const Activate = () => {
   const navigate = useNavigate()
@@ -32,8 +33,9 @@ const Activate = () => {
           activation_token,
           signal: abortController.signal
         })
-        setEmail(response.data.email)
-        isMounted && dispatch({type: 'LOGIN', payload: response.data})
+        const decoded = jwt_decode(response.data)
+        setEmail(decoded.email)
+        isMounted && dispatch({type: 'LOGIN', payload: {...decoded.userInfo, accessToken: response.data}})
         setIsLoading(false)
         setActivate(true)
       } catch (error) {
@@ -43,7 +45,7 @@ const Activate = () => {
           "Email already in use": () => setInUse(true),
         }
       
-        const errorHandler = errorHandlers[error.response.data.error] || (() => navigate('/not-found'));
+        const errorHandler = errorHandlers[error.response?.data.error] || (() => navigate('/not-found'));
         errorHandler()
       }
     }

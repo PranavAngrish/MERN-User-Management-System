@@ -5,6 +5,7 @@ import { OverlayTrigger, Tooltip} from "react-bootstrap"
 
 const Status = () => {
   const { auth } = useAuthContext()
+  const display = auth?.name && auth?.roles
 
   const statusBar = {
     Root: "bg-danger pt-1 text-white",
@@ -15,7 +16,7 @@ const Status = () => {
 
   return (
     <>
-      {auth && (<div className={color}>
+      {display && (<div className={color}>
         <OverlayTrigger placement="bottom" overlay={<Tooltip>Name</Tooltip>}>
           <span className="mx-3 d-inline-flex align-items-center"><FaAddressCard className="fs-4"/>&ensp;{auth.name}</span>
         </OverlayTrigger>

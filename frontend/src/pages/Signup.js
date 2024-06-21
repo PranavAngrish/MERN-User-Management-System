@@ -18,7 +18,7 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    await signup(nameRef.current.value, emailRef.current.value.trim(), passwordRef.current.value.trim())
+    await signup(nameRef.current.value, emailRef.current.value.trim(), passwordRef.current.value.trim(), persist)
   }
 
   const handleShowPassword =  (e) => {

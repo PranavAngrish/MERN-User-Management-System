@@ -93,9 +93,9 @@ exports.activate = async (req, res) => {
 
         try {
           const user = await User.signup(decoded.name, decoded.email, decoded.password)
-          const accessToken = createAccessToken({ userInfo: {_id: user._id, name: user.name, email, roles: user.roles} })
+          const accessToken = createAccessToken({ userInfo: {_id: user._id, name: user.name, email: user.email, roles: user.roles} })
 
-          if(persist){
+          if(decoded.persist){
             const refreshToken = createRefreshToken(user._id)
             res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
           }
