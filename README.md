@@ -1,14 +1,16 @@
 <p align="center">
-<img src="README/banner.png" alt="Logo" width="300" height="300" justify-items="center"/>
-<h3 align="center">User Management System</h3>
+<img src="public/banner.png" alt="Logo" width="250" height="250" justify-items="center"/>
+<h3 align="center">👩🏻‍💻 User Management System 🛡️</h3>
 </p>
 
-Welcome to the ultimate **User Management System** designed with security, efficiency, and user experience in mind. This system leverages the **MERN Stack** (MongoDB, Express.js, React.js, Node.js) and utilizes **JSON Web Tokens** (JWT) for secure **Authentication** and **Authorization**. Below is an overview of the key features that make this system a robust and reliable solution for managing user accounts and protecting sensitive data.
+---
+
+🎉 Welcome to the ultimate **User Management System** designed with security, efficiency, and user experience in mind. This system leverages the **MERN Stack** (MongoDB, Express.js, React.js, Node.js) and utilizes **JSON Web Tokens** (JWT) for secure **Authentication** and **Authorization**. Below is an overview of the key features that make this system a robust and reliable solution for managing user accounts and protecting sensitive data.
 
 ---
-### Key Features
+### 🎈 Key Features
 
-##### Authentication & Authorization
+##### 🛡️ Authentication & Authorization 🪪
 
 > - **Signup Option**: Allow new users to create an account easily with a secure signup process.
 > - **Login Option**: Enable users to log in to their accounts securely using their credentials.
@@ -22,41 +24,41 @@ Welcome to the ultimate **User Management System** designed with security, effic
 
 ---
 
-##### Login Demo
-![](README/login.gif)
+##### 🖥️ Login Demo
+![](public/login.gif)
 
 ---
 
-##### Sign in with Google Demo
-![](README/google.gif)
+##### 💻 Sign in with Google Demo
+![](public/google.gif)
 
 ---
 
-##### Sign up Demo
-![](README/signup.gif)
+##### 🖥️ Sign up Demo
+![](public/signup.gif)
 
 ---
 
-##### Password and Account Security
+##### 🛡️ Password and Account Security
 
 > - **Forgot Password Handling**: Users can reset their passwords securely using an OTP (One-Time Password), ensuring both ease of use and security.
 > - **Account Protection**: Limit daily OTP requests and login attempts. Immediate account suspension occurs upon detecting suspicious activity to prevent unauthorized access.
 > - **Password Encryption**: Use bcrypt to encrypt and safeguard user passwords.
 > - **Secure Data Transmission**: Employ JWT to securely transmit information between parties.
 
-![](README/reset-password.gif)
+![](public/reset-password.gif)
 
-##### Admin Controls and User Roles
+##### 🪪 Admin Controls and User Roles 👩🏻‍💻
 
 > - **Immediate User Suspension**: Admins can instantly suspend users to protect company data and system integrity in urgent situations.
 > - **Role-Based Authorization**: Assign roles as User or Admin, with appropriate permissions for each.
 > - **Status Bar**: Display the current user and their assigned role, providing a clear overview of their status.
 
-![](README/status.gif)
+![](public/status.gif)
 
 ---
 
-#### User Management
+#### 👩🏻‍💻 User Management ⌨️
 
 > - **Root User Privileges**: The root user has maximum privileges within the system.
 > - **User Settings Access**: Only the root user and admins can access user settings.
@@ -70,7 +72,7 @@ Welcome to the ultimate **User Management System** designed with security, effic
 
 ---
 
-#### Task Management
+#### 📝 Task Management 🧾
 
 > - **Task Assignment**: Tasks are assigned to specific users.
 > - **Task Viewing**: Users can only view their assigned tasks.
@@ -81,11 +83,11 @@ Welcome to the ultimate **User Management System** designed with security, effic
 > - **Task Details**: The status bar shows the task creator, created, and edited date-time details.
 > - **Task Assignment Viewing**: Admin and root users can view who has been assigned to a task via the list.
 
-![](README/tasks.gif)
+![](public/tasks.gif)
 
 ---
 
-#### Note Management
+#### 📓 Note Management ✏️
 
 > - **Markdown Support**: Users can create, view, edit, and delete their notes with markdown support.
 > - **Note Management**: Root user and admins have permission to view, edit, and delete user notes if needed.
