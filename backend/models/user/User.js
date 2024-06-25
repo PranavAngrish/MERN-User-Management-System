@@ -26,7 +26,10 @@ const userSchema = new mongoose.Schema({
     default: ["User"]
   },
   password: passwordSchema,
-  otp: otpSchema,
+  otp: {
+    type: otpSchema,
+    default: () => ({})
+  },
   active: {
     type: Boolean,
     default: true

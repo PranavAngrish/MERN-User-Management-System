@@ -24,10 +24,10 @@ const activateMailAccount = (to, url, text) => {
             <title>Account Activation</title>
         </head>
         <body>
-            <div style="background-color: #333333; height: 100vh; font-family: Verdana; color: #fff; text-align: center; margin: 0; padding: 0;">
-                <div style="max-width: 700px; width: 100%; height: 100%; margin: 0 auto;">
-                    <div style="padding: 0 15px;">
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%;">
+            <div style="background-color: #333333; font-family: Verdana; color: #fff; text-align: center; margin: 0; padding: 0;">
+                <div style="margin: 0 auto; padding: 0 15px; display: flex; align-items: center; justify-content: center;">
+                    <div style="margin: 1rem;">
+                        <div style="">
                             <h1 style="color: #3292ec;">Account Activation</h1>
                             <h3>Welcome! and thank you for signup</h3>
                             <p>Just click the button below to complete the signup process.</p>

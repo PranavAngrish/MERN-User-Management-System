@@ -2,6 +2,7 @@ const passport = require('passport')
 const User = require('../models/user/User')
 const GoogleStrategy = require('passport-google-oauth20').Strategy
 const jwt = require('jsonwebtoken')
+const { generateAccessToken } = require('../utils/generateToken')
 
 const passportSetup =  () => {
   passport.use(new GoogleStrategy({
@@ -25,8 +26,7 @@ const passportSetup =  () => {
         user = await User.create({ googleId: id, name: displayName, email })
       }
   
-      const createAccessToken = (userInfo) => jwt.sign(userInfo, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
-      const accessToken = createAccessToken({userInfo: {_id: user._id, name: user.name, email: user.email, roles: user.roles}})
+      const accessToken = generateAccessToken({userInfo: {_id: user._id, name: user.name, email: user.email, roles: user.roles}})
   
       return done(null, { _id: user._id, accessToken })
     } catch (err) {
