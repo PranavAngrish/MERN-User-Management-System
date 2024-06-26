@@ -1,11 +1,12 @@
 const validator = require('validator')
 const { verificationStatus } = require('../controllers/auth')
+const { CustomError } = require('./errorHandler')
 
 const validateEmail = (email) => {
     const isEmailEmpty = validator.isEmpty(email ?? '', { ignore_whitespace:true })
-    if (isEmailEmpty) return res.status(400).json({ error: "Email Address Require" })
+    if (isEmailEmpty) throw new CustomError('Email Address Require', 400)
 
-    if (!validator.isEmail(email)) return res.status(400).json({ error: "Email not valid" })
+    if (!validator.isEmail(email)) throw new CustomError('Email not valid', 400)
     
     return email
 }

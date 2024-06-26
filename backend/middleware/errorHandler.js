@@ -1,11 +1,25 @@
 const { logEvents } = require('./logger')
 
-const errorHandler = (err, req, res, next) => {
-    logEvents(`${err.name}: ${err.message}\t${req.method}\t${req.url}\t${req.headers.origin}`, 'errLog.log')
-    console.log(err.stack)
-    const status = res.statusCode ? res.statusCode : 500
-    res.status(status)
-    res.json({ message: err.message, isError: true })
+class CustomError extends Error {
+    constructor(message, statusCode) {
+        super(message)
+        this.statusCode  = statusCode 
+    }
 }
 
-module.exports = errorHandler 
+const notFound = (req, res, next) => {
+    const error = new Error(`Not Found - ${req.originalUrl}`)
+    res.status(404)
+    next(error)
+}
+
+const errorHandler = (err, req, res, next) => {
+    // logEvents(`${err.name}: ${err.message}\t${req.method}\t${req.url}\t${req.headers.origin}`, 'errLog.log')
+    console.log(res.statusCode)
+    const statusCode = err.statusCode || 500
+    const message = err.message || 'Internal Server Error'
+
+    return res.status(statusCode).json({ error: message, stack: process.env.NODE_ENV === 'production' ? null :  err.stack })
+}
+
+module.exports = { CustomError, errorHandler, notFound } 

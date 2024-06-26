@@ -9,7 +9,7 @@ const session = require('express-session')
 const passport = require('passport')
 const corsMiddleware = require('./config/corsOptions')
 const { logger } = require('./middleware/logger')
-const errorHandler = require('./middleware/errorHandler')
+const { errorHandler, notFound } = require('./middleware/errorHandler')
 const connectDB = require('./config/dbConn')
 const setupSocket = require('./middleware/onlineStatus')
 const passportSetup = require('./config/passportSetup')
@@ -36,8 +36,7 @@ app.use(session({
   resave: false, 
   saveUninitialized: false, 
   cookie: { 
-    // secure: true, // HTTPS
-    secure: false,
+    secure: process.env.NODE_ENV === 'production' || false,
     sameSite: 'Lax',
     httpOnly: true 
   }
@@ -48,14 +47,16 @@ app.use('/api/auth', require('./routes/auth'))
 
 app.use(requireAuth)
 setupSocket(io)
+
 app.use('/api/users', require('./routes/user'))
 app.use('/api/tasks', require('./routes/task'))
 app.use('/api/notes', require('./routes/note'))
 app.use('/api/sleeps', require('./routes/sleep'))
 // app.use(logger)
-// app.use(errorHandler)
+app.use(notFound)
+app.use(errorHandler)
 
 mongoose.connection.once('open', () => {
-  console.log('Databse Connected Successfully!')
+  console.log('Databse Connected Successful!')
   server.listen(port, () => console.log(`Server running on port ${port}`))
 })

@@ -2,149 +2,154 @@ const jwt = require('jsonwebtoken')
 const axios = require('axios')
 const bcrypt = require('bcrypt')
 const validator = require('validator')
-const User = require('../models/user/User')
-const activateMail= require('../config/activateMail')
-const resetPassword= require('../config/resetPassword')
-const redisClient = require('../config/redisConn')
 const url = require('../config/url')
+const User = require('../models/user/User')
+const redisClient = require('../config/redisConn')
+const activateMail= require('../utils/activateMail')
+const resetPassword= require('../utils/resetPassword')
+const { CustomError } = require('../middleware/errorHandler')
+const { generateAccessToken, generateRefreshToken, generateOTPToken } = require('../utils/generateToken')
 
 const options = { host_whitelist: ['gmail.com', 'yahoo.com', 'outlook.com'] }
 
-const createAccessToken = (userInfo) => jwt.sign(userInfo, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
-const createRefreshToken = (_id) => jwt.sign({_id}, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
-
-const generateOTPToken = (email) => {
-  const otp = Math.floor(100000 + Math.random() * 900000).toString()
-  const payload = { email, otp }
-  const token = jwt.sign(payload, process.env.OTP_TOKEN_SECRET, { expiresIn: '5m' })
-  return { otp, token }
-}
-
 const verificationStatus = {}
 
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
   try {
     const { email, password, persist, token } = req.body
     const reCaptchaRe = await axios.post(`https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${token}`, {
       headers: {"Content-Type": "application/x-www-form-urlencoded"}
     })
 
-    if(!reCaptchaRe.data.success && !(reCaptchaRe.data.score > 0.5)) throw Error('Google ReCaptcha Validation Failure')
+    if(!reCaptchaRe.data.success && !(reCaptchaRe.data.score > 0.5)) throw new CustomError('Google ReCaptcha Validation Failure', 403)
    
     const user = await User.login(email, password)
-    const accessToken = createAccessToken({userInfo: {_id: user._id, name: user.name, email, roles: user.roles}})
+    const accessToken = generateAccessToken({userInfo: {_id: user._id, name: user.name, email, roles: user.roles}})
     
     if(persist){
-      const refreshToken = createRefreshToken(user._id)
+      const refreshToken = generateRefreshToken(user._id)
       res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
     }
 
     res.status(200).json(accessToken)
   } catch (error) {
-    res.status(400).json({error: error.message})
+    next(error)
   }
 }
 
-exports.googleLogin = (req, res) => {
-  if(req.session.persist){
-    const refreshToken = createRefreshToken(req.user._id)
-    res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
-    delete req.session.persist
+exports.googleLogin = (req, res, next) => {
+  try {
+    if(req.session.persist){
+      const refreshToken = generateRefreshToken(req.user._id)
+      res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
+      delete req.session.persist
+    }
+    
+    res.redirect(`${url}?token=${req.user.accessToken}`)
+  } catch (error) {
+    next(error)
   }
-  
-  res.redirect(`${url}?token=${req.user.accessToken}`)
 }
 
-exports.signup = async (req, res) => {
+exports.signup = async (req, res, next) => {
   try {
     const { name, email, password, persist } = req.body
+    
     const isNameEmpty = validator.isEmpty(name ?? '', { ignore_whitespace:true })
     const isEmailEmpty = validator.isEmpty(email ?? '', { ignore_whitespace:true })
     const isPasswordEmpty = validator.isEmpty(password ?? '', { ignore_whitespace:true })
-    if (isNameEmpty || isEmailEmpty || isPasswordEmpty) throw Error('All fields must be filled')
-    if (!validator.isEmail(email, options)) throw Error('Email not valid')
-    if (!validator.isStrongPassword(password)) throw Error('Password not strong enough')
+    if (isNameEmpty || isEmailEmpty || isPasswordEmpty) throw new CustomError('All fields must be filled', 400)
+    if (!validator.isEmail(email, options)) throw new CustomError('Email not valid', 400)
+    if (!validator.isStrongPassword(password)) throw new CustomError('Password not strong enough', 400)
   
-    const exists = await User.findOne({ email }).lean().exec()
-    if (exists) throw Error('Email already in use')
+    const duplicateEmail = await User.findOne({ email }).collation({ locale: 'en', strength: 2 }).lean().exec()
+    if (duplicateEmail) throw new CustomError('Email already in use', 409)
   
     const hashedPassword = await bcrypt.hash(password, 10)
 
     const newUser = { name, email, password: hashedPassword, persist }
-    const activation_token = jwt.sign(newUser, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
+    const activation_token = generateAccessToken(newUser)
     
     const activateUrl = `${url}/activate/${activation_token}`
     activateMail.activateMailAccount(email, activateUrl, "Verify your email")
 
     res.status(200).json({ mailSent: true })
   } catch (error) {
-    res.status(400).json({error: error.message})
+    next(error)
   }
 }
 
-exports.activate = async (req, res) => {
+exports.activate = async (req, res, next) => {
   try {
     const { activation_token } = req.body
 
     jwt.verify(activation_token, process.env.ACCESS_TOKEN_SECRET, 
       async (err, decoded) => {
-        if (err?.name == "TokenExpiredError") return res.status(403).json({ error: 'Forbidden token expired'})
-        if (err) return res.status(403).json({ error: 'Forbidden'})
+        if (err?.name == 'TokenExpiredErro') throw new CustomError('Forbidden token expired', 403)
+        if (err) throw new CustomError('Forbidden', 403)
 
         try {
           const user = await User.signup(decoded.name, decoded.email, decoded.password)
-          const accessToken = createAccessToken({ userInfo: {_id: user._id, name: user.name, email: user.email, roles: user.roles} })
+          const accessToken = generateAccessToken({ userInfo: {_id: user._id, name: user.name, email: user.email, roles: user.roles} })
 
           if(decoded.persist){
-            const refreshToken = createRefreshToken(user._id)
+            const refreshToken = generateRefreshToken(user._id)
             res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
           }
 
           res.status(200).json(accessToken)
         } catch (error) {
-          res.status(400).json({error: error.message})
+          next(error)
         }
       }
     )
   } catch (error) {
-    res.status(400).json({error: error.message})
+    next(error)
   }
 }
 
-exports.refresh = (req, res) => {
-  const cookies = req.cookies
-  if (!cookies?.jwt) return res.status(401).json({ error: 'Unauthorized Refresh token not found' })
-  const refreshToken = cookies.jwt
+exports.refresh = (req, res, next) => {
+  try {
+    const cookies = req.cookies
+    if (!cookies?.jwt) throw new CustomError('Unauthorized Refresh token not found')
+    const refreshToken = cookies.jwt
 
-  jwt.verify(
-    refreshToken, 
-    process.env.REFRESH_TOKEN_SECRET,
-    async (err, decoded) => {
-      if (err?.name == "TokenExpiredError") return res.status(403).json({ error: 'Forbidden token expired' })
-      if (err) return res.status(403).json({ error: 'Forbidden'})
-
-      const foundUser = await User.findOne({ _id: decoded._id }).lean().exec()
-      if (!foundUser) return res.status(401).json({ error: 'Unauthorized user not found' })
-
-      if(!foundUser.active){
-        res.clearCookie('jwt', { httpOnly: true, sameSite: 'Lax', secure: true })
-        return res.status(403).json({ error: 'Your account has been blocked' })
+    jwt.verify(
+      refreshToken, 
+      process.env.REFRESH_TOKEN_SECRET,
+      async (err, decoded) => {
+          if (err?.name == 'TokenExpiredErro') throw new CustomError('Forbidden token expired', 403)
+          if (err) throw new CustomError('Forbidden', 403)
+    
+        const foundUser = await User.findOne({ _id: decoded._id }).lean().exec()
+        if (!foundUser) throw new CustomError('Unauthorized user not found', 403)
+    
+        if(!foundUser.active){
+          res.clearCookie('jwt', { httpOnly: true, sameSite: 'Lax', secure: true })
+          throw new CustomError('Your account has been blocked', 403)
+        }
+    
+        const accessToken = generateAccessToken({userInfo: {_id: foundUser._id, name: foundUser.name, email: foundUser.email, roles: foundUser.roles}})
+        res.status(200).json(accessToken)
       }
-
-      const accessToken = createAccessToken({userInfo: {_id: foundUser._id, name: foundUser.name, email: foundUser.email, roles: foundUser.roles}})
-      res.status(200).json(accessToken)
-    }
-  )
+    )
+  } catch (error) {
+    next(error)
+  }
 }
 
-exports.logout = async (req, res) => {
-  const token = req.cookies.jwt
-  if (!token) return res.sendStatus(204)
-  res.clearCookie('jwt', { httpOnly: true, sameSite: 'Lax', secure: true })
-  res.status(200).json({ error: 'Logout successful '})
+exports.logout = async (req, res, next) => {
+  try {
+    const token = req.cookies.jwt
+    if (!token) return res.sendStatus(204)
+    res.clearCookie('jwt', { httpOnly: true, sameSite: 'Lax', secure: true })
+    res.status(200).json({ error: 'Logout successful '})
+  } catch (error) {
+    next(error)
+  }
 }
 
-exports.verifyEmail = async (req, res) => {
+exports.verifyEmail = async (req, res, next) => {
   try {
     const { email } = req.body
     let isEmailVerified = false
@@ -153,11 +158,11 @@ exports.verifyEmail = async (req, res) => {
 
     const isEmailEmpty = validator.isEmpty(email ?? '', { ignore_whitespace:true })
   
-    if (isEmailEmpty) throw Error('Email Address Require')
-    if (!validator.isEmail(email)) throw Error('Email not valid')
+    if (isEmailEmpty) throw new CustomError('Email Address Require', 400)
+    if (!validator.isEmail(email)) throw new CustomError('Email not valid', 400)
   
     const emailExist = await User.findOne({ email: email}).exec()
-    if (!emailExist) throw Error('Email Address Not Found')
+    if (!emailExist) throw new CustomError('Email Address Not Found', 400)
   
     if(!emailExist.active) return res.status(403).json({ error: 'Your account has been temporarily blocked. Please reach out to our Technical Support team for further assistance.', emailVerified: isEmailVerified })
 
@@ -168,7 +173,7 @@ exports.verifyEmail = async (req, res) => {
       return res.status(429).json({ error: 'Too many OTP requests. Please try again tomorrow.', emailVerified: isEmailVerified })
     }
 
-    if ((now - emailExist.otp.requestDate) >= day) {
+    if ((now - emailExist.otp?.requestDate) >= day) {
       await User.updateOne({ email }, {$set: { 'otp.requests': 0}})
     }
   
@@ -187,11 +192,11 @@ exports.verifyEmail = async (req, res) => {
     verificationStatus[email].emailVerified = isEmailVerified
     res.status(200).json({ email, emailVerified: isEmailVerified })
   } catch (error) {
-    res.status(400).json({ error: error.message })
+    next(error)
   }
 }
 
-exports.verifyOTP = async (req, res) => {
+exports.verifyOTP = async (req, res, next) => {
   try {
     const { otp } = req.body
     const email = req.email
@@ -201,7 +206,7 @@ exports.verifyOTP = async (req, res) => {
     const otpToken = await redisClient.get(email)
     const isOtpEmpty = validator.isEmpty(otp ?? '', { ignore_whitespace:true })
 
-    if (!otpToken || isOtpEmpty || otp.length < 6) return res.status(400).json({ error: 'Invalid OTP' })
+    if (!otpToken || isOtpEmpty || otp.length < 6) throw new CustomError('Invalid OTP', 400)
 
     const emailExist = await User.findOne({ email: email}).exec()
     if(!emailExist || !emailExist.active) return res.status(403).json({ error: 'Your account has been blocked. Access has been prohibited for security reasons.', otpVerified: isOtpVerified })
@@ -226,7 +231,7 @@ exports.verifyOTP = async (req, res) => {
         emailExist.otp.errorDate = new Date()
         await emailExist.save()
 
-        return res.status(400).json({ error: 'Invalid or expired OTP' })
+        throw new CustomError('Invalid or expired OTP', 400)
       }
 
       await redisClient.del(email)
@@ -236,11 +241,11 @@ exports.verifyOTP = async (req, res) => {
       res.status(200).json({ otpVerified: isOtpVerified })
     })
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' })
+    next(error)
   }
 }
 
-exports.restPassword = async (req, res) => {
+exports.restPassword = async (req, res, next) => {
   try {
     const { password } = req.body
     const email = req.email
@@ -248,8 +253,8 @@ exports.restPassword = async (req, res) => {
 
     const isPasswordEmpty = validator.isEmpty(password ?? '', { ignore_whitespace:true })
 
-    if (isPasswordEmpty) throw Error('Password Require')
-    if (!validator.isStrongPassword(password)) throw Error('Password not strong enough')
+    if (isPasswordEmpty) throw new CustomError('Password Require', 400)
+    if (!validator.isStrongPassword(password)) throw new CustomError('Password not strong enough', 400)
   
     const emailExist = await User.findOne({ email: email }).lean()
     if(!emailExist || !emailExist.active) return res.status(403).json({ error: 'Your account has been blocked. Access has been prohibited for security reasons.', passwordUpdated: isPasswordUpdated })
@@ -261,7 +266,7 @@ exports.restPassword = async (req, res) => {
     isPasswordUpdated = true
     res.status(200).json({ passwordUpdated: isPasswordUpdated })
   } catch (error) {
-    res.status(400).json({ error: error.message })
+    next(error)
   }
 }
 
