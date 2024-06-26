@@ -189,17 +189,17 @@ exports.verifyEmail = async (req, res, next) => {
     const emailExist = await User.findOne({ email }).exec()
     if (!emailExist) throw new CustomError('Email Address Not Found', 400)
   
-    if(!emailExist.active) return res.status(403).json({ error: 'Your account has been temporarily blocked. Please reach out to our Technical Support team for further assistance.', emailVerified: isEmailVerified })
+    if(!emailExist.active) throw new CustomError('Your account has been temporarily blocked. Please reach out to our Technical Support team for further assistance.', 403, { emailVerified: isEmailVerified })
 
     const now = new Date()
     const day = 24 * 60 * 60 * 1000
 
     if (emailExist.otp.requests >= 3 && emailExist.otp.requestDate && (now - emailExist.otp.requestDate) < day) {
-      return res.status(429).json({ error: 'Too many OTP requests. Please try again tomorrow.', emailVerified: isEmailVerified })
+      throw new CustomError('Too many OTP requests. Please try again tomorrow.', 429, { emailVerified: isEmailVerified })
     }
 
     if ((now - emailExist.otp?.requestDate) >= day) {
-      await User.updateOne({ email }, {$set: { 'otp.requests': 0}})
+      await User.updateOne({ email }, {$set: { 'otp.requests': 0 }})
     }
   
     const { otp, token } = generateOTPToken(email)
@@ -233,7 +233,7 @@ exports.verifyOTP = async (req, res, next) => {
     if (!otpToken || isOtpEmpty || otp.length < 6) throw new CustomError('Invalid OTP', 400)
 
     const emailExist = await User.findOne({ email }).exec()
-    if(!emailExist || !emailExist.active) return res.status(403).json({ error: 'Your account has been blocked. Access has been prohibited for security reasons.', otpVerified: isOtpVerified })
+    if(!emailExist || !emailExist.active) throw new CustomError('Your account has been blocked. Access has been prohibited for security reasons.', 403, { otpVerified: isOtpVerified })
 
     let decoded
 
@@ -255,20 +255,20 @@ exports.verifyOTP = async (req, res, next) => {
   
       if (emailExist.otp.errorCount >= 3 && emailExist.otp.errorDate && (now - emailExist.otp.errorDate) < day) {
         await User.updateOne({ email }, {$set: { 'active': false }})
-        return res.status(429).json({ error: "You've tried too many times with an incorrect OTP, this account has been temporarily blocked for security reasons. Please reach out to our Technical Support team for further assistance.", otpVerified: isOtpVerified })
+        throw new CustomError("You've tried too many times with an incorrect OTP, this account has been temporarily blocked for security reasons. Please reach out to our Technical Support team for further assistance.", 429, { otpVerified: isOtpVerified })
       }
   
       if ((now - emailExist.otp.errorDate) >= day) {
         await User.updateOne({ email }, {$set: { 'otp.errorCount': 0}})
       }
       
-      if(!emailExist.active) return res.status(403).json({ error: 'Your account has been temporarily blocked. Please reach out to our Technical Support team for further assistance.', otpVerified: isOtpVerified })
+      if(!emailExist.active) throw new CustomError('Your account has been temporarily blocked. Please reach out to our Technical Support team for further assistance.', 403, { otpVerified: isOtpVerified })
       
       emailExist.otp.errorCount += 1
       emailExist.otp.errorDate = new Date()
       await emailExist.save()
 
-      throw new CustomError('Invalid or expired OTP', 400)
+      throw new CustomError('Invalid or expired OTP', 400, { otpVerified: isOtpVerified })
     }
 
     await redisClient.del(email)
@@ -291,7 +291,7 @@ exports.restPassword = async (req, res, next) => {
     validateAuthInputField({ password })
   
     const emailExist = await User.findOne({ email }).lean()
-    if(!emailExist || !emailExist.active) return res.status(403).json({ error: 'Your account has been blocked. Access has been prohibited for security reasons.', passwordUpdated: isPasswordUpdated })
+    if(!emailExist || !emailExist.active) throw new CustomError('Your account has been blocked. Access has been prohibited for security reasons.', 403, { passwordUpdated: isPasswordUpdated })
   
     const hashedPassword = await bcrypt.hash(password, 10)
     await User.updateOne({ email }, { $set: { 'password.hashed': hashedPassword } })
