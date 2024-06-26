@@ -24,7 +24,15 @@ exports.login = async (req, res, next) => {
     if(!reCaptchaRe.data.success && !(reCaptchaRe.data.score > 0.5)) throw new CustomError('Google ReCaptcha Validation Failure', 403)
    
     const user = await User.login(email, password)
-    const accessToken = generateAccessToken({userInfo: {_id: user._id, name: user.name, email, roles: user.roles}})
+
+    const accessToken = generateAccessToken({
+      userInfo: {
+        _id: user._id, 
+        name: user.name, 
+        email, 
+        roles: user.roles
+      }
+    })
     
     if(persist){
       const refreshToken = generateRefreshToken(user._id)
@@ -54,7 +62,7 @@ exports.googleLogin = (req, res, next) => {
 exports.signup = async (req, res, next) => {
   try {
     const { name, email, password, persist } = req.body
-    
+
     const isNameEmpty = validator.isEmpty(name ?? '', { ignore_whitespace:true })
     const isEmailEmpty = validator.isEmpty(email ?? '', { ignore_whitespace:true })
     const isPasswordEmpty = validator.isEmpty(password ?? '', { ignore_whitespace:true })
@@ -67,11 +75,11 @@ exports.signup = async (req, res, next) => {
   
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    const newUser = { name, email, password: hashedPassword, persist }
+    const newUser = { name: name.trim(), email: email.trim(), password: hashedPassword, persist }
     const activation_token = generateAccessToken(newUser)
     
     const activateUrl = `${url}/activate/${activation_token}`
-    activateMail.activateMailAccount(email, activateUrl, "Verify your email")
+    activateMail.activateMailAccount(email, activateUrl, 'Verify your email')
 
     res.status(200).json({ mailSent: true })
   } catch (error) {
@@ -82,57 +90,83 @@ exports.signup = async (req, res, next) => {
 exports.activate = async (req, res, next) => {
   try {
     const { activation_token } = req.body
+    if (!activation_token) throw new CustomError('Unauthorized activation token not found', 401)
 
-    jwt.verify(activation_token, process.env.ACCESS_TOKEN_SECRET, 
-      async (err, decoded) => {
-        if (err?.name == 'TokenExpiredErro') throw new CustomError('Forbidden token expired', 403)
-        if (err) throw new CustomError('Forbidden', 403)
-
-        try {
-          const user = await User.signup(decoded.name, decoded.email, decoded.password)
-          const accessToken = generateAccessToken({ userInfo: {_id: user._id, name: user.name, email: user.email, roles: user.roles} })
-
-          if(decoded.persist){
-            const refreshToken = generateRefreshToken(user._id)
-            res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
-          }
-
-          res.status(200).json(accessToken)
-        } catch (error) {
-          next(error)
-        }
+    let decoded
+  
+    try {
+      decoded = jwt.verify(activation_token, process.env.ACCESS_TOKEN_SECRET)
+    } catch (jwtError) {
+      if (jwtError instanceof jwt.TokenExpiredError) {
+        throw new CustomError('Forbidden token expired', 403)
+      } else if (jwtError instanceof jwt.JsonWebTokenError) {
+        throw new CustomError('Invalid token', 403)
+      } else {
+        throw new CustomError('Token verification failed', 403)
       }
-    )
+    }
+
+    const user = await User.signup(decoded.name, decoded.email, decoded.password)
+
+    const accessToken = generateAccessToken({ 
+      userInfo: {
+        _id: user._id, 
+        name: user.name, 
+        email: user.email, 
+        roles: user.roles
+      } 
+    })
+
+    if(decoded.persist){
+      const refreshToken = generateRefreshToken(user._id)
+      res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'Lax', secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
+    }
+
+    res.status(200).json(accessToken)
   } catch (error) {
     next(error)
   }
 }
 
-exports.refresh = (req, res, next) => {
+exports.refresh = async (req, res, next) => {
   try {
-    const cookies = req.cookies
-    if (!cookies?.jwt) throw new CustomError('Unauthorized Refresh token not found')
-    const refreshToken = cookies.jwt
+    if (!req.cookies.jwt) throw new CustomError('Unauthorized refresh token not found', 401)
+    const refreshToken = req.cookies.jwt
 
-    jwt.verify(
-      refreshToken, 
-      process.env.REFRESH_TOKEN_SECRET,
-      async (err, decoded) => {
-          if (err?.name == 'TokenExpiredErro') throw new CustomError('Forbidden token expired', 403)
-          if (err) throw new CustomError('Forbidden', 403)
-    
-        const foundUser = await User.findOne({ _id: decoded._id }).lean().exec()
-        if (!foundUser) throw new CustomError('Unauthorized user not found', 403)
-    
-        if(!foundUser.active){
-          res.clearCookie('jwt', { httpOnly: true, sameSite: 'Lax', secure: true })
-          throw new CustomError('Your account has been blocked', 403)
-        }
-    
-        const accessToken = generateAccessToken({userInfo: {_id: foundUser._id, name: foundUser.name, email: foundUser.email, roles: foundUser.roles}})
-        res.status(200).json(accessToken)
+    let decoded
+
+    try {
+      decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET)
+    } catch (jwtError) {
+      if (jwtError instanceof jwt.TokenExpiredError) {
+        res.clearCookie('jwt', { httpOnly: true, sameSite: 'Lax', secure: true })
+        throw new CustomError('Forbidden token expired', 403)
+      } else if (jwtError instanceof jwt.JsonWebTokenError) {
+        res.clearCookie('jwt', { httpOnly: true, sameSite: 'Lax', secure: true })
+        throw new CustomError('Invalid token', 403)
+      } else {
+        throw new CustomError('Token verification failed', 403)
       }
-    )
+    }
+
+    const foundUser = await User.findOne({ _id: decoded._id }).lean().exec()
+    if (!foundUser) throw new CustomError('Unauthorized user not found', 403)
+
+    if(!foundUser.active){
+      res.clearCookie('jwt', { httpOnly: true, sameSite: 'Lax', secure: true })
+      throw new CustomError('Your account has been blocked', 403)
+    }
+
+    const accessToken = generateAccessToken({
+      userInfo: {
+        _id: foundUser._id, 
+        name: foundUser.name, 
+        email: foundUser.email, 
+        roles: foundUser.roles
+      }
+    })
+
+    res.status(200).json(accessToken)
   } catch (error) {
     next(error)
   }
@@ -157,11 +191,10 @@ exports.verifyEmail = async (req, res, next) => {
     verificationStatus[email] = { emailVerified: isEmailVerified }
 
     const isEmailEmpty = validator.isEmpty(email ?? '', { ignore_whitespace:true })
-  
     if (isEmailEmpty) throw new CustomError('Email Address Require', 400)
-    if (!validator.isEmail(email)) throw new CustomError('Email not valid', 400)
+    if (!validator.isEmail(email, options)) throw new CustomError('Email not valid', 400)
   
-    const emailExist = await User.findOne({ email: email}).exec()
+    const emailExist = await User.findOne({ email }).exec()
     if (!emailExist) throw new CustomError('Email Address Not Found', 400)
   
     if(!emailExist.active) return res.status(403).json({ error: 'Your account has been temporarily blocked. Please reach out to our Technical Support team for further assistance.', emailVerified: isEmailVerified })
@@ -186,7 +219,7 @@ exports.verifyEmail = async (req, res, next) => {
     await redisClient.set(email, token, { EX: 300 })
 
     resetPassword.receiveOTP(email, otp)
-    // console.log(`Generated OTP for ${req.ip}: ${otp}`);
+    // console.log(`Generated OTP for ${req.ip}: ${otp}`)
 
     isEmailVerified = true
     verificationStatus[email].emailVerified = isEmailVerified
@@ -208,38 +241,51 @@ exports.verifyOTP = async (req, res, next) => {
 
     if (!otpToken || isOtpEmpty || otp.length < 6) throw new CustomError('Invalid OTP', 400)
 
-    const emailExist = await User.findOne({ email: email}).exec()
+    const emailExist = await User.findOne({ email }).exec()
     if(!emailExist || !emailExist.active) return res.status(403).json({ error: 'Your account has been blocked. Access has been prohibited for security reasons.', otpVerified: isOtpVerified })
-    
-    jwt.verify(otpToken, process.env.OTP_TOKEN_SECRET, async (err, decoded) => {
-      if (err || decoded.otp !== otp){
-        const now = new Date()
-        const day = 24 * 60 * 60 * 1000
-    
-        if (emailExist.otp.errorCount >= 3 && emailExist.otp.errorDate && (now - emailExist.otp.errorDate) < day) {
-          await User.updateOne({ email }, {$set: { 'active': false }})
-          return res.status(429).json({ error: "You've tried too many times with an incorrect OTP, this account has been temporarily blocked for security reasons. Please reach out to our Technical Support team for further assistance.", otpVerified: isOtpVerified })
-        }
-    
-        if ((now - emailExist.otp.errorDate) >= day) {
-          await User.updateOne({ email }, {$set: { 'otp.errorCount': 0}})
-        }
-        
-        if(!emailExist.active) return res.status(403).json({ error: 'Your account has been temporarily blocked. Please reach out to our Technical Support team for further assistance.', otpVerified: isOtpVerified })
-        
-        emailExist.otp.errorCount += 1
-        emailExist.otp.errorDate = new Date()
-        await emailExist.save()
 
-        throw new CustomError('Invalid or expired OTP', 400)
+    let decoded
+
+    try {
+      decoded = jwt.verify(otpToken, process.env.OTP_TOKEN_SECRET)
+    } catch (jwtError) {
+      if (jwtError instanceof jwt.TokenExpiredError) {
+        throw new CustomError('Forbidden token expired', 403)
+      } else if (jwtError instanceof jwt.JsonWebTokenError) {
+        throw new CustomError('Invalid token', 403)
+      } else {
+        throw new CustomError('Token verification failed', 403)
       }
+    }
 
-      await redisClient.del(email)
+    if (!decoded || decoded.otp !== otp){
+      const now = new Date()
+      const day = 24 * 60 * 60 * 1000
+  
+      if (emailExist.otp.errorCount >= 3 && emailExist.otp.errorDate && (now - emailExist.otp.errorDate) < day) {
+        await User.updateOne({ email }, {$set: { 'active': false }})
+        return res.status(429).json({ error: "You've tried too many times with an incorrect OTP, this account has been temporarily blocked for security reasons. Please reach out to our Technical Support team for further assistance.", otpVerified: isOtpVerified })
+      }
+  
+      if ((now - emailExist.otp.errorDate) >= day) {
+        await User.updateOne({ email }, {$set: { 'otp.errorCount': 0}})
+      }
+      
+      if(!emailExist.active) return res.status(403).json({ error: 'Your account has been temporarily blocked. Please reach out to our Technical Support team for further assistance.', otpVerified: isOtpVerified })
+      
+      emailExist.otp.errorCount += 1
+      emailExist.otp.errorDate = new Date()
+      await emailExist.save()
 
-      isOtpVerified = true
-      verificationStatus[email].otpVerified = isOtpVerified
-      res.status(200).json({ otpVerified: isOtpVerified })
-    })
+      throw new CustomError('Invalid or expired OTP', 400)
+    }
+
+    await redisClient.del(email)
+
+    isOtpVerified = true
+    verificationStatus[email].otpVerified = isOtpVerified
+
+    res.status(200).json({ otpVerified: isOtpVerified })
   } catch (error) {
     next(error)
   }
@@ -252,11 +298,10 @@ exports.restPassword = async (req, res, next) => {
     let isPasswordUpdated = false
 
     const isPasswordEmpty = validator.isEmpty(password ?? '', { ignore_whitespace:true })
-
     if (isPasswordEmpty) throw new CustomError('Password Require', 400)
     if (!validator.isStrongPassword(password)) throw new CustomError('Password not strong enough', 400)
   
-    const emailExist = await User.findOne({ email: email }).lean()
+    const emailExist = await User.findOne({ email }).lean()
     if(!emailExist || !emailExist.active) return res.status(403).json({ error: 'Your account has been blocked. Access has been prohibited for security reasons.', passwordUpdated: isPasswordUpdated })
   
     const hashedPassword = await bcrypt.hash(password, 10)
