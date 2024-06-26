@@ -8,9 +8,8 @@ const redisClient = require('../config/redisConn')
 const activateMail= require('../utils/activateMail')
 const resetPassword= require('../utils/resetPassword')
 const { CustomError } = require('../middleware/errorHandler')
+const { validateAuthInputField } = require('../utils/validation')
 const { generateAccessToken, generateRefreshToken, generateOTPToken } = require('../utils/generateToken')
-
-const options = { host_whitelist: ['gmail.com', 'yahoo.com', 'outlook.com'] }
 
 const verificationStatus = {}
 
@@ -63,12 +62,7 @@ exports.signup = async (req, res, next) => {
   try {
     const { name, email, password, persist } = req.body
 
-    const isNameEmpty = validator.isEmpty(name ?? '', { ignore_whitespace:true })
-    const isEmailEmpty = validator.isEmpty(email ?? '', { ignore_whitespace:true })
-    const isPasswordEmpty = validator.isEmpty(password ?? '', { ignore_whitespace:true })
-    if (isNameEmpty || isEmailEmpty || isPasswordEmpty) throw new CustomError('All fields must be filled', 400)
-    if (!validator.isEmail(email, options)) throw new CustomError('Email not valid', 400)
-    if (!validator.isStrongPassword(password)) throw new CustomError('Password not strong enough', 400)
+    validateAuthInputField({ name, email, password })
   
     const duplicateEmail = await User.findOne({ email }).collation({ locale: 'en', strength: 2 }).lean().exec()
     if (duplicateEmail) throw new CustomError('Email already in use', 409)
@@ -190,9 +184,7 @@ exports.verifyEmail = async (req, res, next) => {
 
     verificationStatus[email] = { emailVerified: isEmailVerified }
 
-    const isEmailEmpty = validator.isEmpty(email ?? '', { ignore_whitespace:true })
-    if (isEmailEmpty) throw new CustomError('Email Address Require', 400)
-    if (!validator.isEmail(email, options)) throw new CustomError('Email not valid', 400)
+    validateAuthInputField({ email })
   
     const emailExist = await User.findOne({ email }).exec()
     if (!emailExist) throw new CustomError('Email Address Not Found', 400)
@@ -219,7 +211,6 @@ exports.verifyEmail = async (req, res, next) => {
     await redisClient.set(email, token, { EX: 300 })
 
     resetPassword.receiveOTP(email, otp)
-    // console.log(`Generated OTP for ${req.ip}: ${otp}`)
 
     isEmailVerified = true
     verificationStatus[email].emailVerified = isEmailVerified
@@ -297,9 +288,7 @@ exports.restPassword = async (req, res, next) => {
     const email = req.email
     let isPasswordUpdated = false
 
-    const isPasswordEmpty = validator.isEmpty(password ?? '', { ignore_whitespace:true })
-    if (isPasswordEmpty) throw new CustomError('Password Require', 400)
-    if (!validator.isStrongPassword(password)) throw new CustomError('Password not strong enough', 400)
+    validateAuthInputField({ password })
   
     const emailExist = await User.findOne({ email }).lean()
     if(!emailExist || !emailExist.active) return res.status(403).json({ error: 'Your account has been blocked. Access has been prohibited for security reasons.', passwordUpdated: isPasswordUpdated })

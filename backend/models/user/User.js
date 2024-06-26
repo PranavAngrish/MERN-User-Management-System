@@ -2,10 +2,8 @@ const mongoose = require('mongoose')
 const otpSchema = require('./otp')
 const passwordSchema = require('./password')
 const bcrypt = require('bcrypt')
-const validator = require('validator')
 const { CustomError } = require('../../middleware/errorHandler')
-
-const options = { host_whitelist: ['gmail.com', 'yahoo.com', 'outlook.com'] }
+const { validateAuthInputField } = require('../../utils/validation')
 
 const userSchema = new mongoose.Schema({
   googleId: {
@@ -50,12 +48,7 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true })
 
 userSchema.statics.signup = async function(name, email, password) {
-  const isNameEmpty = validator.isEmpty(name ?? '', { ignore_whitespace:true })
-  const isEmailEmpty = validator.isEmpty(email ?? '', { ignore_whitespace:true })
-  const isPasswordEmpty = validator.isEmpty(password ?? '', { ignore_whitespace:true })
-  
-  if (isNameEmpty || isEmailEmpty || isPasswordEmpty) throw new CustomError('All fields must be filled', 400)
-  if (!validator.isEmail(email, options)) throw new CustomError('Email not valid', 400)
+  validateAuthInputField({ name, email, password })
 
   const duplicateEmail = await this.findOne({ email }).collation({ locale: 'en', strength: 2 }).lean().exec()
   if (duplicateEmail) throw new CustomError('Email already in use', 409)
@@ -69,11 +62,9 @@ userSchema.statics.signup = async function(name, email, password) {
 }
 
 userSchema.statics.login = async function(email, password) {
-  const isEmailEmpty = validator.isEmpty(email, { ignore_whitespace:true })
-  const isPasswordEmpty = validator.isEmpty(password, { ignore_whitespace:true })
-  if (isEmailEmpty || isPasswordEmpty) throw new CustomError('All fields must be filled', 400)
+  validateAuthInputField({ email, password })
 
-  const user = await this.findOne({ email: email.trim() }).exec()
+  const user = await this.findOne({ email }).exec()
   if (!user) throw new CustomError('Incorrect Email', 400)
     
   if(!user.active) throw new CustomError('Your account has been temporarily blocked. Please reach out to our Technical Support team for further assistance.', 403)
