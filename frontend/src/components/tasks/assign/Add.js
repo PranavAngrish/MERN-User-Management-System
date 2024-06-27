@@ -48,8 +48,7 @@ const Add = ({ task_id }) => {
       setError(null)
       setShow(false)
     } catch (error) {
-      // console.log(error)
-      setError(error.response.data.error)
+      setError(error.response?.data.error)
     }
   }
 

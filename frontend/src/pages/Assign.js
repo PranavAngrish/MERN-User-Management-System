@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react'
+import { OverlayTrigger, Tooltip} from "react-bootstrap"
 import { ROLES } from '../config/roles'
 import { usePathContext } from '../context/path'
 import { useAuthContext } from '../context/auth'
@@ -53,8 +54,12 @@ const Assgin = () => {
       {admin && (
       <>
         <div className="bg-success bg-opacity-25 rounded pt-2 mb-3">
-          <span className="mx-3 d-inline-flex align-items-center"><FaTasks className="fs-4"/>&ensp;{title}</span>
-          <span className="d-inline-flex align-items-center"><MdAdminPanelSettings className="fs-4"/>&ensp;{createdBy.name}</span>
+          <OverlayTrigger placement="bottom" overlay={<Tooltip>Task Name</Tooltip>}>
+            <span className="mx-3 d-inline-flex align-items-center"><FaTasks className="fs-4"/>&ensp;{title}</span>
+          </OverlayTrigger>
+          <OverlayTrigger placement="bottom" overlay={<Tooltip>Task created by</Tooltip>}>
+            <span className="d-inline-flex align-items-center"><MdAdminPanelSettings className="fs-4"/>&ensp;{createdBy.name}</span>
+          </OverlayTrigger>
         </div>
         
         <Add task_id={id}/>
