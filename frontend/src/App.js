@@ -32,7 +32,6 @@ function App() {
   useEffect(() => {
     if (auth?.accessToken) {
       const socket = io(process.env.REACT_APP_SOCKET_URL)
-      socket.emit('setUserId', auth._id)
       socket.emit('online', auth._id)
 
       return () => {
