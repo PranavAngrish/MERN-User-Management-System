@@ -1,170 +1,192 @@
-const mongoose = require('mongoose')
 const validator = require('validator')
 const Task = require('../models/task')
 const User = require('../models/user/User')
 const ROLES_LIST = require('../config/rolesList')
+const { CustomError } = require('../middleware/errorHandler')
+const { validateObjectId } = require('../utils/validation')
 
-exports.getAll = async (req, res) => {
-  const userId = req.user._id
-
-  const task = {
-    Root: await Task.find().sort({createdAt: -1}).populate('createdBy', 'name').lean(),
-    Admin: await Task.find({createdBy: userId}).populate('createdBy', 'name').sort({createdAt: -1}).lean(),
-    User: await Task.find({assignedTo: userId}).populate('createdBy', 'name').sort({createdAt: -1}).lean()
-  }
-
-  const tasks = task[req.roles]
-
-  if (!tasks?.length) return res.status(400).json({ error: 'No tasks record found' })
-  res.status(200).json(tasks)
-}
-
-exports.adminGetAll = async (req, res) => {
-  const admin_id = req.user._id
-  const user_id = req.body.id
-
-  if(!user_id && (admin_id == user_id)) return res.status(400).json({ error: 'User id not found' })
-  if (!mongoose.Types.ObjectId.isValid(user_id)) return res.status(404).json({error: 'No such task id found'})
-
-  const tasks = await Task.find({user_id: user_id}).sort({createdAt: -1}).lean()
-  if (!tasks) return res.status(400).json({ error: 'No tasks record found' })
-
-  res.status(200).json(tasks)
-}
-
-exports.getById = async (req, res) => {
-  const { id } = req.params
-
-  if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).json({error: 'No such task id found'})
-
-  const task = await Task.findById(id).lean().exec()
-  if (!task) return res.status(404).json({error: 'No such task record found'})
-
-  res.status(200).json(task)
-}
-
-exports.create = async (req, res) => {
-  const {title, description} = req.body
-
-  const isTitleEmpty = validator.isEmpty(title ?? "", { ignore_whitespace:true })
-  const isDescriptionEmpty = validator.isEmpty(description ?? "", { ignore_whitespace:true })
-  if (isTitleEmpty || isDescriptionEmpty) return res.status(400).json({ error: 'All fields must be filled'})
-
+exports.getAll = async (req, res, next) => {
   try {
+    const userId = req.user._id
+  
+    const task = {
+      Root: await Task.find().sort({createdAt: -1}).populate('createdBy', 'name').lean(),
+      Admin: await Task.find({createdBy: userId}).populate('createdBy', 'name').sort({createdAt: -1}).lean(),
+      User: await Task.find({assignedTo: userId}).populate('createdBy', 'name').sort({createdAt: -1}).lean()
+    }
+  
+    const tasks = task[req.roles]
+  
+    if (!tasks?.length) throw new CustomError('No tasks record found', 404)
+    res.status(200).json(tasks)
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.adminGetAll = async (req, res, next) => {
+  try {
+    const admin_id = req.user._id
+    const user_id = req.body.id
+  
+    validateObjectId(user_id, 'Task')
+    if(!user_id && (admin_id === user_id)) throw new CustomError('User id not found', 404)
+  
+    const tasks = await Task.find({user_id: user_id}).sort({createdAt: -1}).lean()
+    if (!tasks) throw new CustomError('No tasks record found', 404)
+  
+    res.status(200).json(tasks)
+
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.getById = async (req, res, next) => {
+  try {
+    const { id } = req.params
+  
+    validateObjectId(id, 'Task')
+  
+    const task = await Task.findById(id).lean().exec()
+    if (!task) throw new CustomError('No such task record found', 404)
+  
+    res.status(200).json(task)
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.create = async (req, res, next) => {
+  try {
+    const {title, description} = req.body
+  
+    const isTitleEmpty = validator.isEmpty(title ?? "", { ignore_whitespace:true })
+    const isDescriptionEmpty = validator.isEmpty(description ?? "", { ignore_whitespace:true })
+    if (isTitleEmpty || isDescriptionEmpty) return res.status(400).json({ error: 'All fields must be filled'})
+  
     const adminId = req.user._id
     const task = await Task.create({ title, description, createdBy: adminId })
+
     res.status(201).json(task)
   } catch (error) {
-    res.status(400).json({ error: error.message })
+    next(error)
   }
 }
 
-exports.update = async (req, res) => {
-  const { id } = req.params
+exports.update = async (req, res, next) => {
+  try {
+    const { id } = req.params
+    
+    validateObjectId(id, 'Task')
   
-  const isIdEmpty = validator.isEmpty(id, { ignore_whitespace:true })
-  if (isIdEmpty) return res.status(400).json({error: 'Task id required'})
-  if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({error: 'No such task id found'})
-
-  const ownerId = req.user._id
-  const createdBy = await Task.find({createdBy: ownerId}).select('createdBy').lean().exec()
-  const owner = (req.roles == ROLES_LIST.Admin) || (createdBy == ownerId)
-  const updateRight = owner || (req.roles == ROLES_LIST.Root)
-  if(!updateRight) return res.status(400).json({error: 'Not authorized to edit this task'})
+    const ownerId = req.user._id
+    const createdBy = await Task.find({createdBy: ownerId}).select('createdBy').lean().exec()
+    const owner = req.roles.includes(ROLES_LIST.Admin) || (createdBy === ownerId)
+    const updateRight = owner || req.roles.includes(ROLES_LIST.Root)
+    if(!updateRight) throw new CustomError('Not authorized to edit this task', 401)
+    
+    const task = await Task.findOneAndUpdate({_id: id}, {...req.body }).lean().exec()
+    if (!task) throw new CustomError('No such task record found', 404)
   
-  const task = await Task.findOneAndUpdate({_id: id}, {...req.body }).lean().exec()
-  if (!task) return res.status(400).json({error: 'No such task record found'})
-
-  const updatedRecord = await Task.find({createdBy: ownerId}).sort({createdAt: -1}).lean()
-  res.status(200).json(updatedRecord)
+    const updatedRecord = await Task.find({createdBy: ownerId}).sort({createdAt: -1}).lean()
+    res.status(200).json(updatedRecord)
+  } catch (error) {
+    next(error)
+  }
 }
 
-exports.delete = async (req, res) => {
-  const { id } = req.params
-
-  const isIdEmpty = validator.isEmpty(id ?? "", { ignore_whitespace:true })
-  if (isIdEmpty) return res.status(400).json({error: 'Task id required'})
-  if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({error: 'No such task id found'})
+exports.delete = async (req, res, next) => {
+  try {
+    const { id } = req.params
   
-  const ownerId = req.user._id
-  const createdBy = await Task.find({createdBy: ownerId}).select('createdBy').lean().exec()
-  const owner = (req.roles == ROLES_LIST.Admin) || (createdBy == ownerId)
-  const deleteRight = owner || (req.roles == ROLES_LIST.Root)
-  if(!deleteRight) return res.status(400).json({error: 'Not authorized to delete this task'})
-
-  const task = await Task.findByIdAndDelete(id).lean().exec()
-  if(!task) return res.status(400).json({error: 'No such task record found'})
-
-  res.status(200).json(task)
+    validateObjectId(id, 'Task')
+    
+    const ownerId = req.user._id
+    const createdBy = await Task.find({createdBy: ownerId}).select('createdBy').lean().exec()
+    const owner = req.roles.includes(ROLES_LIST.Admin) || (createdBy === ownerId)
+    const deleteRight = owner || req.roles.includes(ROLES_LIST.Root)
+    if(!deleteRight) throw new CustomError('Not authorized to delete this task', 401)
+  
+    const task = await Task.findByIdAndDelete(id).lean().exec()
+    if(!task) throw new CustomError('No such task record found', 404)
+  
+    res.status(200).json(task)
+  } catch (error) {
+    next(error)
+  }
 }
 
-exports.getAssignUser = async (req, res) => {
-  const { id } = req.params
-
-  const isIdEmpty = validator.isEmpty(id ?? "", { ignore_whitespace:true })
-  if (isIdEmpty) return res.status(400).json({error: 'Task id required'})
-  if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({error: 'No such task id found'})
-
-  const tasks = await Task.findById(id).populate('assignedTo', 'name').select('assignedTo').lean().exec()
-  if(!tasks) return res.status(400).json({error: 'Not assigned to user'})
-
-  res.status(200).json(tasks)
+exports.getAssignUser = async (req, res, next) => {
+  try {
+    const { id } = req.params
+  
+    validateObjectId(id, 'Task')
+  
+    const tasks = await Task.findById(id).populate('assignedTo', 'name').select('assignedTo').lean().exec()
+    if(!tasks) throw new CustomError('Not assigned to user', 400)
+    
+    res.status(200).json(tasks)
+  } catch (error) {
+    next(error)
+  }
 }
 
-exports.assignUser = async (req, res) => {
-  const { task_id, user_id } = req.body
-
-  const isTaskIdEmpty = validator.isEmpty(task_id ?? "", { ignore_whitespace:true })
-  if (isTaskIdEmpty) return res.status(400).json({error: 'Task id required'})
-  if (!mongoose.Types.ObjectId.isValid(task_id)) return res.status(400).json({error: 'No such task id found'})
-
-  user_id.map(id => {
-    const isUserIdEmpty = validator.isEmpty(id ?? "", { ignore_whitespace:true })
-    if (isUserIdEmpty) return res.status(400).json({error: 'Task id required'})
-    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({error: 'No such user id found'})
-  })
-
-  const ownerId = req.user._id
-  const createdBy = await Task.find({createdBy: ownerId}).select('createdBy').lean().exec()
-  const owner = (req.roles == ROLES_LIST.Admin) || (createdBy == ownerId)
-  const createRight = owner || (req.roles == ROLES_LIST.Root)
-  if(!createRight) return res.status(400).json({error: 'Not authorized to assign this user'})
-
-  const assignTasks = await Task.findByIdAndUpdate(task_id, {$push: {assignedTo: user_id}}).lean().exec()
-  if(!assignTasks) return res.status(400).json({error: "Something went wrong, Can't assign tasks" })
-
-  const assignUser = user_id.map(async id => await User.findByIdAndUpdate(id, {$push: {tasks: task_id}}).lean().exec())
-  if(!assignUser) return res.status(400).json({error: "Something went wrong, Can't assign user"})
-
-  //return assigned user
-  const assignedUser = await Task.findById(task_id).populate('assignedTo', 'name').select('assignedTo').lean().exec()
-  if(!assignedUser) return res.status(400).json({error: 'No assigned user found'})
+exports.assignUser = async (req, res, next) => {
+  try {
+    const { task_id, user_id } = req.body
   
-  res.status(200).json(assignedUser)
+    validateObjectId(task_id, 'Task')
+  
+    user_id.map(id => validateObjectId(id, 'User'))
+  
+    const ownerId = req.user._id
+    const createdBy = await Task.find({createdBy: ownerId}).select('createdBy').lean().exec()
+    const owner = req.roles.includes(ROLES_LIST.Admin) || (createdBy === ownerId)
+    const createRight = owner || req.roles.includes(ROLES_LIST.Root)
+    if(!createRight) throw new CustomError('Not authorized to assign this user', 401)
+  
+    const assignTasks = await Task.findByIdAndUpdate(task_id, {$push: {assignedTo: user_id}}).lean().exec()
+    if(!assignTasks) throw new CustomError("Something went wrong, Can't assign tasks", 400)
+  
+    const assignUser = user_id.map(async id => await User.findByIdAndUpdate(id, {$push: {tasks: task_id}}).lean().exec())
+    if(!assignUser) throw new CustomError("Something went wrong, Can't assign user", 400)
+  
+    //return assigned user
+    const assignedUser = await Task.findById(task_id).populate('assignedTo', 'name').select('assignedTo').lean().exec()
+    if(!assignedUser) throw new CustomError('No assigned user found', 404)
+    
+    res.status(200).json(assignedUser)
+  } catch (error) {
+    console.log(error)
+    next(error)
+  }
 }
 
-exports.deleteAssign = async (req, res) => {
-  const { id } = req.params
-  const { user_id } = req.body
-
-  const isIdEmpty = validator.isEmpty(id ?? "", { ignore_whitespace:true })
-  if (isIdEmpty) return res.status(400).json({error: 'Task id required'})
-  if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({error: 'No such task id found'})
+exports.deleteAssign = async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const { user_id } = req.body
   
-  const ownerId = req.user._id
-  const createdBy = await Task.find({createdBy: ownerId}).select('createdBy').lean().exec()
-  const owner = (req.roles == ROLES_LIST.Admin) || (createdBy == ownerId)
-  const deleteRight = owner || (req.roles == ROLES_LIST.Root)
-  if(!deleteRight) return res.status(400).json({error: 'Not authorized to delete this user'})
-
-  const removeAssign = await Task.findByIdAndUpdate(id, {$pull: {assignedTo: user_id}}).lean().exec()
-  if(!removeAssign) return res.status(400).json({error: "Something went wrong, Can't delete tasks"})
-
-  const removeUser = await User.findByIdAndUpdate(user_id, {$pull: {tasks: id}}).lean().exec()
-  if(!removeUser) return res.status(400).json({error: "Something went wrong, Can't remove tasks from user"})
-
-  const assignedUser = await Task.findById(id).populate('assignedTo', 'name').select('assignedTo').lean().exec()
-  if(!assignedUser) return res.status(400).json({error: 'No assigned user found'})
-
-  res.status(200).json(assignedUser)
+    validateObjectId(task_id, 'Task')
+    
+    const ownerId = req.user._id
+    const createdBy = await Task.find({createdBy: ownerId}).select('createdBy').lean().exec()
+    const owner = req.roles.includes(ROLES_LIST.Admin) || (createdBy === ownerId)
+    const deleteRight = owner || req.roles.includes(ROLES_LIST.Root)
+    if(!deleteRight) throw new CustomError('Not authorized to delete this user', 401)
+  
+    const removeAssign = await Task.findByIdAndUpdate(id, {$pull: {assignedTo: user_id}}).lean().exec()
+    if(!removeAssign) throw new CustomError("Something went wrong, Can't delete tasks", 400)
+  
+    const removeUser = await User.findByIdAndUpdate(user_id, {$pull: {tasks: id}}).lean().exec()
+    if(!removeUser) throw new CustomError("Something went wrong, Can't remove tasks from user", 400)
+  
+    const assignedUser = await Task.findById(id).populate('assignedTo', 'name').select('assignedTo').lean().exec()
+    if(!assignedUser) throw new CustomError('No assigned user found', 404)
+  
+    res.status(200).json(assignedUser)
+  } catch (error) {
+    next(error)
+  }
 }
