@@ -1,9 +1,6 @@
-const mongoose = require('mongoose')
-const validator = require('validator')
-const Note = require('../models/Note')
+const bcrypt = require('bcrypt')
 const User = require('../models/user/User')
 const ROLES_LIST = require('../config/rolesList')
-const bcrypt = require('bcrypt')
 const { CustomError } = require('../middleware/errorHandler')
 const { validateAuthInputField, validateObjectId } = require('../utils/validation')
 
@@ -24,6 +21,7 @@ exports.getAll = async (req, res, next) => {
                 ],
                 roles: { $ne: ROLES_LIST.Root }
             }
+
             users = await User.find(query).sort({ isOnline: -1, lastActive: -1 }).select('-password').lean()
         }
         
@@ -38,7 +36,7 @@ exports.create = async (req, res, next) => {
     try {
         const { name, email, password, roles, active } = req.body
 
-        validateAuthInputField(name, email, password)
+        validateAuthInputField({ name, email, password })
 
         if(roles){if (!Array.isArray(roles) || !roles.length) throw new CustomError('Invalid roles data type received', 400)}
         if(active){if(typeof active !== 'boolean') throw new CustomError('Invalid active data type received', 400)}
@@ -73,19 +71,19 @@ exports.update = async (req, res, next) => {
         const updateFields = {}
     
         if(name) { 
-            validateAuthInputField(name)
+            validateAuthInputField({ name })
             updateFields.name = name 
         }
     
         if(email){
-            validateAuthInputField(email)
+            validateAuthInputField({ email })
             const duplicateEmail = await User.findOne({ email }).collation({ locale: 'en', strength: 2 }).lean().exec()
             if (duplicateEmail && duplicateEmail?._id.toString() !== id) throw new CustomError('Email already in use', 409)
             updateFields.email = email
         }
     
         if(password){
-            validateAuthInputField(password)
+            validateAuthInputField({ password })
             const hashedPassword = await bcrypt.hash(password, 10)
             updateFields.password = { hashed: hashedPassword, errorCount: 0}
         }
@@ -105,8 +103,17 @@ exports.update = async (req, res, next) => {
 
         const updatedUser = await User.findByIdAndUpdate(id, { $set: updateFields }, { new: true, runValidators: true }).lean().exec()
         if (!updatedUser) throw new CustomError( 'User not found, something went wrong, during update', 404)
-    
-        const users = await User.find().sort({ isOnline: -1, lastActive: -1 }).select('-password -otp').lean().exec()
+
+        const query = {
+            $or: [
+                { roles: ROLES_LIST.User },
+                { _id: req.user._id }
+            ],
+            roles: { $ne: ROLES_LIST.Root }
+        }    
+
+        const users = await User.find(query).sort({ isOnline: -1, lastActive: -1 }).select('-password -otp').lean().exec()
+        
         res.status(200).json(users)
     } catch (error) {
         next(error)

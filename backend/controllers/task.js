@@ -58,15 +58,15 @@ exports.getById = async (req, res, next) => {
 }
 
 exports.create = async (req, res, next) => {
-  try {
-    const {title, description} = req.body
-  
-    const isTitleEmpty = validator.isEmpty(title ?? "", { ignore_whitespace:true })
-    const isDescriptionEmpty = validator.isEmpty(description ?? "", { ignore_whitespace:true })
-    if (isTitleEmpty || isDescriptionEmpty) return res.status(400).json({ error: 'All fields must be filled'})
+  try { 
+    const { title, description } = req.body
+
+    validateAuthInputField({ title, description })
   
     const adminId = req.user._id
+
     const task = await Task.create({ title, description, createdBy: adminId })
+    if(!task) throw new CustomError('Something went wrong, during creating new task', 400)
 
     res.status(201).json(task)
   } catch (error) {
@@ -90,6 +90,7 @@ exports.update = async (req, res, next) => {
     if (!task) throw new CustomError('No such task record found', 404)
   
     const updatedRecord = await Task.find({createdBy: ownerId}).sort({createdAt: -1}).lean()
+
     res.status(200).json(updatedRecord)
   } catch (error) {
     next(error)
@@ -103,7 +104,7 @@ exports.delete = async (req, res, next) => {
     validateObjectId(id, 'Task')
     
     const ownerId = req.user._id
-    const createdBy = await Task.find({createdBy: ownerId}).select('createdBy').lean().exec()
+    const createdBy = await Task.find({ createdBy: ownerId }).select('createdBy').lean().exec()
     const owner = req.roles.includes(ROLES_LIST.Admin) || (createdBy === ownerId)
     const deleteRight = owner || req.roles.includes(ROLES_LIST.Root)
     if(!deleteRight) throw new CustomError('Not authorized to delete this task', 401)
