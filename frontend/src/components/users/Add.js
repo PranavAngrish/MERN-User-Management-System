@@ -7,6 +7,7 @@ import { useAuthContext } from '../../context/auth'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { BiArrowBack } from 'react-icons/bi'
 import { BsPlusLg } from 'react-icons/bs'
+import { ROLES } from '../../config/roles'
 import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 
 const Add = () => {
@@ -15,10 +16,10 @@ const Add = () => {
   const { setTitle } = usePathContext()
   const { dispatch } =  useUserContext()
   const { auth } = useAuthContext()
-  const [error, setError] = useState(null)
-  const [show, setShow] = useState(false)
-  const [changeIcon, setChangeIcon] = useState(false)
-  const [active, setActive] = useState(false)
+  const [ error, setError ] = useState(null)
+  const [ show, setShow ] = useState(false)
+  const [ changeIcon, setChangeIcon ] = useState(false)
+  const [ active, setActive ] = useState(false)
   const nameRef = useRef('')
   const emailRef = useRef('')
   const passwordRef = useRef('')
@@ -83,13 +84,17 @@ const Add = () => {
               <Button variant="default" className="mb-2" onClick={handleShowPassword}>{changeIcon ? <FaEyeSlash/> : <FaEye/>}</Button>
             </div>
           </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Label>Roles:</Form.Label>
-            <select className="form-select" aria-label="select roles" ref={rolesRef} defaultValue={"User"}>
-              <option value="User">User</option>
-              <option value="Admin">Admin</option>
-            </select>
-          </Form.Group>
+
+          {(auth.roles.includes(ROLES.Root)) && (
+            <Form.Group className="mb-3">
+              <Form.Label>Roles:</Form.Label>
+              <select className="form-select" aria-label="select roles" ref={rolesRef} defaultValue={"User"}>
+                <option value="User">User</option>
+                <option value="Admin">Admin</option>
+              </select>
+            </Form.Group>
+          )}
+
           <Form.Group className="mb-3" controlId="formBasicCheckbox">
             <Form.Label>Active:</Form.Label>
             <Form.Check type="switch" ref={activeRef} defaultChecked={active} onClick={() => setActive(!active)}/>

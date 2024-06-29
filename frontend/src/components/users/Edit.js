@@ -22,6 +22,9 @@ const Edit = ({ user }) => {
   const rolesRef = useRef([])
   const activeRef = useRef('')
 
+  const permitEditRole = auth.roles.includes(ROLES.Root)
+  const permiEditActive = auth.roles.includes(ROLES.Root) || user.roles.includes(ROLES.User)
+
   const handleShowPassword =  (e) => {
     e.preventDefault()
     const isPassword = passwordRef.current.type === "password"
@@ -92,8 +95,8 @@ const Edit = ({ user }) => {
               <Button variant="default" className="mb-2" onClick={handleShowPassword}>{changeIcon ? <FaEyeSlash/> : <FaEye/>}</Button>
             </div>
           </Form.Group>
-          {(user.roles == ROLES.User) && (
-            <>
+
+          {(permitEditRole) && (
               <Form.Group className="mb-3">
                 <Form.Label>Roles:</Form.Label>
                 <select className="form-select" aria-label="select roles" ref={rolesRef} defaultValue={user.roles[0]}>
@@ -101,12 +104,15 @@ const Edit = ({ user }) => {
                   <option value="Admin">Admin</option>
                 </select>
               </Form.Group>
-              <Form.Group className="mb-3" controlId="formBasicCheckbox">
-                <Form.Label>Active:</Form.Label>
-                <Form.Check type="switch" ref={activeRef} defaultChecked={active} onClick={() => setActive(!active)}/>
-              </Form.Group>
-            </>
           )}
+
+          {(permiEditActive) && (
+            <Form.Group className="mb-3" controlId="formBasicCheckbox">
+              <Form.Label>Active:</Form.Label>
+              <Form.Check type="switch" ref={activeRef} defaultChecked={active} onClick={() => setActive(!active)}/>
+            </Form.Group>
+          )}
+
           {error && (<Alert variant={'danger'}>{error}</Alert>)}
         </Modal.Body>
         <Modal.Footer>

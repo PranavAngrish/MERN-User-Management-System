@@ -1,10 +1,17 @@
 import Delete from './Delete'
 import View from './View'
 import Edit from './Edit'
-import formatDistanceToNow from 'date-fns/formatDistanceToNow'
+import { ROLES } from '../../config/roles'
 import { MdOutlineWifi, MdOutlineWifiOff  } from 'react-icons/md'
+import formatDistanceToNow from 'date-fns/formatDistanceToNow'
+import { useAuthContext } from '../../context/auth'
 
 const Index = ({ filteredNames }) => {
+  const { auth } = useAuthContext()
+
+  const permitDeleteUser = (auth, user) => {
+    return !auth.roles.includes(ROLES.Admin) || user.roles.includes(ROLES.User);
+  }
 
   return (
     <>
@@ -24,7 +31,7 @@ const Index = ({ filteredNames }) => {
           <td>
             <View user={user}/>
             <Edit user={user}/>
-            <Delete user={user}/>
+            {permitDeleteUser(auth, user) && (<Delete user={ user }/>)}
           </td>
         </tr>
       ))}

@@ -98,21 +98,26 @@ exports.update = async (req, res, next) => {
         }
         
         const rootUser = await User.findById(id).lean().exec()
-        if(rootUser.roles.includes(ROLES_LIST.Root)) throw new CustomError('Not authorized to edit this user', 401)
-        if(req.roles.includes(ROLES_LIST.Admin) && rootUser.roles.includes(ROLES_LIST.Admin)) throw new CustomError('Not authorized to edit this user', 401)
+        if(rootUser.roles.includes(ROLES_LIST.Root)) throw new CustomError('Not authorized to edit root user', 401)
+        if(req.roles.includes(ROLES_LIST.Admin) && rootUser.roles.includes(ROLES_LIST.Admin)) throw new CustomError('Not authorized to edit this admin', 401)
 
         const updatedUser = await User.findByIdAndUpdate(id, { $set: updateFields }, { new: true, runValidators: true }).lean().exec()
         if (!updatedUser) throw new CustomError( 'User not found, something went wrong, during update', 404)
 
-        const query = {
-            $or: [
-                { roles: ROLES_LIST.User },
-                { _id: req.user._id }
-            ],
-            roles: { $ne: ROLES_LIST.Root }
-        }    
 
-        const users = await User.find(query).sort({ isOnline: -1, lastActive: -1 }).select('-password -otp').lean().exec()
+        const query = (rootUser, reqUserId) => {
+            if(rootUser.roles.includes(ROLES_LIST.Root)) return {}
+
+            return {
+                $or: [
+                    { roles: ROLES_LIST.User },
+                    { _id: reqUserId }
+                ],
+                roles: { $ne: ROLES_LIST.Root }
+            }    
+        }
+
+        const users = await User.find(query(rootUser, req.user._id)).sort({ isOnline: -1, lastActive: -1 }).select('-password -otp').lean().exec()
         
         res.status(200).json(users)
     } catch (error) {
@@ -127,9 +132,9 @@ exports.delete = async (req, res, next) => {
         validateObjectId(id, 'User')
     
         const rootUser = await User.findById(id).lean().exec()
-        if(rootUser.roles.includes(ROLES_LIST.Root)) throw new CustomError('Not authorized to delete this user', 401)
-        if(req.roles.includes(ROLES_LIST.Admin) && rootUser.roles.includes(ROLES_LIST.Admin)) throw new CustomError('Not authorized to delete this user', 401)
-            
+        if(rootUser.roles.includes(ROLES_LIST.Root)) throw new CustomError('Not authorized to delete root user', 401)
+        if(req.roles.includes(ROLES_LIST.Admin) && rootUser.roles.includes(ROLES_LIST.Admin)) throw new CustomError('Not authorized to delete this admin', 401)
+        
         const user = await User.findByIdAndDelete(id).lean().exec()
         if (!user) throw new CustomError(400).json('User not found', 404)
     
