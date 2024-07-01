@@ -22,8 +22,8 @@ const Edit = ({ user }) => {
   const rolesRef = useRef([])
   const activeRef = useRef('')
 
-  const permitEditRole = auth.roles.includes(ROLES.Root)
-  const permiEditActive = auth.roles.includes(ROLES.Root) || user.roles.includes(ROLES.User)
+  const permitEditRole = auth.roles.includes(ROLES.Root) && !user.roles.includes(ROLES.Root)
+  const permiEditActive = permitEditRole || user.roles.includes(ROLES.User)
 
   const handleShowPassword =  (e) => {
     e.preventDefault()

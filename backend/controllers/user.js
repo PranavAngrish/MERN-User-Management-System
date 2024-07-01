@@ -6,26 +6,10 @@ const { validateAuthInputField, validateObjectId } = require('../utils/validatio
 
 exports.getAll = async (req, res, next) => {
     try {
-        let users
-        
-        if(req.roles.includes(ROLES_LIST.Root)){
-            users = await User.find().sort({ isOnline: -1, lastActive: -1 }).select('-password').lean()
-        }else{
-            // const adminItSelf = await User.findById(req.user._id).lean().exec()
-            // users = await User.find({$and: [{'roles': {$ne: ROLES_LIST.Root}}, {'roles': {$ne: ROLES_LIST.Admin}}]}).sort({ isOnline: -1, lastActive: 1 }).select('-password').lean()
-            // users.unshift(adminItSelf)
-            const query = {
-                $or: [
-                    { roles: ROLES_LIST.User },
-                    { _id: req.user._id }
-                ],
-                roles: { $ne: ROLES_LIST.Root }
-            }
-
-            users = await User.find(query).sort({ isOnline: -1, lastActive: -1 }).select('-password').lean()
-        }
-        
+        const query = req.roles.includes(ROLES_LIST.Root) ? {} : { $or: [{ roles: ROLES_LIST.User }, { _id: req.user._id }], roles: { $ne: ROLES_LIST.Root }}
+        const users = await User.find(query).sort({ isOnline: -1, lastActive: -1 }).select('-password -otp').lean().exec()
         if (!users?.length) throw new CustomError('No users found', 404)
+        
         res.status(200).json(users)
     } catch (error) {
         next(error)
@@ -46,14 +30,14 @@ exports.create = async (req, res, next) => {
     
         const hashedPassword  = await bcrypt.hash(password, 10)
         
-        if(roles.includes(ROLES_LIST.Admin)) throw new CustomError('Not authorized to create admin', 400)
+        if(roles.includes(ROLES_LIST.Admin) && req.roles.includes(ROLES_LIST.Admin)) throw new CustomError('Not authorized to create admin', 401)
     
         const createUser = { name: name.trim(), email: email.trim(), password: { hashed: hashedPassword }, roles: roles ?? [ROLES_LIST.User], active: active ?? true}
         
         const user = await User.create(createUser)
         if(!user) throw new CustomError('Invalid user data received', 400)
     
-        res.status(201).json({name: user.name, email, roles: user.roles, active: user.active})
+        res.status(201).json({ _id: user._id, name: user.name, email: user.email, roles: user.roles, active: user.active, isOnline: user.isOnline, lastActive: user.lastActive})
     } catch (error) {
         next(error)
     }
@@ -123,7 +107,7 @@ exports.update = async (req, res, next) => {
 exports.delete = async (req, res, next) => {
     try {
         const { id } = req.params
-    
+        console.log(id)
         validateObjectId(id, 'User')
     
         const verifyRole = await User.findById(id).lean().exec()
@@ -144,13 +128,9 @@ exports.getNotAssignUser = async (req, res, next) => {
         const { id } = req.params
       
         validateObjectId(id, 'Task')
-    
-        const notAssign = await User.find({
-            tasks: { $ne: id },
-            roles: { $nin: [ROLES_LIST.Root, ROLES_LIST.Admin] },
-            active: true
-        }).select('_id name').lean().exec()
-    
+            
+        const query = req.roles.includes(ROLES_LIST.Root) ? {} : { tasks: { $ne: id }, roles: { $nin: [ROLES_LIST.Root, ROLES_LIST.Admin] }, active: true }
+        const notAssign = await User.find(query).select('_id name').lean().exec()
         if(!notAssign) throw new CustomError('User not found', 404)
 
         res.status(200).json(notAssign)

@@ -10,14 +10,14 @@ const Index = ({ filteredNames }) => {
   const { auth } = useAuthContext()
 
   const permitDeleteUser = (auth, user) => {
-    return !auth.roles.includes(ROLES.Admin) || user.roles.includes(ROLES.User);
+    return (!auth.roles.includes(ROLES.Admin) && !user.roles.includes(ROLES.Root)) || user.roles.includes(ROLES.User)
   }
 
   return (
     <>
       {filteredNames.map((user, index)=> (
         <tr key={index}>
-          <td>{index + 1}</td>
+          <td>{index + 1 + '.'}</td>
           <td>{user.name}</td>
           <td>{user.email}</td>
           <td>{user.roles}</td>

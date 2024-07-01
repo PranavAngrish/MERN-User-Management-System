@@ -21,10 +21,11 @@ const User = () => {
   
   useEffect(() => {
     const socket = io(process.env.REACT_APP_SOCKET_URL)
+
     setTitle("User Management")
     let isMounted = true
     const abortController = new AbortController()
-
+    
     const getAllUser = async () => {
       try {
         const response = await axiosPrivate.get('/api/users', {
@@ -36,13 +37,19 @@ const User = () => {
         setNotFound(true)
       }
     }
-
+    
     if(auth){
       getAllUser()
     }
 
-    socket.on('adminUpdateUserList', (users) => {
-      dispatch({type: 'SET_USER', payload: users})
+    socket.emit('online', auth._id)
+    
+    socket.on('rootUpdateUserList', (user) => {
+      dispatch({type: 'SET_USER', payload: user})
+    })
+
+    socket.on('adminUpdateUserList', (user) => {
+      dispatch({type: 'SET_USER', payload: user})
     })
 
     return () => {
