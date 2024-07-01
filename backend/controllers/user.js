@@ -84,8 +84,7 @@ exports.update = async (req, res, next) => {
     
         if(password){
             validateAuthInputField({ password })
-            const hashedPassword = await bcrypt.hash(password, 10)
-            updateFields.password = { hashed: hashedPassword, errorCount: 0}
+            updateFields.password = { hashed: await bcrypt.hash(password, 10), errorCount: 0}
         }
     
         if(roles){
@@ -93,31 +92,27 @@ exports.update = async (req, res, next) => {
             updateFields.roles = roles
         }
 
-        if(typeof active === 'boolean'){
-            active ? Object.assign(updateFields, { active: true, password: { hashed: checkUser.password.hashed, errorCount: 0 }, otp: { requests: 0, errorCount: 0 }}) : Object.assign(updateFields, { active: false, isOnline: false})
+        if (typeof active === 'boolean') {
+            updateFields.active = active
+            if (active) {
+                Object.assign(updateFields, { 
+                    password: { hashed: checkUser.password.hashed, errorCount: 0 },
+                    otp: { requests: 0, errorCount: 0 }
+                })
+            } else {
+                updateFields.isOnline = false
+            }
         }
         
-        const rootUser = await User.findById(id).lean().exec()
-        if(rootUser.roles.includes(ROLES_LIST.Root)) throw new CustomError('Not authorized to edit root user', 401)
-        if(req.roles.includes(ROLES_LIST.Admin) && rootUser.roles.includes(ROLES_LIST.Admin)) throw new CustomError('Not authorized to edit this admin', 401)
+        const verifyRole = await User.findById(id).lean().exec()
+        if(verifyRole.roles.includes(ROLES_LIST.Root)) throw new CustomError('Not authorized to edit root user', 401)
+        if(req.roles.includes(ROLES_LIST.Admin) && verifyRole.roles.includes(ROLES_LIST.Admin)) throw new CustomError('Not authorized to edit this admin', 401)
 
         const updatedUser = await User.findByIdAndUpdate(id, { $set: updateFields }, { new: true, runValidators: true }).lean().exec()
         if (!updatedUser) throw new CustomError( 'User not found, something went wrong, during update', 404)
 
-
-        const query = (rootUser, reqUserId) => {
-            if(rootUser.roles.includes(ROLES_LIST.Root)) return {}
-
-            return {
-                $or: [
-                    { roles: ROLES_LIST.User },
-                    { _id: reqUserId }
-                ],
-                roles: { $ne: ROLES_LIST.Root }
-            }    
-        }
-
-        const users = await User.find(query(rootUser, req.user._id)).sort({ isOnline: -1, lastActive: -1 }).select('-password -otp').lean().exec()
+        const query = req.roles.includes(ROLES_LIST.Root) ? {} : { $or: [{ roles: ROLES_LIST.User }, { _id: req.user._id }], roles: { $ne: ROLES_LIST.Root }}
+        const users = await User.find(query).sort({ isOnline: -1, lastActive: -1 }).select('-password -otp').lean().exec()
         
         res.status(200).json(users)
     } catch (error) {
@@ -131,9 +126,9 @@ exports.delete = async (req, res, next) => {
     
         validateObjectId(id, 'User')
     
-        const rootUser = await User.findById(id).lean().exec()
-        if(rootUser.roles.includes(ROLES_LIST.Root)) throw new CustomError('Not authorized to delete root user', 401)
-        if(req.roles.includes(ROLES_LIST.Admin) && rootUser.roles.includes(ROLES_LIST.Admin)) throw new CustomError('Not authorized to delete this admin', 401)
+        const verifyRole = await User.findById(id).lean().exec()
+        if(verifyRole.roles.includes(ROLES_LIST.Root)) throw new CustomError('Not authorized to delete root user', 401)
+        if(req.roles.includes(ROLES_LIST.Admin) && verifyRole.roles.includes(ROLES_LIST.Admin)) throw new CustomError('Not authorized to delete this admin', 401)
         
         const user = await User.findByIdAndDelete(id).lean().exec()
         if (!user) throw new CustomError(400).json('User not found', 404)
