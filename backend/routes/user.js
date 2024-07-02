@@ -15,7 +15,4 @@ router.route('/')
 router.route('/:id')
     .delete(usersController.delete)
 
-router.route('/unassigned/:id')
-    .get(usersController.getNotAssignUser)
-
 module.exports = router

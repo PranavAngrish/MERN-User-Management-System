@@ -21,7 +21,7 @@ const Add = ({ task_id }) => {
     setShow(!show)
 
     try {
-      const response = await axiosPrivate.get(`/api/users/unassigned/${task_id}`)
+      const response = await axiosPrivate.get(`/api/tasks/unassigned/${task_id}`)
       setNotAssignedUser(response.data)
       setError(null)
       if(response.data.length === 0) setError("No idle users found")

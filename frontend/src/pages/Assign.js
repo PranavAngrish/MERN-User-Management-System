@@ -20,8 +20,8 @@ const Assgin = () => {
   const axiosPrivate = useAxiosPrivate()
   const location = useLocation()
   const { id, title, createdBy } = location.state ?? ""
-  const roles = (auth.roles == ROLES.Admin) || (auth.roles == ROLES.Root)
-  const admin =  auth && roles
+  const isAdminOrRoot = auth.roles.includes(ROLES.Admin) || auth.roles.includes(ROLES.Root)
+  const admin = auth && isAdminOrRoot
 
   useEffect(() => {
     setTitle("Assign User")

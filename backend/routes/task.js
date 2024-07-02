@@ -20,5 +20,8 @@ router.route('/assign/:id')
     .get(tasksController.getAssignUser)
     .delete(tasksController.deleteAssign)
 
+router.route('/unassigned/:id')
+    .get(tasksController.getNotAssignUser)
+
 
 module.exports = router

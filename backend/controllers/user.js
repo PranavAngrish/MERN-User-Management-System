@@ -107,7 +107,7 @@ exports.update = async (req, res, next) => {
 exports.delete = async (req, res, next) => {
     try {
         const { id } = req.params
-        console.log(id)
+
         validateObjectId(id, 'User')
     
         const verifyRole = await User.findById(id).lean().exec()
@@ -118,22 +118,6 @@ exports.delete = async (req, res, next) => {
         if (!user) throw new CustomError(400).json('User not found', 404)
     
         res.status(200).json(user)
-    } catch (error) {
-        next(error)
-    }
-}
-
-exports.getNotAssignUser = async (req, res, next) => {
-    try {
-        const { id } = req.params
-      
-        validateObjectId(id, 'Task')
-            
-        const query = req.roles.includes(ROLES_LIST.Root) ? { tasks: { $ne: id }, roles: { $ne: ROLES_LIST.Root }, active: true } : { tasks: { $ne: id }, roles: { $nin: [ROLES_LIST.Root, ROLES_LIST.Admin] }, active: true }
-        const notAssign = await User.find(query).select('_id name').lean().exec()
-        if(!notAssign) throw new CustomError('User not found', 404)
-
-        res.status(200).json(notAssign)
     } catch (error) {
         next(error)
     }

@@ -1,4 +1,3 @@
-const validator = require('validator')
 const Task = require('../models/task')
 const User = require('../models/user/User')
 const ROLES_LIST = require('../config/rolesList')
@@ -142,20 +141,22 @@ exports.assignUser = async (req, res, next) => {
     user_id.map(id => validateObjectId(id, 'User'))
   
     const ownerId = req.user._id
-    const createdBy = await Task.find({ createdBy: ownerId }).select('createdBy').lean().exec()
-    const owner = req.roles.includes(ROLES_LIST.Admin) && (createdBy === ownerId)
+    const task = await Task.findById(task_id).select('createdBy').lean().exec()
+    if (!task) throw new CustomError('Task not found', 404)
+
+    const owner = req.roles.includes(ROLES_LIST.Admin) && (task.createdBy.toString() === ownerId.toString())
     const createRight = owner || req.roles.includes(ROLES_LIST.Root)
-    if(!createRight) throw new CustomError('Not authorized to assign this user', 401)
+    if (!createRight) throw new CustomError('Not authorized to assign this user', 401)
   
-    const assignTasks = await Task.findByIdAndUpdate(task_id, { $push: { assignedTo: user_id }}).lean().exec()
-    if(!assignTasks) throw new CustomError("Something went wrong, Can't assign tasks", 400)
+    const assignTasks = await Task.findByIdAndUpdate(
+      task_id, 
+      { $addToSet: { assignedTo: { $each: user_id } } },
+      { new: true }
+    ).lean().exec()
+    if (!assignTasks) throw new CustomError("Something went wrong, Can't assign tasks", 400)
   
-    const assignUser = user_id.map(async id => await User.findByIdAndUpdate(id, { $push: { tasks: task_id }}).lean().exec())
-    if(!assignUser) throw new CustomError("Something went wrong, Can't assign user", 400)
-  
-    //return assigned user
     const assignedUser = await Task.findById(task_id).populate('assignedTo', 'name').select('assignedTo').lean().exec()
-    if(!assignedUser) throw new CustomError('No assigned user found', 404)
+    if (!assignedUser) throw new CustomError('No assigned user found', 404)
     
     res.status(200).json(assignedUser)
   } catch (error) {
@@ -169,24 +170,48 @@ exports.deleteAssign = async (req, res, next) => {
     const { id } = req.params
     const { user_id } = req.body
   
-    validateObjectId(task_id, 'Task')
+    validateObjectId(id, 'Task')
     
     const ownerId = req.user._id
     const createdBy = await Task.find({ createdBy: ownerId }).select('createdBy').lean().exec()
     const owner = req.roles.includes(ROLES_LIST.Admin) && (createdBy === ownerId)
     const deleteRight = owner || req.roles.includes(ROLES_LIST.Root)
     if(!deleteRight) throw new CustomError('Not authorized to delete this user', 401)
+
+    const updatedTask = await Task.findByIdAndUpdate(
+      id, 
+      { $pull: { assignedTo: user_id }},
+      { new: true }
+    ).populate('assignedTo', 'name').select('assignedTo').lean().exec()
+
+    if (!updatedTask) throw new CustomError("Failed to update task", 400)
   
-    const removeAssign = await Task.findByIdAndUpdate(id, { $pull: { assignedTo: user_id }}).lean().exec()
-    if(!removeAssign) throw new CustomError("Something went wrong, Can't delete tasks", 400)
-  
-    const removeUser = await User.findByIdAndUpdate(user_id, { $pull: { tasks: id }}).lean().exec()
-    if(!removeUser) throw new CustomError("Something went wrong, Can't remove tasks from user", 400)
-  
-    const assignedUser = await Task.findById(id).populate('assignedTo', 'name').select('assignedTo').lean().exec()
-    if(!assignedUser) throw new CustomError('No assigned user found', 404)
-  
-    res.status(200).json(assignedUser)
+    res.status(200).json(updatedTask)
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.getNotAssignUser = async (req, res, next) => {
+  try {
+    const { id } = req.params
+    
+    validateObjectId(id, 'Task')
+    
+    const task = await Task.findById(id).select('assignedTo').lean().exec()
+    if (!task) throw new CustomError('Task not found', 404)
+    
+    const baseQuery = { active: true }
+    if (!req.roles.includes(ROLES_LIST.Root)) {
+      baseQuery.roles = { $nin: [ROLES_LIST.Root, ROLES_LIST.Admin] }
+    } else {
+      baseQuery.roles = { $ne: ROLES_LIST.Root }
+    }
+    
+    const notAssign = await User.find({...baseQuery, _id: { $nin: task.assignedTo }}).select('_id name').lean().exec()
+    if (!notAssign.length) throw new CustomError('No unassigned users found', 404)
+    
+    res.status(200).json(notAssign)
   } catch (error) {
     next(error)
   }
