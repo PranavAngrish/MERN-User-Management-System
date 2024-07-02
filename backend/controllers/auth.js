@@ -20,7 +20,7 @@ exports.login = async (req, res, next) => {
       headers: {"Content-Type": "application/x-www-form-urlencoded"}
     })
 
-    if(!reCaptchaRe.data.success && !(reCaptchaRe.data.score > 0.5)) throw new CustomError('Google ReCaptcha Validation Failure', 403)
+    if(!reCaptchaRe.data.success || reCaptchaRe.data.score <= 0.5) throw new CustomError('Google ReCaptcha Validation Failure', 403)
    
     const user = await User.login(email, password)
 
