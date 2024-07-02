@@ -129,7 +129,7 @@ exports.getNotAssignUser = async (req, res, next) => {
       
         validateObjectId(id, 'Task')
             
-        const query = req.roles.includes(ROLES_LIST.Root) ? {} : { tasks: { $ne: id }, roles: { $nin: [ROLES_LIST.Root, ROLES_LIST.Admin] }, active: true }
+        const query = req.roles.includes(ROLES_LIST.Root) ? { tasks: { $ne: id }, roles: { $ne: ROLES_LIST.Root }, active: true } : { tasks: { $ne: id }, roles: { $nin: [ROLES_LIST.Root, ROLES_LIST.Admin] }, active: true }
         const notAssign = await User.find(query).select('_id name').lean().exec()
         if(!notAssign) throw new CustomError('User not found', 404)
 

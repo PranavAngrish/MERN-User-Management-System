@@ -3,16 +3,16 @@ const Task = require('../models/task')
 const User = require('../models/user/User')
 const ROLES_LIST = require('../config/rolesList')
 const { CustomError } = require('../middleware/errorHandler')
-const { validateObjectId } = require('../utils/validation')
+const { validateAuthInputField, validateObjectId } = require('../utils/validation')
 
 exports.getAll = async (req, res, next) => {
   try {
     const userId = req.user._id
   
     const task = {
-      Root: await Task.find().sort({createdAt: -1}).populate('createdBy', 'name').lean(),
-      Admin: await Task.find({createdBy: userId}).populate('createdBy', 'name').sort({createdAt: -1}).lean(),
-      User: await Task.find({assignedTo: userId}).populate('createdBy', 'name').sort({createdAt: -1}).lean()
+      Root: await Task.find().sort({ createdAt: -1 }).populate('createdBy', 'name').lean(),
+      Admin: await Task.find({ createdBy: userId }).populate('createdBy', 'name').sort({ createdAt: -1 }).lean(),
+      User: await Task.find({ assignedTo: userId }).populate('createdBy', 'name').sort({ createdAt: -1 }).lean()
     }
   
     const tasks = task[req.roles]
@@ -32,7 +32,7 @@ exports.adminGetAll = async (req, res, next) => {
     validateObjectId(user_id, 'Task')
     if(!user_id && (admin_id === user_id)) throw new CustomError('User id not found', 404)
   
-    const tasks = await Task.find({user_id: user_id}).sort({createdAt: -1}).lean()
+    const tasks = await Task.find({ user_id: user_id }).sort({createdAt: -1}).lean()
     if (!tasks) throw new CustomError('No tasks record found', 404)
   
     res.status(200).json(tasks)
@@ -81,15 +81,15 @@ exports.update = async (req, res, next) => {
     validateObjectId(id, 'Task')
   
     const ownerId = req.user._id
-    const createdBy = await Task.find({createdBy: ownerId}).select('createdBy').lean().exec()
-    const owner = req.roles.includes(ROLES_LIST.Admin) || (createdBy === ownerId)
+    const createdBy = await Task.find({ createdBy: ownerId }).select('createdBy').lean().exec()
+    const owner = req.roles.includes(ROLES_LIST.Admin) && (createdBy === ownerId)
     const updateRight = owner || req.roles.includes(ROLES_LIST.Root)
     if(!updateRight) throw new CustomError('Not authorized to edit this task', 401)
     
-    const task = await Task.findOneAndUpdate({_id: id}, {...req.body }).lean().exec()
+    const task = await Task.findOneAndUpdate({ _id: id }, { ...req.body }).lean().exec()
     if (!task) throw new CustomError('No such task record found', 404)
   
-    const updatedRecord = await Task.find({createdBy: ownerId}).sort({createdAt: -1}).lean()
+    const updatedRecord = await Task.find({ createdBy: ownerId }).sort({createdAt: -1}).lean()
 
     res.status(200).json(updatedRecord)
   } catch (error) {
@@ -105,7 +105,7 @@ exports.delete = async (req, res, next) => {
     
     const ownerId = req.user._id
     const createdBy = await Task.find({ createdBy: ownerId }).select('createdBy').lean().exec()
-    const owner = req.roles.includes(ROLES_LIST.Admin) || (createdBy === ownerId)
+    const owner = req.roles.includes(ROLES_LIST.Admin) && (createdBy === ownerId)
     const deleteRight = owner || req.roles.includes(ROLES_LIST.Root)
     if(!deleteRight) throw new CustomError('Not authorized to delete this task', 401)
   
@@ -142,15 +142,15 @@ exports.assignUser = async (req, res, next) => {
     user_id.map(id => validateObjectId(id, 'User'))
   
     const ownerId = req.user._id
-    const createdBy = await Task.find({createdBy: ownerId}).select('createdBy').lean().exec()
-    const owner = req.roles.includes(ROLES_LIST.Admin) || (createdBy === ownerId)
+    const createdBy = await Task.find({ createdBy: ownerId }).select('createdBy').lean().exec()
+    const owner = req.roles.includes(ROLES_LIST.Admin) && (createdBy === ownerId)
     const createRight = owner || req.roles.includes(ROLES_LIST.Root)
     if(!createRight) throw new CustomError('Not authorized to assign this user', 401)
   
-    const assignTasks = await Task.findByIdAndUpdate(task_id, {$push: {assignedTo: user_id}}).lean().exec()
+    const assignTasks = await Task.findByIdAndUpdate(task_id, { $push: { assignedTo: user_id }}).lean().exec()
     if(!assignTasks) throw new CustomError("Something went wrong, Can't assign tasks", 400)
   
-    const assignUser = user_id.map(async id => await User.findByIdAndUpdate(id, {$push: {tasks: task_id}}).lean().exec())
+    const assignUser = user_id.map(async id => await User.findByIdAndUpdate(id, { $push: { tasks: task_id }}).lean().exec())
     if(!assignUser) throw new CustomError("Something went wrong, Can't assign user", 400)
   
     //return assigned user
@@ -172,15 +172,15 @@ exports.deleteAssign = async (req, res, next) => {
     validateObjectId(task_id, 'Task')
     
     const ownerId = req.user._id
-    const createdBy = await Task.find({createdBy: ownerId}).select('createdBy').lean().exec()
-    const owner = req.roles.includes(ROLES_LIST.Admin) || (createdBy === ownerId)
+    const createdBy = await Task.find({ createdBy: ownerId }).select('createdBy').lean().exec()
+    const owner = req.roles.includes(ROLES_LIST.Admin) && (createdBy === ownerId)
     const deleteRight = owner || req.roles.includes(ROLES_LIST.Root)
     if(!deleteRight) throw new CustomError('Not authorized to delete this user', 401)
   
-    const removeAssign = await Task.findByIdAndUpdate(id, {$pull: {assignedTo: user_id}}).lean().exec()
+    const removeAssign = await Task.findByIdAndUpdate(id, { $pull: { assignedTo: user_id }}).lean().exec()
     if(!removeAssign) throw new CustomError("Something went wrong, Can't delete tasks", 400)
   
-    const removeUser = await User.findByIdAndUpdate(user_id, {$pull: {tasks: id}}).lean().exec()
+    const removeUser = await User.findByIdAndUpdate(user_id, { $pull: { tasks: id }}).lean().exec()
     if(!removeUser) throw new CustomError("Something went wrong, Can't remove tasks from user", 400)
   
     const assignedUser = await Task.findById(id).populate('assignedTo', 'name').select('assignedTo').lean().exec()
