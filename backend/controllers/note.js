@@ -74,7 +74,7 @@ exports.create = async (req, res, next) => {
     const targetUserId = req.body.id // user id that Admin use to update user record
     let idToCreate = userId
     
-    if(targetUserId && (userId !== targetUserId) && (req.roles == ROLES_LIST.Admin)){
+    if(targetUserId && (userId !== targetUserId) && (req.roles.includes(ROLES_LIST.Admin))){
       idToCreate = targetUserId
     }
 
@@ -99,7 +99,7 @@ exports.update = async (req, res, next) => {
     const targetUserId = req.body.id //user id that Admin use to update user record
     let idToUpdate = userId
 
-    if(targetUserId && (userId !== targetUserId) && (req.roles == ROLES_LIST.Admin)){
+    if(targetUserId && (userId !== targetUserId) && (req.roles.includes(ROLES_LIST.Admin))){
       idToUpdate = targetUserId
     }
     

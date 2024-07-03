@@ -14,7 +14,7 @@ import Edit from './Edit'
 
 const Index = ({ tasks }) => {
   const { auth } = useAuthContext()
-  const admin = (auth.roles == ROLES.Admin) || (auth.roles == ROLES.Root)
+  const admin = auth.roles.includes(ROLES.Admin) || auth.roles.includes(ROLES.Root)
 
   return (
     <>

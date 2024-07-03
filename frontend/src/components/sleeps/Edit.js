@@ -37,7 +37,7 @@ const Edit = ({ sleep }) => {
 
     if(!checkChange){
       try {
-        if(targetUser?.userId && (auth.email !== targetUser?.userEmail) && (auth.roles == ROLES.Admin)){
+        if(targetUser?.userId && (auth.email !== targetUser?.userEmail) && (auth.roles.includes(ROLES.Admin))){
           updateSleep.id = targetUser.userId
         }
         const response = await axiosPrivate.patch(`/api/sleeps/${sleep._id}`, updateSleep)

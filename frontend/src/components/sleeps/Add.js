@@ -30,7 +30,7 @@ const Add = () => {
     }
     
     try {
-      const rughtToAdd = auth.roles == ROLES.Admin || auth.roles == ROLES.Root
+      const rughtToAdd = auth.roles.includes(ROLES.Admin) || auth.roles.includes(ROLES.Root)
       const sleep = {sleep: sleepRef.current.value, wake: wakeRef.current.value}
 
       if(targetUser?.userId && (auth.email !== targetUser?.userEmail) && (rughtToAdd)){

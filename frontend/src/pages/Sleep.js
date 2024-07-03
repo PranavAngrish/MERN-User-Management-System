@@ -17,7 +17,7 @@ const Sleep = () => {
   const { sleeps, dispatch } = useSleepsContext()
   const [ error, setError ] = useState(null)
   const axiosPrivate = useAxiosPrivate()
-  const admin = (auth.roles == ROLES.Admin) || (auth.roles == ROLES.Root)
+  const admin = auth.roles.includes(ROLES.Admin) || auth.roles.includes(ROLES.Root)
 
   useEffect(() => {
     let isMounted = true

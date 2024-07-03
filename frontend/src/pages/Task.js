@@ -16,8 +16,7 @@ const Task = () => {
   const { tasks, dispatch } =  useTasksContext()
   const [ error, setError ] = useState(null)
   const axiosPrivate = useAxiosPrivate()
-  const roleToSrting = auth.roles.toString()
-  const admin = (roleToSrting === ROLES.Admin) || (roleToSrting === ROLES.Root)
+  const admin = auth.roles.includes(ROLES.Admin) || auth.roles.includes(ROLES.Root)
 
   const handleBack = () => {
     setTitle("Welcome")
@@ -58,7 +57,7 @@ const Task = () => {
       {auth && (
         <>
           {admin && <Add />}
-          {roleToSrting === ROLES.User && (
+          {auth.roles.includes(ROLES.User) && (
             <div className="d-flex justify-content-between">
               <button className="btn btn-outline-primary mb-2" onClick={handleBack}><BiArrowBack /></button>
             </div>

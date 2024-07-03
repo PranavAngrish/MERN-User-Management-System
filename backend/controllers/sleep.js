@@ -51,11 +51,13 @@ exports.create = async (req, res) => {
     
     if((sleep > wake) || duration == 0) throw Error('Invalid datetime input')
     
-    if(targetUserId && (userId !== targetUserId) && (req.roles == ROLES_LIST.Admin)){
+    if(targetUserId && (userId !== targetUserId) && (req.roles.includes(ROLES_LIST.Admin))){
       idToCreate = targetUserId
     }
 
     const sleeps = await Sleep.create({ sleep, wake, duration, user_id: idToCreate })
+    if(!sleeps) throw new CustomError('Something went wrong, during creating new sleep record', 400)
+    
     res.status(201).json(sleeps)
   } catch (error) {
     res.status(400).json({ error: error.message })
@@ -73,7 +75,7 @@ exports.update = async (req, res) => {
   const userId = req.user._id //normal record update id (user id/admin id) 
   const targetUserId = req.body.id //user id that Admin use to update user record
   let idToUpdate = userId
-  if(targetUserId && (userId !== targetUserId) && (req.roles == ROLES_LIST.Admin)){
+  if(targetUserId && (userId !== targetUserId) && (req.roles.includes(ROLES_LIST.Admin))){
     idToUpdate = targetUserId
   }
 

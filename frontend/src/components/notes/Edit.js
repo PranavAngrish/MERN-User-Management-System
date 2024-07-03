@@ -41,7 +41,7 @@ const Edit = () => {
     const getNoteList = async () => {
       try {
         let response
-        const admin = (auth.roles == ROLES.Admin) || (auth.roles == ROLES.Root)
+        const admin = auth.roles.includes(ROLES.Admin) || auth.roles.includes(ROLES.Root)
         if(targetUser?.userId && (auth.email !== targetUser.userEmail) && admin){
           // Admin view
           response = await axiosPrivate.post('/api/notes/admin-byid', {
@@ -80,7 +80,7 @@ const Edit = () => {
     
     try {
       const tags = tag.map(t => t.value)
-      const rightToEdit = auth.roles == ROLES.Admin || auth.roles == ROLES.Root
+      const rightToEdit = auth.roles.includes(ROLES.Admin) || auth.roles.includes(ROLES.Root)
       const updateNote = {title: titleRef.current.value, text: textRef.current.value, tag: tags}
 
       if(targetUser?.userId && (auth.email !== targetUser?.userEmail) && (rightToEdit)){

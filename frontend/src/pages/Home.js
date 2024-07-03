@@ -12,8 +12,7 @@ const Home = () => {
     const { auth, dispatch } = useAuthContext()
     const { setLink } = usePathContext()
     const { setTargetUser } = useUserContext()
-    const roleToSrting = auth?.roles.toString()
-    const accessRight = (roleToSrting === ROLES.Admin) || (roleToSrting === ROLES.Root)
+    const accessRight = auth?.roles.includes(ROLES.Admin) || auth?.roles.includes(ROLES.Root)
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search)
