@@ -6,7 +6,7 @@ import { GiNightSleep } from 'react-icons/gi'
 import { FaTasks, FaStickyNote } from 'react-icons/fa'
 import { useUserContext } from '../../context/user'
 
-const View = ({user}) => {
+const View = ({ user }) => {
   const [show, setShow] = useState(false)
   const { setTargetUser } = useUserContext()
  
@@ -23,8 +23,9 @@ const View = ({user}) => {
           <Modal.Title>View Record</Modal.Title>
         </Modal.Header> 
         <Modal.Body>
-          <Link to="/note" onClick={handleClick}><button className="btn btn-outline-primary mb-3"><FaStickyNote/>&ensp;Note Management</button></Link><br/>
-          <Link to="/sleep" onClick={handleClick}><button className="btn btn-outline-primary"><GiNightSleep/>&ensp;Sleep Hours Management</button></Link>
+          <Link to="/task" onClick={ handleClick }><button className="btn btn-outline-primary mb-3"><FaTasks/>&ensp;Task Management</button></Link><br/>
+          <Link to="/note" onClick={ handleClick }><button className="btn btn-outline-primary mb-3"><FaStickyNote/>&ensp;Note Management</button></Link><br/>
+          <Link to="/sleep" onClick={ handleClick }><button className="btn btn-outline-primary"><GiNightSleep/>&ensp;Sleep Hours Management</button></Link>
         </Modal.Body>
       </Modal>
     </>

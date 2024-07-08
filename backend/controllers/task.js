@@ -23,7 +23,7 @@ exports.getAll = async (req, res, next) => {
   }
 }
 
-exports.adminGetAll = async (req, res, next) => {
+exports.inspect = async (req, res, next) => {
   try {
     const admin_id = req.user._id
     const user_id = req.body.id
@@ -31,11 +31,11 @@ exports.adminGetAll = async (req, res, next) => {
     validateObjectId(user_id, 'Task')
     if(!user_id && (admin_id === user_id)) throw new CustomError('User id not found', 404)
   
-    const tasks = await Task.find({ user_id: user_id }).sort({createdAt: -1}).lean()
-    if (!tasks) throw new CustomError('No tasks record found', 404)
+    const tasks = await Task.find({ assignedTo: user_id }).sort({ createdAt: -1 }).lean()
+    if (!tasks?.length) throw new CustomError('No tasks record found', 404)
+    console.log(tasks)
   
     res.status(200).json(tasks)
-
   } catch (error) {
     next(error)
   }
