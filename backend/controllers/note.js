@@ -21,8 +21,8 @@ exports.adminGetAll = async (req, res, next) => {
     const admin_id = req.user._id
     const user_id = req.body.id
   
-    if(!user_id && (admin_id == user_id)) throw new CustomError('User id not found', 404)
-    validateObjectId(user_id, 'Note')
+  validateObjectId(user_id, 'Note')
+  if(!user_id && (admin_id === user_id)) throw new CustomError('User id not found', 404)
   
     const notes = await Note.find({user_id: user_id}).sort({ createdAt: -1 }).lean()
     if (!notes?.length) throw new CustomError('No notes record found', 404)

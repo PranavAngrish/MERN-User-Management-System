@@ -25,6 +25,7 @@ const Note = () => {
   const [ titles, setTitles ] = useState("")
   const [ notFound, setNotFound ] = useState(false)
   const axiosPrivate = useAxiosPrivate()
+  const admin = auth.roles.includes(ROLES.Admin) || auth.roles.includes(ROLES.Root)
 
   const statusBar = {
     Root: "bg-danger",
@@ -41,19 +42,17 @@ const Note = () => {
 
     const getNoteList = async () => {
       try {
-        let response
-        const admin = auth.roles.includes(ROLES.Admin) || auth.roles.includes(ROLES.Root)
-        if(targetUser?.userId && (auth.email !== targetUser.userEmail) && admin){
-          // Admin view
-          response = await axiosPrivate.post('/api/notes/admin-all', {
-            id: targetUser.userId,
-            signal: abortController.signal
-          })
-        }else{
-          response = await axiosPrivate.get('/api/notes', {
-            signal: abortController.signal
-          })
-        }
+        const endpoint = targetUser?.userId && admin ? '/api/notes/admin-all' : '/api/notes'
+        const method = targetUser?.userId && admin ? 'post' : 'get'
+        const data = targetUser?.userId && admin ? { id: targetUser.userId } : undefined
+  
+        const response = await axiosPrivate({
+          method,
+          url: endpoint,
+          data,
+          signal: abortController.signal
+        })
+
         isMounted && setNotes(response.data)
       } catch (err) {
         setNotes()
