@@ -3,33 +3,44 @@ import { Link, useNavigate  } from 'react-router-dom'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { MdOutlineMailLock } from 'react-icons/md'
 import axiosPublic from '../../../api/axios' 
+const validator = require('validator')
 
 const RestPassword = ({ email }) => {
   const navigate = useNavigate()
   const passwordRef = useRef('')
   const confirmPasswordRef = useRef('')
   const [ error, setError ] = useState(null)
+  const [ isLoading, setIsLoading ] = useState(false)
   const [ changeIcon, setChangeIcon ] = useState(false)
 
   const handleShowPassword  =  (e, ref) => {
     e.preventDefault()
-    const isPassword = ref.current.type === "password";
-    ref.current.type = isPassword ? "text" : "password";
+    const isPassword = ref.current.type === "password"
+    ref.current.type = isPassword ? "text" : "password"
     setChangeIcon(isPassword)
+  }
+
+  const validatePasswordField = (ref, fieldName) => {
+    if (validator.isEmpty(ref.current?.value ?? '', { ignore_whitespace: true })) throw new Error(`${fieldName} is required`)
   }
 
   const  handleSubmit = async (e) => {
     e.preventDefault()
+    setIsLoading(true)
     
     try {
-      const passwordMatch = passwordRef.current.value === confirmPasswordRef.current.value
-      if(!passwordMatch) throw Error("Passwords don't match")
-      await axiosPublic.post('/api/auth/rest-password', {email, password: passwordRef.current.value})
+      validatePasswordField(passwordRef, 'Password');
+      validatePasswordField(confirmPasswordRef, 'Confirm Password')
+
+      if(passwordRef.current.value !== confirmPasswordRef.current.value) throw Error("Passwords don't match")
+      await axiosPublic.post('/api/auth/rest-password', { email, password: passwordRef.current.value })
+      setIsLoading(false)
       setError(null)
       navigate('/login')
      }catch (error) {
       // console.log(error)
       setError(error.response?.data.error ? error.response.data.error : error.message)
+      setIsLoading(false)
       if(!error.response.data.passwordUpdated){
         setTimeout(() => navigate('/not-found'), 10000)
       }
@@ -52,7 +63,7 @@ const RestPassword = ({ email }) => {
               <input className="inputs" type="password" ref={confirmPasswordRef} placeholder='Confirm New Password'/>
               <button className="btn mb-2" onClick={(e) => handleShowPassword(e, confirmPasswordRef)}>{changeIcon ? <FaEyeSlash/> : <FaEye/>}</button>
             </div>
-            <button type="submit" className="otp-button btn btn-primary mb-1">Reset Password</button>
+            <button type="submit" className="otp-button btn btn-primary mb-1" disabled={isLoading}>{isLoading ? 'Sending...' : 'Reset Password'}</button>
           </form>
           {error &&  (<div className="error">{error} 
             {error==="Password not strong enough" && 

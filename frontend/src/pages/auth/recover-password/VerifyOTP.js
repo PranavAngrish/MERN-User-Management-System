@@ -7,6 +7,7 @@ const VerifyOTP = ({ email, setOTPVerify }) => {
   const navigate = useNavigate()
   const inputs = useRef([])
   const [ error, setError ] = useState(null)
+  const [ isLoading, setIsLoading ] = useState(false)
   const [ otp, setOtp ] = useState(Array(6).fill(''))
 
   const handleChange = (e, index) => {
@@ -40,14 +41,19 @@ const VerifyOTP = ({ email, setOTPVerify }) => {
 
   const  handleSubmit = async (e) => {
     e.preventDefault()
+    setIsLoading(true)
 
     try {
       if(!(/^\d{6}$/.test(otp.join('')))) return setError('Invalid OTP')
+
       const response = await axiosPublic.post('/api/auth/verify-OTP', { email, otp: otp.join('') })
+
       setOTPVerify(response.data.otpVerified)
+      setIsLoading(false)
       setError(null)
     } catch (error) {
       setError(error.response.data.error)
+      setIsLoading(false)
       if(!error.response.data.otpVerifie){
         setTimeout(() => navigate('/not-found'), 10000)
       }
@@ -76,7 +82,7 @@ const VerifyOTP = ({ email, setOTPVerify }) => {
                     ref={(el) => (inputs.current[index] = el)} />
                 ))}
               </div>
-              <button type="submit" className="otp-button btn btn-primary mb-1">Verify OTP</button>
+              <button type="submit" className="otp-button btn btn-primary mb-1" disabled={isLoading}>{isLoading ? 'Sending...' : 'Verify OTP'}</button>
             </form>
             {error && <div className="error">{error}</div>}
           </div>
